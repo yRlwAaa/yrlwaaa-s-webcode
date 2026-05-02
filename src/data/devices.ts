@@ -61,10 +61,10 @@ export const devicesData: DeviceCategory = {
 		{
 			name:"iPad Pro 10.5 2017",
 			image:"images/device/ipad.png",
-			specs:"银色/A10X/4GB/64GB/2224 x 1668 分辨率，264 ppi/ProMotion 自适应刷新率技术 120Hz/广色域显示 (P3)/Apple Pencil 1代/1200 万像素摄像头/ƒ/1.8 光圈/4K 视频拍摄 (30 fps)",
+			specs:"银色/A10X/4GB/64GB/2224 x 1668 分辨率,264 ppi/ProMotion 自适应刷新率技术 120Hz/广色域显示 (P3)/Apple Pencil 1代/1200 万像素摄像头/ƒ/1.8 光圈/4K 视频拍摄 (30 fps)",
 			description:"第一台平板，购买于高三下，成功体验到了无纸化学习的方便，虽然没想象中那么神，但是对我来说也是必不可少的学习工具了。",
 			link:"https://support.apple.com/zh-cn/111927/"
-		}，
-	]，
+		},
+	],
 
 };
