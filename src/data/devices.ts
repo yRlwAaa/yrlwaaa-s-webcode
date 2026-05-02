@@ -46,6 +46,7 @@ export const devicesData: DeviceCategory = {
 			image:"/images/device/pc.png",
 			specs:"E52680v4/Samsung DDR4 8GB*2/Greatwall 128GB SSD,WD 4TB HDD/RX580 4GB/X99-C610/航嘉600w",
 			description:" 第一台亲手diy的神机！高中以来从e31220v2+8GB内存+gtx650到现在的主机，他是我正式迈入信息世界的大门。",
+			link: "#",
 		},
 	],
 	手环:[
