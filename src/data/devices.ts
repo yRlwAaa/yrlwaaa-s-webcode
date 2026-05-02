@@ -38,7 +38,7 @@ export const devicesData: DeviceCategory = {
 			image: "/images/device/macbook.png",
 			specs: "M1/8GB/256GB/touch id",
 			description:
-				"代码剪辑机器，图书馆必备。"
+				"代码剪辑机器，图书馆必备。",
 			link:"https://support.apple.com/zh-cn/111883/",
 		}
 	],
