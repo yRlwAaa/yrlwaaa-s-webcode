@@ -14,24 +14,32 @@ export type DeviceCategory = Record<string, Device[]> & {
 };
 
 export const devicesData: DeviceCategory = {
-	OnePlus: [
+	Mobilephone: [
 		{
-			name: "OnePlus 13T",
-			image: "/images/device/oneplus13t.webp",
-			specs: "Gray / 16G + 1TB",
+			name: " iqoo neo 10",
+			image: "/images/device/iqoo.webp",
+			specs: "/ 16G+16G + 1TB",
 			description:
 				"Flagship performance, Hasselblad imaging, 80W SuperVOOC.",
-			link: "https://www.oneplus.com/cn/13t",
+			link: "https://www.vivo.com.cn/vivo/iqooneo10/",
 		},
 	],
-	Router: [
+	Computer: [
 		{
-			name: "GL-MT3000",
-			image: "/images/device/mt3000.webp",
-			specs: "1000Mbps / 2.5G",
+			name: "ASUS TUF Gaming FX608JP",
+			image: "/images/device/tx.png",
+			specs: "i7-13650HX/16GB/1TB/RTX5070",
 			description:
-				"Portable WiFi 6 router suitable for business trips and home use.",
-			link: "https://www.gl-inet.cn/products/gl-mt3000/",
+				"主力游戏机。",
+			link: "https://www.asus.com.cn/laptops/for-gaming/tuf-gaming/asus-tuf-gaming-f16-2025/techspec/",
 		},
+		{
+			name: "Macbook air M1",
+			image: "/images/device/macbook.png",
+			specs: "M1/8GB/256GB/touch id",
+			description:
+				"代码剪辑机器，图书馆必备。"
+			link:"https://support.apple.com/zh-cn/111883"
+		}
 	],
 };
