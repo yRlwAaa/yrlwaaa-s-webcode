@@ -20,7 +20,7 @@ export const devicesData: DeviceCategory = {
 			image: "/images/device/iqoo.webp",
 			specs: "16G+16G + 1TB",
 			description:
-				"骁龙8 Gen3 3.3GHz*1+3.0GHz*2+3.2GHz*3+2.3GHz*2/16GB+16GB/1TB/23.43Wh/120W/144Hz",
+				"骁龙8 Gen3/16GB+16GB/1TB/23.43Wh/120W/144Hz",
 			link: "https://www.vivo.com.cn/vivo/iqooneo10/",
 		},
 	],
