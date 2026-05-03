@@ -67,5 +67,14 @@ export const devicesData: DeviceCategory = {
 			link:"https://support.apple.com/zh-cn/111927/"
 		},
 	],
+	NAS:[
+		{
+			name:"Synology DS220j",
+			image:"/images/device/nas.png",
+			specs:" Realtek RTD1296 四核 1.4 GHz/512 MB DDR4/WD 4Tb/",
+			description:"第一台成品NAS，终于体会到了无需折腾的方便。但性能有点太烂了，并且群晖自带的qc与我的内网穿透速度都不是很理想，放家里只能单纯备份文件了。",
+			link:"https://cndl.synology.cn/download/Document/Hardware/DataSheet/DiskStation/20-year/DS220j/chs/Synology_DS220j_Data_Sheet_chs.pdf"
+		}
+	]
 
 };
