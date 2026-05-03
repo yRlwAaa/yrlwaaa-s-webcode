@@ -2,22 +2,20 @@ import type { TimelineItem } from "../components/features/timeline/types";
 
 export const timelineData: TimelineItem[] = [
 	{
-		id: "current-study",
-		title: "Studying Computer Science and Technology",
+		id: "my-birth",
+		title: "我的出生",
 		description:
-			"Currently studying Computer Science and Technology, focusing on web development and software engineering.",
-		type: "education",
-		startDate: "2022-09-01",
-		location: "Beijing",
-		organization: "Beijing Institute of Technology",
-		skills: ["Java", "Python", "JavaScript", "HTML/CSS", "MySQL"],
+			"没有我的出生，也就不会发生未来这些美好的故事啦。",
+		type: "achievement",
+		startDate: "2007-03-05",
+		location: "Wenzhou",
+		organization: "无",
+		skills: ["精准投胎"],
 		achievements: [
-			"Current GPA: 3.6/4.0",
-			"Completed data structures and algorithms course project",
-			"Participated in multiple course project developments",
+			"成为人类",
 		],
 		icon: "material-symbols:school",
-		color: "#059669",
+		color: "#ffd452",
 		featured: true,
 	},
 	{
