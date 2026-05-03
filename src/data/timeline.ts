@@ -46,7 +46,6 @@ export const timelineData: TimelineItem[] = [
 		startDate: "2018-10-01",
 		location: "Wenzhou",
 		organization: "上海宽娱数码科技有限公司",
-		position: "Frontend Development Intern",
 		skills: ["剪辑", "Minecraft", "File management"],
 		achievements: [
 			"600fans get！",
