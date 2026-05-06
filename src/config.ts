@@ -297,6 +297,12 @@ export const navBarConfig: NavBarConfig = {
 					external: true,
 					icon: "fa7-brands:x-twitter",
 				},
+				{
+					name:"Twitch",
+					url:"https://www.twitch.tv/yrlwa",
+					external:true,
+					icon:"fa7-brands:twitch",
+				},
 				
 			],
 		},
