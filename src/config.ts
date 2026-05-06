@@ -394,6 +394,11 @@ export const profileConfig: ProfileConfig = {
 			icon: "fa7-brands:x-twitter",
 			url: "https://x.com/yRlwAaa",
 		},
+		{
+			name:"Twitch",
+			icon:"fa7-brands:twitch",
+			url:"https://www.twitch.tv/yrlwa",
+		},
 	],
 };
 
