@@ -18,7 +18,7 @@ const diaryData: DiaryItem[] = [
 		content:
 			"X粉丝达到100！！！",
 		date: "2026-05-05T16:40:00Z",
-		images: ["/images/diary/微信图片_20260506124340_502_110.jpg", "/images/diary/微信图片_20260506124342_503_110.jpg", "/images/diary/微信图片_20260506124344_504_110.jpg"],
+		images: ["/images/diary/微信图片_20260506124340_502_110.jpg", "/images/diary/微信图片_20260506124342_503_110.jpg", "/images/diary/微信图片_20260506124952_505_110.jpg", "/images/diary/微信图片_20260506124344_504_110.jpg"],
 	},
 ];
 
