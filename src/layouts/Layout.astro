@@ -221,6 +221,19 @@ if (siteConfig.font) {
 		<!-- 页面顶部渐变高光效果 - 只在full和semifull模式下显示 -->
 		{shouldShowTopHighlight && <div class="top-gradient-highlight" />}
 
+		<script>
+			window.musicPlayerConfig = {
+				enable: true,
+				showFloatingPlayer: true,
+				floatingEntryMode: "fab",
+				mode: "meting",
+				meting_api: "https://api.injahow.cn/meting",
+				id: "14317071226",
+				server: "netease",
+				type: "playlist"
+			};
+		</script>
+
 		<ConfigCarrier />
 		<PageProgressBar
 			enable={siteConfig.pageProgressBar?.enable ?? false}
