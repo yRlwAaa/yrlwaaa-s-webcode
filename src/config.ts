@@ -543,12 +543,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			class: "onload-animation",
 			animationDelay: 100,
 		},
-		{
-			type: "site-stats",
-			position: "sticky",
-			class: "onload-animation",
-			animationDelay: 120,
-		},
+		
 		{
 			// 组件类型：分类组件
 			type: "categories",
