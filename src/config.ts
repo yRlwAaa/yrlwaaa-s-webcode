@@ -544,7 +544,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			animationDelay: 100,
 		},
 		{
-			type: "visitor-stats",
+			type: "site-stats",
 			position: "sticky",
 			class: "onload-animation",
 			animationDelay: 120,
@@ -593,7 +593,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			// 组件类型：站点统计组件
 			type: "visitor-stats",
 			// 组件位置
-			position: "top",
+			position: "sticky",
 			// CSS 类名
 			class: "onload-animation",
 			// 动画延迟时间
@@ -614,7 +614,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 	// 侧栏组件布局配置
 	components: {
 		left: ["profile", "announcement", "tags", "card-toc"],
-		right: ["site-stats", "calendar", "categories", "music-sidebar"],
+		right: ["visitor-stats", "calendar", "categories", "music-sidebar"],
 		drawer: [
 			"profile",
 			"announcement",
