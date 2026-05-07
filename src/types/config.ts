@@ -375,6 +375,7 @@ export type WidgetComponentType =
 	| "music-sidebar"
 	| "pio" // 添加 pio 组件类型
 	| "site-stats" // 站点统计组件
+	| "visitor-stats" // 访客统计组件
 	| "calendar" // 日历组件
 	| "custom";
 

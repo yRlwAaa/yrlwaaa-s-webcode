@@ -1,0 +1,21 @@
+---
+const res = await fetch(
+  "https://stats-api.yrlwa666.workers.dev"
+);
+
+const data = await res.json();
+---
+
+<div class="card-base p-4">
+  <div class="flex items-center justify-between">
+
+    <span class="text-sm opacity-80">
+      👁️ 总访问
+    </span>
+
+    <span class="font-bold text-lg">
+      {data.pv}
+    </span>
+
+  </div>
+</div>
