@@ -544,6 +544,12 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			animationDelay: 100,
 		},
 		{
+			type: "visitor-stats",
+			position: "sticky",
+			class: "onload-animation",
+			animationDelay: 120,
+		}
+		{
 			// 组件类型：分类组件
 			type: "categories",
 			// 组件位置："sticky" 表示粘性定位，可滚动
