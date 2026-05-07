@@ -18,8 +18,15 @@ const diaryData: DiaryItem[] = [
 		content:
 			"X粉丝达到100！！！",
 		date: "2026-05-05T16:40:00Z",
-		images: ["/images/diary/微信图片_20260506124340_502_110.jpg", "/images/diary/微信图片_20260506124342_503_110.jpg", "/images/diary/微信图片_20260506124952_505_110.jpg", "/images/diary/微信图片_20260506124344_504_110.jpg"],
+		images: ["/images/diary/2026-5-5/微信图片_20260506124340_502_110.jpg", "/images/diary/2026-5-5/微信图片_20260506124342_503_110.jpg", "/images/diary/2026-5-5/微信图片_20260506124952_505_110.jpg", "/images/diary/2026-5-5/微信图片_20260506124344_504_110.jpg"],
 	},
+	{
+		id: 2,
+		content:
+			"修复了网站主页图片显示问题和音乐api调用问题。",
+		date: "2026-05-07T18:00:00Z",
+		images: ["/images/diary/2026-5-7/1.png","/images/diary/2026-5-7/2.jpg"],
+	}
 ];
 
 // 获取日记列表（按时间倒序）
