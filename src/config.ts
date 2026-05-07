@@ -586,7 +586,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 		},
 		{
 			// 组件类型：站点统计组件
-			type: "visitor-stats",
+			type: "site-stats",
 			// 组件位置
 			position: "sticky",
 			// CSS 类名
@@ -609,7 +609,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 	// 侧栏组件布局配置
 	components: {
 		left: ["profile", "announcement", "tags", "card-toc"],
-		right: ["visitor-stats", "calendar", "categories", "music-sidebar"],
+		right: ["site-stats", "calendar", "categories", "music-sidebar"],
 		drawer: [
 			"profile",
 			"announcement",
