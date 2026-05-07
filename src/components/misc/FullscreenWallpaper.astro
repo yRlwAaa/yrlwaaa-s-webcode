@@ -196,8 +196,15 @@ const renderGroups = [
 			}
 
 			const STORAGE_KEY = 'mizuki_wallpaper_index';
-			const savedIndex = parseInt(sessionStorage.getItem(STORAGE_KEY) || '0');
+			
 
+const savedIndexRaw = parseInt(
+	sessionStorage.getItem(STORAGE_KEY) || '0'
+);
+
+const savedIndex = Number.isFinite(savedIndexRaw)
+	? savedIndexRaw
+	: 0;
 			const groups = [
 				container.querySelectorAll('.hidden.md\\:block [data-carousel-item]'),
 				container.querySelectorAll('.block.md\\:hidden [data-carousel-item]')
