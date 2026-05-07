@@ -4,13 +4,12 @@
   import { cubicOut } from "svelte/easing";
   import { fly } from "svelte/transition";
 
-  // 直接覆盖原配置
+  // 硬编码配置
   const METING_API = "https://api.injahow.cn/meting";
   const SERVER = "netease";
-  const PLAYLIST_ID = "14317071226"; // 你的正确歌单ID
+  const PLAYLIST_ID = "14317071226";
   const TYPE = "playlist";
 
-  // 全局状态
   let playlist: any[] = [];
   let currentIndex = 0;
   let audio: HTMLAudioElement | null = null;
@@ -20,26 +19,15 @@
   let duration = 0;
   let volume = 0.7;
   let isMuted = false;
-  let isShuffled = false;
-  let repeatMode: 'none' | 'one' | 'all' = 'none';
   let showPlaylist = false;
   let isExpanded = false;
   let isHidden = false;
   let showError = false;
-  let errorMessage = '';
+  let errorMessage = "";
 
-  // 辅助函数
-  function formatTime(seconds: number): string {
-    if (isNaN(seconds)) return '0:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  }
-
-  // 核心API请求
   async function fetchPlaylist() {
     isLoading = true;
-    const url = `${METING_API}/?server=${SERVER}&type=${TYPE}&id=${PLAYLIST_ID}`;
+    const url = `${METING_API}?server=${SERVER}&type=${TYPE}&id=${PLAYLIST_ID}`;
     console.log("Fetching playlist:", url);
     try {
       const response = await fetch(url);
@@ -52,12 +40,12 @@
           await playSong(0);
         }
       } else {
-        throw new Error('Invalid data format');
+        throw new Error("Invalid data format");
       }
     } catch (error: any) {
-      console.error('❌ 加载歌单失败:', error);
+      console.error("❌ 加载歌单失败:", error);
       showError = true;
-      errorMessage = error.message || '加载歌单失败，请稍后重试';
+      errorMessage = error.message || "加载歌单失败，请稍后重试";
     } finally {
       isLoading = false;
     }
@@ -74,20 +62,14 @@
       isLoading = true;
       if (!audio) {
         audio = new Audio();
-        audio.addEventListener('timeupdate', () => {
+        audio.addEventListener("timeupdate", () => {
           if (audio) currentTime = audio.currentTime;
         });
-        audio.addEventListener('durationchange', () => {
+        audio.addEventListener("durationchange", () => {
           if (audio) duration = audio.duration;
         });
-        audio.addEventListener('ended', () => {
-          if (repeatMode === 'one') {
-            playSong(currentIndex);
-          } else if (repeatMode === 'all' || currentIndex < playlist.length - 1) {
-            playSong((currentIndex + 1) % playlist.length);
-          } else {
-            isPlaying = false;
-          }
+        audio.addEventListener("ended", () => {
+          next();
         });
       }
       audio.src = song.url;
@@ -96,7 +78,7 @@
       isPlaying = true;
       isLoading = false;
     } else {
-      console.warn('歌曲URL无效', song);
+      console.warn("歌曲URL无效", song);
       showError = true;
       errorMessage = `无法播放: ${song?.name}`;
       isLoading = false;
@@ -131,40 +113,14 @@
     playSong(newIndex);
   }
 
-  function setProgress(e: MouseEvent) {
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
-    if (audio && duration) audio.currentTime = percent * duration;
-  }
-
-  function setVolume(percent: number) {
-    let newVol = Math.max(0, Math.min(1, percent));
-    volume = newVol;
-    if (audio) audio.volume = isMuted ? 0 : volume;
-    if (newVol > 0 && isMuted) toggleMute();
-  }
-
   function toggleMute() {
     isMuted = !isMuted;
     if (audio) audio.volume = isMuted ? 0 : volume;
   }
 
-  function toggleShuffle() {
-    isShuffled = !isShuffled;
-    if (isShuffled) {
-      // 简单的洗牌逻辑，可选实现
-    }
-  }
-
-  function toggleRepeat() {
-    const modes: ('none' | 'one' | 'all')[] = ['none', 'one', 'all'];
-    const currentIdx = modes.indexOf(repeatMode);
-    repeatMode = modes[(currentIdx + 1) % modes.length];
-  }
-
   function hideError() {
     showError = false;
-    errorMessage = '';
+    errorMessage = "";
   }
 
   onMount(() => {
@@ -174,13 +130,11 @@
   onDestroy(() => {
     if (audio) {
       audio.pause();
-      audio.src = '';
+      audio.src = "";
       audio = null;
     }
   });
 </script>
-
-<svelte:window on:keydown={handleVolumeKeyDown} />
 
 {#if showError}
 <div class="fixed bottom-20 right-4 z-[60] max-w-sm">
@@ -194,11 +148,9 @@
 </div>
 {/if}
 
-<div class="music-player fixed bottom-4 right-4 z-50 transition-all duration-300 ease-in-out"
-     class:expanded={isExpanded} class:hidden-mode={isHidden}>
-  <!-- Mini Player UI 简化 -->
+<div class="music-player fixed bottom-4 right-4 z-50 transition-all duration-300 ease-in-out" class:expanded={isExpanded} class:hidden-mode={isHidden}>
   <div class="mini-player">
-    <button on:click={togglePlay}>
+    <button onclick={togglePlay}>
       {isPlaying ? '⏸️' : '▶️'}
     </button>
     <span>{playlist[currentIndex]?.name} - {playlist[currentIndex]?.artist}</span>
