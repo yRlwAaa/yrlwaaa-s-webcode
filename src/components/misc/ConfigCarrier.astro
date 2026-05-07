@@ -1,49 +1,36 @@
-export const sidebarLayoutConfig: SidebarLayoutConfig = {
-	properties: [
-		{
-			type: "profile",
-			position: "top",
-			class: "onload-animation",
-			animationDelay: 0,
-		},
-		{
-			type: "announcement",
-			position: "top",
-			class: "onload-animation",
-			animationDelay: 50,
-		},
-		{
-			type: "music-sidebar",
-			position: "sticky",
-			class: "onload-animation",
-			animationDelay: 100,
-		},
-		{
-			type: "categories",
-			position: "sticky",
-			class: "onload-animation",
-			animationDelay: 150,
-			responsive: {
-				collapseThreshold: 5,
-			},
-		},
-		{
-			type: "card-toc",
-			position: "sticky",
-			class: "onload-animation",
-			animationDelay: 200,
-		},
-		{
-			type: "visitor-stats",
-			position: "top",
-			class: "onload-animation",
-			animationDelay: 200,
-		},
-		{
-			type: "calendar",
-			position: "top",
-			class: "onload-animation",
-			animationDelay: 250,
-		}
-	],
+---
+import { expressiveCodeConfig, siteConfig } from "@/config";
+
+const toc = siteConfig.toc ?? {
+	enable: false,
+	depth: 2,
+	useJapaneseBadge: false,
 };
+---
+
+<div
+	id="config-carrier"
+	data-hue={siteConfig.themeColor.hue}
+	data-hide-code-blocks-during-transition={
+		expressiveCodeConfig.hideDuringThemeTransition ? "true" : "false"
+	}
+></div>
+
+<script
+	is:inline
+	define:vars={{
+		tocEnable: toc.enable,
+		tocDepth: toc.depth,
+		tocUseJapaneseBadge: toc.useJapaneseBadge,
+	}}
+>
+	window.siteConfig = window.siteConfig || {};
+
+	window.siteConfig.toc = {
+		enable: tocEnable,
+		depth: tocDepth,
+		useJapaneseBadge: tocUseJapaneseBadge,
+	};
+
+	console.log("TOC Config:", window.siteConfig.toc);
+</script>
