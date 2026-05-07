@@ -548,7 +548,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			position: "sticky",
 			class: "onload-animation",
 			animationDelay: 120,
-		}
+		},
 		{
 			// 组件类型：分类组件
 			type: "categories",
