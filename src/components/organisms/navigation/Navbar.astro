@@ -117,9 +117,9 @@ const iconWebpSrc = hasIconPngFallback ? iconSrc.replace(/\.png$/i, ".webp") : i
                     <Icon name="material-symbols:language" class="text-[1.25rem]"></Icon>
                 </button>
                 <div class="absolute right-0 top-full mt-1 bg-[var(--card-bg)] border border-[var(--line-color)] rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 min-w-[100px]">
-                    <a href="/" class="block px-4 py-2 hover:bg-[var(--btn-regular-bg)] text-sm">中文</a>
-                    <a href="/en/" class="block px-4 py-2 hover:bg-[var(--btn-regular-bg)] text-sm">English</a>
-                    <a href="/ja/" class="block px-4 py-2 hover:bg-[var(--btn-regular-bg)] text-sm">日本語</a>
+                    <button data-lang="zh_CN" class="lang-option block w-full text-left px-4 py-2 hover:bg-[var(--btn-regular-bg)] text-sm">中文</button>
+                    <button data-lang="en" class="lang-option block w-full text-left px-4 py-2 hover:bg-[var(--btn-regular-bg)] text-sm">English</button>
+                    <button data-lang="ja" class="lang-option block w-full text-left px-4 py-2 hover:bg-[var(--btn-regular-bg)] text-sm">日本語</button>
                 </div>
             </div>
             <button aria-label="Menu" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 md:!hidden" id="nav-menu-switch">
@@ -263,6 +263,16 @@ if (document.readyState === 'loading') {
 } else {
     initSemifullScrollDetection();
 }
+
+// 语言切换
+document.querySelectorAll('.lang-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const lang = btn.dataset.lang;
+        document.cookie = `lang=${lang}; path=/; max-age=31536000`;
+        localStorage.setItem('lang', lang);
+        window.location.reload();
+    });
+});
 </script>
 
 {import.meta.env.PROD && <script is:inline define:vars={{scriptUrl: url('/pagefind/pagefind.js')}}>
