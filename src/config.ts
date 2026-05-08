@@ -60,6 +60,7 @@ export const siteConfig: SiteConfig = {
 		icon: "assets/home/home.webp",
 		// 网站Logo图片路径
 		logo: "assets/home/default-logo.webp",
+		showLanguageSwitch: true,
 	},
 
 	// 页面自动缩放配置
