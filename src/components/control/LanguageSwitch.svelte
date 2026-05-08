@@ -1,5 +1,7 @@
 <script lang="ts">
-	let currentLang = localStorage.getItem("lang") || "zh_CN";
+	import { onMount } from "svelte";
+
+	let currentLang = "zh_CN";
 
 	const languages = [
 		{ code: "zh_CN", name: "中文" },
@@ -7,10 +9,22 @@
 		{ code: "ja", name: "日本語" },
 	];
 
+	onMount(() => {
+		// 读取当前语言
+		const cookieLang = document.cookie.replace(
+			/(?:(?:^|.*;\s*)lang\s*=\s*([^;]*).*$)|^.*$/,
+			"$1",
+		);
+		const storageLang = localStorage.getItem("lang");
+		currentLang = cookieLang || storageLang || "zh_CN";
+	});
+
 	function switchLanguage(lang: string) {
 		currentLang = lang;
+		// 设置 cookie 有效期 365 天
+		document.cookie = `lang=${lang}; path=/; max-age=31536000`;
 		localStorage.setItem("lang", lang);
-		// 刷新页面让翻译生效
+		// 重新加载页面让 i18n 系统生效
 		window.location.reload();
 	}
 </script>
@@ -30,18 +44,16 @@
 	.lang-switch {
 		display: flex;
 		gap: 0.25rem;
-		background: var(--card-bg);
-		border-radius: 9999px;
-		padding: 0.25rem;
-		border: 1px solid var(--line-color);
+		margin-left: 0.5rem;
 	}
 	button {
-		padding: 0.25rem 0.75rem;
-		border-radius: 9999px;
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.375rem;
 		font-size: 0.75rem;
 		cursor: pointer;
 		background: transparent;
 		color: var(--content-meta);
+		white-space: nowrap;
 	}
 	button.active {
 		background: var(--primary);
@@ -49,5 +61,15 @@
 	}
 	button:hover:not(.active) {
 		background: var(--btn-regular-bg);
+	}
+
+	@media (max-width: 768px) {
+		.lang-switch {
+			margin-left: 0.25rem;
+		}
+		button {
+			padding: 0.125rem 0.375rem;
+			font-size: 0.7rem;
+		}
 	}
 </style>
