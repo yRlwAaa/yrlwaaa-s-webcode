@@ -26,6 +26,13 @@ const diaryData: DiaryItem[] = [
 			"修复了网站主页图片显示问题和音乐api调用问题。",
 		date: "2026-05-07T18:00:00Z",
 		images: ["/images/diary/2026-5-7/1.png","/images/diary/2026-5-7/2.jpg"],
+	},
+	{
+		id: 3,
+		content:
+			"添加了主页显示访问人数的功能，分为总访问人数与今日访问。",
+		date: "2026-05-08T14:00:00Z",
+		images: ["/images/diary/2026-5-8/1.png","/images/diary/2026-5-8/2.png"],
 	}
 ];
 
