@@ -73,9 +73,6 @@ const lastPostDate = latestPost
 	? latestPost.data.published.toISOString()
 	: null;
 
-// 从环境变量获取 Worker URL（需要在 .env 中配置）
-const WORKER_URL = import.meta.env.PUBLIC_WORKER_URL || "https://你的worker地址/api/stats";
-
 const stats = [
 	{
 		icon: "material-symbols:article-outline",
@@ -101,7 +98,7 @@ const stats = [
 	{
 		icon: "material-symbols:calendar-clock-outline",
 		label: i18n(I18nKey.siteStatsRunningDays),
-		value: 0, // 将由客户端更新
+		value: 0,
 		suffix: i18n(I18nKey.siteStatsDays).replace("{days}", ""),
 		dynamic: true,
 		id: "running-days",
@@ -109,16 +106,15 @@ const stats = [
 	{
 		icon: "material-symbols:ecg-heart-outline",
 		label: i18n(I18nKey.siteStatsLastUpdate),
-		value: 0, // 将由客户端更新
+		value: 0,
 		suffix: i18n(I18nKey.siteStatsDaysAgo).replace("{days}", ""),
 		dynamic: true,
 		id: "last-update",
 	},
-	// +++ 新增：网站访问人数 +++
 	{
 		icon: "material-symbols:group-outline",
 		label: "网站访问人数",
-		value: 0, // 将由客户端获取
+		value: 0,
 		dynamic: true,
 		id: "pv-count",
 	},
@@ -164,7 +160,10 @@ const stats = [
 	</div>
 </WidgetLayout>
 
-<script is:inline define:vars={{ siteStartDate, lastPostDate, WORKER_URL }}>
+<script is:inline define:vars={{ siteStartDate, lastPostDate }}>
+	// 直接硬编码 Worker 地址
+	const WORKER_URL = "https://page.yrlwa666.workers.dev/api/stats";
+
 	function updateDynamicStats() {
 		const today = new Date();
 
@@ -203,20 +202,27 @@ const stats = [
 		}
 	}
 
-	// +++ 新增：获取网站访问量 +++
+	// 获取网站访问量
 	async function fetchPVCount() {
 		try {
-			// 注意：这里每次访问都会增加计数
+			console.log("正在请求:", WORKER_URL);
 			const response = await fetch(WORKER_URL);
+			console.log("响应状态:", response.status);
+			
 			const data = await response.json();
+			console.log("返回数据:", data);
+			
 			const pvCount = data.pv || 0;
 			
 			const pvElements = document.querySelectorAll('[data-stat-id="pv-count"]');
+			console.log("找到元素数量:", pvElements.length);
+			
 			if (pvElements.length > 0) {
 				pvElements.forEach((element) => {
-					// 添加千位分隔符
 					element.textContent = pvCount.toLocaleString();
 				});
+			} else {
+				console.error("没有找到 data-stat-id='pv-count' 的元素");
 			}
 		} catch (error) {
 			console.error("获取访问量失败:", error);
@@ -229,15 +235,11 @@ const stats = [
 		}
 	}
 
-	// 页面加载时更新动态统计
+	// 页面加载时更新
 	updateDynamicStats();
-	
-	// +++ 获取访问量 +++
 	fetchPVCount();
 
-	// 每小时更新一次运行天数
+	// 每小时刷新一次
 	setInterval(updateDynamicStats, 60 * 60 * 1000);
-	
-	// +++ 每小时也刷新一次访问量（可选，如果不需要实时可以不写）+++
 	setInterval(fetchPVCount, 60 * 60 * 1000);
 </script>
