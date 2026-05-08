@@ -113,10 +113,17 @@ const stats = [
 	},
 	{
 		icon: "material-symbols:group-outline",
-		label: "网站访问人数",
+		label: "总访问人数",
 		value: 0,
 		dynamic: true,
 		id: "pv-count",
+	},
+	{
+		icon: "material-symbols:today-outline",
+		label: "今日访问",
+		value: 0,
+		dynamic: true,
+		id: "today-pv-count",
 	},
 ];
 ---
@@ -161,7 +168,7 @@ const stats = [
 </WidgetLayout>
 
 <script is:inline define:vars={{ siteStartDate, lastPostDate }}>
-	// 直接硬编码 Worker 地址
+	// Worker 地址
 	const WORKER_URL = "/api/stats.json";
 
 	function updateDynamicStats() {
@@ -202,36 +209,22 @@ const stats = [
 		}
 	}
 
-	// 获取网站访问量
+	// 获取访问量数据
 	async function fetchPVCount() {
 		try {
-			console.log("正在请求:", WORKER_URL);
 			const response = await fetch(WORKER_URL);
-			console.log("响应状态:", response.status);
-			
 			const data = await response.json();
-			console.log("返回数据:", data);
 			
 			const pvCount = data.pv || 0;
+			const todayPV = data.today_pv || 0;
 			
 			const pvElements = document.querySelectorAll('[data-stat-id="pv-count"]');
-			console.log("找到元素数量:", pvElements.length);
+			pvElements.forEach(el => el.textContent = pvCount.toLocaleString());
 			
-			if (pvElements.length > 0) {
-				pvElements.forEach((element) => {
-					element.textContent = pvCount.toLocaleString();
-				});
-			} else {
-				console.error("没有找到 data-stat-id='pv-count' 的元素");
-			}
+			const todayElements = document.querySelectorAll('[data-stat-id="today-pv-count"]');
+			todayElements.forEach(el => el.textContent = todayPV.toLocaleString());
 		} catch (error) {
 			console.error("获取访问量失败:", error);
-			const pvElements = document.querySelectorAll('[data-stat-id="pv-count"]');
-			if (pvElements.length > 0) {
-				pvElements.forEach((element) => {
-					element.textContent = "加载失败";
-				});
-			}
 		}
 	}
 
