@@ -617,6 +617,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			"music-sidebar",
 			"categories",
 			"tags",
+			"site-stats"
 		],
 	},
 
