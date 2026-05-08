@@ -20,16 +20,19 @@ const map: Record<string, Translation> = {
 	ja_jp: ja,
 };
 
-// 从 cookie 读取语言
+// 判断是否在浏览器环境
+const isBrowser = typeof document !== "undefined";
+
 function getLangFromCookie(): string | null {
+	if (!isBrowser) return null;
 	const value = `; ${document.cookie}`;
 	const parts = value.split(`; lang=`);
 	if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
 	return null;
 }
 
-// 从 localStorage 读取语言
 function getLangFromStorage(): string | null {
+	if (!isBrowser) return null;
 	return localStorage.getItem("lang");
 }
 
@@ -37,9 +40,22 @@ export function getTranslation(lang: string): Translation {
 	return map[lang.toLowerCase()] || defaultTranslation;
 }
 
-export function i18n(key: I18nKey): string {
-	// 优先从 cookie/localStorage 读取，如果没有则用配置的语言
-	let lang =
-		getLangFromCookie() || getLangFromStorage() || siteConfig.lang || "en";
+// 服务端使用的函数（用配置的语言）
+export function i18nServer(key: I18nKey): string {
+	const lang = siteConfig.lang || "en";
 	return getTranslation(lang)[key];
+}
+
+// 客户端使用的函数（优先用 cookie/localStorage）
+export function i18n(key: I18nKey): string {
+	if (isBrowser) {
+		const lang =
+			getLangFromCookie() ||
+			getLangFromStorage() ||
+			siteConfig.lang ||
+			"en";
+		return getTranslation(lang)[key];
+	}
+	// 服务端回退到配置语言
+	return i18nServer(key);
 }
