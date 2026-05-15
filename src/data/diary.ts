@@ -33,6 +33,13 @@ const diaryData: DiaryItem[] = [
 			"2026.5.8 添加了主页显示访问人数的功能，分为总访问人数与今日访问。",
 		date: "2026-05-08T14:00:00Z",
 		images: ["/images/diary/2026-5-8/1.png","/images/diary/2026-5-8/2.png"],
+	},
+	{
+		id: 4,
+		content:
+			"2026.5.14 X粉丝达到200！！！",
+		date: "2026-05-14T14:00:00Z",
+		images: ["/images/diary/2026-5-14/1.png","/images/diary/2026-5-14/2.png","/images/diary/2026-5-14/3.png","/images/diary/2026-5-14/4.png"],
 	}
 ];
 
