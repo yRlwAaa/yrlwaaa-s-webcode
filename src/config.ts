@@ -326,6 +326,11 @@ export const navBarConfig: NavBarConfig = {
 					url: "/timeline/",
 					icon: "material-symbols:timeline",
 				},
+				{
+            		name: "Dictionary",
+            		url: "/dictionary/",
+            		icon: "material-symbols:menu-book",
+        		},
 			],
 		},
 	],
