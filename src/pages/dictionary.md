@@ -68,6 +68,16 @@ layout: ../layouts/MainGridLayout.astro
     font-size: 15px;
     margin-bottom: 18px;
   }
+  .res-trans-cn {
+    font-size: 20px;
+    color: #e67e22;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding: 8px 14px;
+    background: #fef9e7;
+    border-radius: 8px;
+    border-left: 4px solid #e67e22;
+  }
   .res-item {
     margin-bottom: 16px;
   }
@@ -113,49 +123,63 @@ layout: ../layouts/MainGridLayout.astro
   const btn = document.getElementById('searchBtn');
   const result = document.getElementById('result');
 
-  function search() {
+  async function search() {
     const word = input.value.trim();
     if (!word) return;
 
     result.style.display = 'block';
     result.innerHTML = '<div class="loading-text">🔄 查询中...</div>';
 
-    // 使用 MyMemory API 获取中文翻译
-    fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(word) + '&langpair=en|zh-CN')
-      .then(res => res.json())
-      .then(data => {
-        if (data.responseStatus !== 200 || !data.responseData.translatedText) {
-          result.innerHTML = '<div class="err-msg">❌ 未找到翻译结果，请检查单词拼写</div>';
-          return;
+    try {
+      const [dictRes, transRes] = await Promise.all([
+        fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + encodeURIComponent(word)),
+        fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(word) + '&langpair=en|zh-CN')
+      ]);
+
+      const dictData = await dictRes.json();
+      const transData = await transRes.json();
+
+      if ((dictData.title === 'No Definitions Found' || !dictData[0]) && !transData.responseData?.translatedText) {
+        result.innerHTML = '<div class="err-msg">❌ 未找到该单词，请检查拼写</div>';
+        return;
+      }
+
+      let html = '<div class="res-word">' + word + '</div>';
+
+      if (transData.responseData?.translatedText) {
+        html += '<div class="res-trans-cn">🇨🇳 ' + transData.responseData.translatedText + '</div>';
+      }
+
+      if (dictData[0]) {
+        const entry = dictData[0];
+        const phonetic = entry.phonetic || (entry.phonetics && entry.phonetics[0]?.text) || '';
+        
+        if (phonetic) {
+          html += '<div class="res-phonetic">音标: /' + phonetic + '/</div>';
         }
 
-        const translation = data.responseData.translatedText;
-        const match = data.matches[0];
-        
-        let html = '<div class="res-word">' + word + '</div>';
-        
-        // 如果有音标等信息
-        if (match && match.segment) {
-          html += '<div class="res-phonetic">📖 翻译结果</div>';
-        }
-        
-        html += '<div class="res-item">';
-        html += '<div class="res-meaning">🇨🇳 ' + translation + '</div>';
-        
-        // 尝试获取例句
-        if (data.matches && data.matches.length > 0) {
-          const matchData = data.matches[0];
-          if (matchData['created-by'] === 'MT!') {
-            html += '<div class="res-example" style="margin-top:12px;border-left-color:#f39c12;">💡 机器翻译结果，仅供参考</div>';
-          }
-        }
-        
-        html += '</div>';
-        result.innerHTML = html;
-      })
-      .catch(() => {
-        result.innerHTML = '<div class="err-msg">⚠️ 网络请求失败，请检查网络后重试</div>';
-      });
+        entry.meanings.forEach(meaning => {
+          html += '<div class="res-item">';
+          html += '<span class="res-pos">' + meaning.partOfSpeech + '</span>';
+          
+          meaning.definitions.slice(0, 4).forEach((def, i) => {
+            html += '<div class="res-meaning">' + (i + 1) + '. ' + def.definition + '</div>';
+            if (def.example) {
+              html += '<div class="res-example">📝 ' + def.example + '</div>';
+            }
+          });
+          
+          html += '</div>';
+        });
+      } else if (transData.responseData?.translatedText) {
+        html += '<div class="res-item"><div class="res-meaning">暂无详细释义和例句</div></div>';
+      }
+
+      result.innerHTML = html;
+
+    } catch (err) {
+      result.innerHTML = '<div class="err-msg">⚠️ 网络请求失败，请检查网络后重试</div>';
+    }
   }
 
   btn.addEventListener('click', search);
