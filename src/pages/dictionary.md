@@ -56,7 +56,8 @@ layout: ../layouts/MainGridLayout.astro
     border-radius: 14px;
     padding: 28px;
     line-height: 2;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    color: #e0e0e0;
   }
   .res-word {
     font-size: 28px;
