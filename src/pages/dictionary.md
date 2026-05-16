@@ -63,12 +63,12 @@ layout: ../layouts/MainGridLayout.astro
     font-size: 28px;
     font-weight: 700;
     margin-bottom: 4px;
-    color: var(--title-active, var(--deep-text, #333)) !important;
+    color: #222222 !important;
   }
   .res-phonetic {
-    color: var(--content-meta, #888) !important;
     font-size: 15px;
     margin-bottom: 18px;
+    color: #777777 !important;
   }
   .res-trans-cn {
     font-size: 20px;
@@ -85,8 +85,8 @@ layout: ../layouts/MainGridLayout.astro
   }
   .res-pos {
     display: inline-block;
-    background: var(--btn-regular-bg, #eef2ff) !important;
-    color: var(--btn-content, #4a90d9) !important;
+    background: #eef2ff !important;
+    color: #4a6fc9 !important;
     padding: 2px 12px;
     border-radius: 20px;
     font-size: 14px;
@@ -95,14 +95,14 @@ layout: ../layouts/MainGridLayout.astro
   }
   .res-meaning {
     font-size: 16px;
-    color: var(--deep-text, #333) !important;
+    color: #333333 !important;
     margin: 4px 0;
   }
   .res-example {
     font-size: 14px;
-    color: var(--content-meta, #888) !important;
+    color: #888888 !important;
     padding-left: 14px;
-    border-left: 3px solid var(--btn-content, #4a90d9);
+    border-left: 3px solid #4a6fc9;
     margin: 6px 0;
     font-style: italic;
   }
@@ -114,8 +114,41 @@ layout: ../layouts/MainGridLayout.astro
   }
   .loading-text {
     text-align: center;
-    color: var(--content-meta, #999) !important;
+    color: #999999 !important;
     padding: 24px;
+  }
+
+  /* 深色模式覆盖 */
+  [data-theme="dark"] .res-word,
+  html.dark .res-word,
+  html[data-theme="dark"] .res-word {
+    color: #ffffff !important;
+  }
+  [data-theme="dark"] .res-phonetic,
+  html.dark .res-phonetic,
+  html[data-theme="dark"] .res-phonetic {
+    color: #cccccc !important;
+  }
+  [data-theme="dark"] .res-pos,
+  html.dark .res-pos,
+  html[data-theme="dark"] .res-pos {
+    background: #2a2a4a !important;
+    color: #8ab4f8 !important;
+  }
+  [data-theme="dark"] .res-meaning,
+  html.dark .res-meaning,
+  html[data-theme="dark"] .res-meaning {
+    color: #e0e0e0 !important;
+  }
+  [data-theme="dark"] .res-example,
+  html.dark .res-example,
+  html[data-theme="dark"] .res-example {
+    color: #bbbbbb !important;
+  }
+  [data-theme="dark"] .loading-text,
+  html.dark .loading-text,
+  html[data-theme="dark"] .loading-text {
+    color: #aaaaaa !important;
   }
 </style>
 
