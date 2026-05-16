@@ -24,7 +24,7 @@ const SITE_TIMEZONE = 8;
 
 export const siteConfig: SiteConfig = {
 	title: "yRlwAaa",
-	subtitle: "One demo website",
+	subtitle: "私の小さな部屋へようこそ",
 	siteURL: "https://yrlwa.top/",
 	siteStartDate: "2026-04-30",
 
@@ -60,7 +60,7 @@ export const siteConfig: SiteConfig = {
 
 	navbarTitle: {
 		mode: "text-icon",
-		text: "MizukiUI",
+		text: "yRlwAaa",
 		icon: "assets/home/home.webp",
 		logo: "assets/home/default-logo.webp",
 	},
@@ -436,7 +436,7 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 
 export const footerConfig: FooterConfig = {
 	enable: true,
-	customHtml: "",
+	customHtml: "Welcome to yRlwAaa's web!",
 };
 
 export const sidebarLayoutConfig: SidebarLayoutConfig = {
