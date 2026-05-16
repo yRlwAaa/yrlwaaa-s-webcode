@@ -52,21 +52,22 @@ layout: ../layouts/MainGridLayout.astro
     opacity: 0.85;
   }
   .result-area {
-    background: #1a1a2e !important;
+    background: var(--color-bg-card, rgba(255,255,255,0.05)) !important;
     border-radius: 14px;
     padding: 28px;
     line-height: 2;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-    color: #e0e0e0 !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    color: var(--color-text, #e0e0e0) !important;
+    border: 1px solid var(--color-border, rgba(255,255,255,0.08));
   }
   .res-word {
     font-size: 28px;
     font-weight: 700;
     margin-bottom: 4px;
-    color: #ffffff !important;
+    color: var(--color-text, #ffffff) !important;
   }
   .res-phonetic {
-    color: #aaaaaa !important;
+    color: var(--color-text-secondary, #aaaaaa) !important;
     font-size: 15px;
     margin-bottom: 18px;
   }
@@ -85,8 +86,8 @@ layout: ../layouts/MainGridLayout.astro
   }
   .res-pos {
     display: inline-block;
-    background: #2a2a4a !important;
-    color: #7eb8ff !important;
+    background: var(--color-primary-light, #2a2a4a) !important;
+    color: var(--color-primary, #7eb8ff) !important;
     padding: 2px 12px;
     border-radius: 20px;
     font-size: 14px;
@@ -95,14 +96,14 @@ layout: ../layouts/MainGridLayout.astro
   }
   .res-meaning {
     font-size: 16px;
-    color: #d0d0d0 !important;
+    color: var(--color-text, #d0d0d0) !important;
     margin: 4px 0;
   }
   .res-example {
     font-size: 14px;
-    color: #999999 !important;
+    color: var(--color-text-secondary, #999999) !important;
     padding-left: 14px;
-    border-left: 3px solid #4a90d9;
+    border-left: 3px solid var(--color-primary, #4a90d9);
     margin: 6px 0;
     font-style: italic;
   }
@@ -114,7 +115,7 @@ layout: ../layouts/MainGridLayout.astro
   }
   .loading-text {
     text-align: center;
-    color: #aaaaaa !important;
+    color: var(--color-text-secondary, #999) !important;
     padding: 24px;
   }
 </style>
