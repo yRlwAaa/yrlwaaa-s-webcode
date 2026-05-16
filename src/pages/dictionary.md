@@ -1,156 +1,165 @@
 ---
 title: 英语词典
+layout: ../layouts/BaseLayout.astro
 ---
 
+<div class="dict-container">
+  <div class="search-box">
+    <input type="text" id="wordInput" placeholder="输入英语单词，按回车查询..." />
+    <button id="searchBtn">🔍 查询</button>
+  </div>
+  <div id="result" class="result-area" style="display:none;"></div>
+</div>
+
 <style>
-  .dict-wrapper {
-    max-width: 650px;
-    margin: 60px auto;
-    padding: 0 20px;
+  .dict-container {
+    width: 100%;
+    padding: 20px 0;
   }
-  .dict-wrapper h1 {
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 28px;
-    color: #333;
-  }
-  .search-row {
+  .search-box {
     display: flex;
-    gap: 10px;
-    margin-bottom: 30px;
+    gap: 12px;
+    margin-bottom: 28px;
+    justify-content: center;
   }
-  #wordInput {
-    flex: 1;
-    padding: 14px 18px;
+  .search-box input {
+    width: 100%;
+    max-width: 480px;
+    padding: 14px 20px;
     font-size: 16px;
-    border: 2px solid #ddd;
-    border-radius: 10px;
+    border: 2px solid var(--color-border, #e0e0e0);
+    border-radius: 12px;
+    background: var(--color-bg-card, #fff);
+    color: var(--color-text, #333);
     outline: none;
-    transition: border-color .2s;
+    transition: border-color 0.2s;
   }
-  #wordInput:focus {
-    border-color: #4a90d9;
+  .search-box input:focus {
+    border-color: var(--color-primary, #4a90d9);
   }
-  #searchBtn {
-    padding: 14px 28px;
+  .search-box button {
+    padding: 14px 24px;
     font-size: 16px;
-    background: #4a90d9;
+    background: var(--color-primary, #4a90d9);
     color: #fff;
     border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background .2s;
-  }
-  #searchBtn:hover {
-    background: #357abd;
-  }
-  #result {
-    display: none;
-    background: #f8f9fb;
     border-radius: 12px;
-    padding: 24px;
-    line-height: 1.8;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+  }
+  .search-box button:hover {
+    opacity: 0.85;
+  }
+  .result-area {
+    background: var(--color-bg-card, #fff);
+    border-radius: 14px;
+    padding: 28px;
+    line-height: 2;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   }
   .res-word {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 700;
-    color: #222;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
   .res-phonetic {
-    color: #888;
+    color: var(--color-text-secondary, #888);
     font-size: 15px;
+    margin-bottom: 18px;
+  }
+  .res-item {
     margin-bottom: 16px;
   }
-  .res-trans {
-    font-size: 18px;
-    color: #2c3e50;
-    margin-bottom: 14px;
-    padding: 12px;
-    background: #eef2ff;
-    border-radius: 8px;
+  .res-pos {
+    display: inline-block;
+    background: var(--color-primary-light, #eef2ff);
+    color: var(--color-primary, #4a90d9);
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
   }
-  .res-examples {
-    font-size: 15px;
-    color: #555;
+  .res-meaning {
+    font-size: 16px;
+    color: var(--color-text, #333);
+    margin: 4px 0;
   }
-  .res-examples p {
+  .res-example {
+    font-size: 14px;
+    color: var(--color-text-secondary, #888);
+    padding-left: 14px;
+    border-left: 3px solid var(--color-primary, #4a90d9);
     margin: 6px 0;
-    padding-left: 12px;
-    border-left: 3px solid #4a90d9;
+    font-style: italic;
   }
   .err-msg {
-    color: #e74c3c;
     text-align: center;
-    padding: 20px;
+    color: #e74c3c;
+    padding: 24px;
+    font-size: 16px;
   }
   .loading-text {
     text-align: center;
-    color: #999;
-    padding: 20px;
-  }
-  @media (max-width: 500px) {
-    .search-row {
-      flex-direction: column;
-    }
-    #searchBtn {
-      width: 100%;
-    }
+    color: var(--color-text-secondary, #999);
+    padding: 24px;
   }
 </style>
 
-<div class="dict-wrapper">
-  <h1>📖 英语词典</h1>
-  <div class="search-row">
-    <input type="text" id="wordInput" placeholder="输入英语单词，按回车查询..." />
-    <button id="searchBtn">查询</button>
-  </div>
-  <div id="result"></div>
-</div>
-
 <script>
 (function() {
-  var input = document.getElementById('wordInput');
-  var btn = document.getElementById('searchBtn');
-  var result = document.getElementById('result');
+  const input = document.getElementById('wordInput');
+  const btn = document.getElementById('searchBtn');
+  const result = document.getElementById('result');
 
   function search() {
-    var word = input.value.trim();
+    const word = input.value.trim();
     if (!word) return;
 
     result.style.display = 'block';
-    result.innerHTML = '<div class="loading-text">查询中...</div>';
+    result.innerHTML = '<div class="loading-text">🔄 查询中...</div>';
 
-    fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + encodeURIComponent(word))
-      .then(function(res) { return res.json(); })
-      .then(function(data) {
-        if (data.title === 'No Definitions Found') {
-          result.innerHTML = '<div class="err-msg">未找到该单词的定义</div>';
+    // 使用 MyMemory API 获取中文翻译
+    fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(word) + '&langpair=en|zh-CN')
+      .then(res => res.json())
+      .then(data => {
+        if (data.responseStatus !== 200 || !data.responseData.translatedText) {
+          result.innerHTML = '<div class="err-msg">❌ 未找到翻译结果，请检查单词拼写</div>';
           return;
         }
-        var entry = data[0];
-        var phonetic = entry.phonetic || (entry.phonetics[0] && entry.phonetics[0].text) || '';
-        var meaning = entry.meanings[0];
-        var definitions = meaning.definitions.slice(0, 3);
+
+        const translation = data.responseData.translatedText;
+        const match = data.matches[0];
         
-        var html = '<div class="res-word">' + entry.word + '</div>';
-        if (phonetic) html += '<div class="res-phonetic">/' + phonetic + '/</div>';
-        html += '<div class="res-trans"><strong>' + meaning.partOfSpeech + '</strong></div>';
+        let html = '<div class="res-word">' + word + '</div>';
         
-        definitions.forEach(function(def, i) {
-          html += '<p>' + (i + 1) + '. ' + def.definition + '</p>';
-          if (def.example) html += '<div class="res-examples"><p>例句: ' + def.example + '</p></div>';
-        });
+        // 如果有音标等信息
+        if (match && match.segment) {
+          html += '<div class="res-phonetic">📖 翻译结果</div>';
+        }
         
+        html += '<div class="res-item">';
+        html += '<div class="res-meaning">🇨🇳 ' + translation + '</div>';
+        
+        // 尝试获取例句
+        if (data.matches && data.matches.length > 0) {
+          const matchData = data.matches[0];
+          if (matchData['created-by'] === 'MT!') {
+            html += '<div class="res-example" style="margin-top:12px;border-left-color:#f39c12;">💡 机器翻译结果，仅供参考</div>';
+          }
+        }
+        
+        html += '</div>';
         result.innerHTML = html;
       })
-      .catch(function() {
-        result.innerHTML = '<div class="err-msg">查询失败，请检查网络后重试</div>';
+      .catch(() => {
+        result.innerHTML = '<div class="err-msg">⚠️ 网络请求失败，请检查网络后重试</div>';
       });
   }
 
   btn.addEventListener('click', search);
-  input.addEventListener('keypress', function(e) {
+  input.addEventListener('keypress', e => {
     if (e.key === 'Enter') search();
   });
 })();
