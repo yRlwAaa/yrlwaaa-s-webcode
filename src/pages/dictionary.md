@@ -52,13 +52,15 @@ layout: ../layouts/MainGridLayout.astro
     opacity: 0.85;
   }
   .result-area {
-    background: var(--color-bg-card, rgba(255,255,255,0.05)) !important;
+    background: var(--color-bg-glass, var(--color-bg-card, rgba(255,255,255,0.08))) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-radius: 14px;
     padding: 28px;
     line-height: 2;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     color: var(--color-text, #e0e0e0) !important;
-    border: 1px solid var(--color-border, rgba(255,255,255,0.08));
+    border: 1px solid var(--color-border, rgba(255,255,255,0.1));
   }
   .res-word {
     font-size: 28px;
