@@ -1,6 +1,6 @@
 ---
 title: 英语词典
-layout: ../layouts/BaseLayout.astro
+layout: ../layouts/MainGridLayout.astro
 ---
 
 <div class="dict-container">
