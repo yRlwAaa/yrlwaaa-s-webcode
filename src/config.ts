@@ -327,7 +327,7 @@ export const navBarConfig: NavBarConfig = {
 					icon: "material-symbols:timeline",
 				},
 				{
-            		name: "Dictionary",
+            		name: "词典",
             		url: "/dictionary/",
             		icon: "material-symbols:menu-book",
         		},
