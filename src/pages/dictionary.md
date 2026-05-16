@@ -51,25 +51,37 @@ layout: ../layouts/MainGridLayout.astro
   .search-box button:hover {
     opacity: 0.85;
   }
-    .result-area {
+      .result-area {
     background: var(--card-bg, white) !important;
     border-radius: 14px;
     padding: 28px;
     line-height: 2;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    color: var(--deep-text, #333) !important;
     border: 1px solid var(--line-divider, rgba(0,0,0,0.08));
   }
   .res-word {
     font-size: 28px;
     font-weight: 700;
     margin-bottom: 4px;
-    color: var(--deep-text, #333) !important;
+    color: var(--title-active, var(--deep-text, #333)) !important;
   }
   .res-phonetic {
     color: var(--content-meta, #888) !important;
     font-size: 15px;
     margin-bottom: 18px;
+  }
+  .res-trans-cn {
+    font-size: 20px;
+    color: #e67e22 !important;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding: 8px 14px;
+    background: #fef9e7 !important;
+    border-radius: 8px;
+    border-left: 4px solid #e67e22;
+  }
+  .res-item {
+    margin-bottom: 16px;
   }
   .res-pos {
     display: inline-block;
