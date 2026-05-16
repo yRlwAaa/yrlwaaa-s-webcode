@@ -51,45 +51,30 @@ layout: ../layouts/MainGridLayout.astro
   .search-box button:hover {
     opacity: 0.85;
   }
-  .result-area {
-    background: var(--color-bg-glass, var(--color-bg-card, rgba(255,255,255,0.08))) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    .result-area {
+    background: var(--card-bg, white) !important;
     border-radius: 14px;
     padding: 28px;
     line-height: 2;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    color: var(--color-text, #e0e0e0) !important;
-    border: 1px solid var(--color-border, rgba(255,255,255,0.1));
+    color: var(--deep-text, #333) !important;
+    border: 1px solid var(--line-divider, rgba(0,0,0,0.08));
   }
   .res-word {
     font-size: 28px;
     font-weight: 700;
     margin-bottom: 4px;
-    color: var(--color-text, #ffffff) !important;
+    color: var(--deep-text, #333) !important;
   }
   .res-phonetic {
-    color: var(--color-text-secondary, #aaaaaa) !important;
+    color: var(--content-meta, #888) !important;
     font-size: 15px;
     margin-bottom: 18px;
   }
-  .res-trans-cn {
-    font-size: 20px;
-    color: #e67e22 !important;
-    font-weight: 600;
-    margin-bottom: 16px;
-    padding: 8px 14px;
-    background: #fef9e7 !important;
-    border-radius: 8px;
-    border-left: 4px solid #e67e22;
-  }
-  .res-item {
-    margin-bottom: 16px;
-  }
   .res-pos {
     display: inline-block;
-    background: var(--color-primary-light, #2a2a4a) !important;
-    color: var(--color-primary, #7eb8ff) !important;
+    background: var(--btn-regular-bg, #eef2ff) !important;
+    color: var(--btn-content, #4a90d9) !important;
     padding: 2px 12px;
     border-radius: 20px;
     font-size: 14px;
@@ -98,14 +83,14 @@ layout: ../layouts/MainGridLayout.astro
   }
   .res-meaning {
     font-size: 16px;
-    color: var(--color-text, #d0d0d0) !important;
+    color: var(--deep-text, #333) !important;
     margin: 4px 0;
   }
   .res-example {
     font-size: 14px;
-    color: var(--color-text-secondary, #999999) !important;
+    color: var(--content-meta, #888) !important;
     padding-left: 14px;
-    border-left: 3px solid var(--color-primary, #4a90d9);
+    border-left: 3px solid var(--btn-content, #4a90d9);
     margin: 6px 0;
     font-style: italic;
   }
@@ -117,7 +102,7 @@ layout: ../layouts/MainGridLayout.astro
   }
   .loading-text {
     text-align: center;
-    color: var(--color-text-secondary, #999) !important;
+    color: var(--content-meta, #999) !important;
     padding: 24px;
   }
 </style>
