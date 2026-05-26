@@ -40,7 +40,14 @@ const diaryData: DiaryItem[] = [
 			"2026.5.14 X粉丝达到200！！！",
 		date: "2026-05-14T14:00:00Z",
 		images: ["/images/diary/2026-5-14/1.jpg","/images/diary/2026-5-14/2.jpg","/images/diary/2026-5-14/3.jpg","/images/diary/2026-5-14/4.jpg"],
-	}
+	},
+	{
+		id:5:,
+		content:
+			"2026.5.26 X粉丝达到300！！！",
+		date:"2026-05-26T14:00:00Z",
+		images: ["/images/diary/2026-5-26/1.jpg","/images/diary/2026-5-26/2.jpg","/images/diary/2026-5-26/3.jpg","/images/diary/2026-5-26/4.jpg"],
+	},
 ];
 
 // 获取日记列表（按时间倒序）
