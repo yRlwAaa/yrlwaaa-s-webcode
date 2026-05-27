@@ -42,7 +42,7 @@ const diaryData: DiaryItem[] = [
 		images: ["/images/diary/2026-5-14/1.jpg","/images/diary/2026-5-14/2.jpg","/images/diary/2026-5-14/3.jpg","/images/diary/2026-5-14/4.jpg"],
 	},
 	{
-		id:5:,
+		id: 5,
 		content:
 			"2026.5.26 X粉丝达到300！！！",
 		date:"2026-05-26T14:00:00Z",
