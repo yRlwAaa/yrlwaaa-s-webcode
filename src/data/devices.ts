@@ -76,5 +76,14 @@ export const devicesData: DeviceCategory = {
 			link:"https://cndl.synology.cn/download/Document/Hardware/DataSheet/DiskStation/20-year/DS220j/chs/Synology_DS220j_Data_Sheet_chs.pdf"
 		},
 	],
+	耳机:[
+		{
+			name:"Airpods pro 3",
+			image:"/images/device/airpods.png",
+			specs:"Apple H2 耳机芯片 蓝牙 5.3",
+			description:"第一次体验正儿八经的降噪耳机，太惊艳了。",
+			link:"https://support.apple.com/zh-cn/125135"
+		}
+	]
 
 };
