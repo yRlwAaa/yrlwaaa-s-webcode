@@ -43,7 +43,6 @@
       const pwdInput = document.getElementById('login-password');
       const errorEl = document.getElementById('login-error');
 
-      function doLogin() {
         const email = emailInput.value.trim();
         const password = pwdInput.value.trim();
 
@@ -55,7 +54,6 @@
         errorEl.style.display = 'none';
 
         if (email === 'admin@test.com' && password === '123456') {
-          document.cookie = 'cf_auth=1; path=/; max-age=86400';
           window.location.href = '/';
         } else {
           errorEl.style.display = 'block';
@@ -63,9 +61,6 @@
         }
       }
 
-      btn.addEventListener('click', doLogin);
-      pwdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
-      emailInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
     })();
   </script>
 </body>
