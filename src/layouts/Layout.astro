@@ -1,10 +1,12 @@
 ---
 import ConfigCarrier from "@components/misc/ConfigCarrier.astro";
 import MusicPlayer from "@components/widgets/music-player/MusicPlayer.svelte";
-import Pio from "@components/features/pio/Pio.svelte"; // 使用 Svelte 版本的 Pio 组件
+import Pio from "@components/features/pio/Pio.svelte";
 import { PageProgressBar } from "@components/control/PageProgressBar";
 import { pioConfig, profileConfig, siteConfig } from "@/config";
 import { sidebarLayoutConfig } from "@/config";
+import LoginModal from "@components/widgets/LoginModal.svelte";
+
 const BANNER_HEIGHT = 35;
 const BANNER_HEIGHT_EXTEND = 30;
 const BANNER_HEIGHT_HOME = BANNER_HEIGHT + BANNER_HEIGHT_EXTEND;
@@ -179,6 +181,9 @@ if (siteConfig.font) {
 		<!-- defines global css variables. This will be applied to <html> <body> and some other elements idk why -->
 		<slot name="head" />
 
+		<!-- 加载 Supabase CDN -->
+		<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
 		<!-- Global CSS variables for page width and hue -->
 		<style
 			define:vars={{
@@ -247,6 +252,9 @@ if (siteConfig.font) {
 
 		<!-- Pio 看板娘组件 - 仅在进入视口时加载 -->
 		{pioConfig.enable && <Pio client:visible />}
+
+		<!-- 登录弹窗 -->
+		<LoginModal client:load />
 
 		<!-- increase the page height during page transition to prevent the scrolling animation from jumping -->
 		<div id="page-height-extend" class="hidden h-[300vh]"></div>

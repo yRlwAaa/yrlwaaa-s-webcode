@@ -9,7 +9,6 @@
   let loading = false;
   let errorMsg = "";
 
-  // 用 localStorage 模拟登录状态
   function checkLogin() {
     return localStorage.getItem("isLoggedIn") === "true";
   }
@@ -23,29 +22,68 @@
     loading = true;
     errorMsg = "";
 
-    // 模拟登录验证（实际使用时替换为 Supabase）
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      // 从 window 获取 Supabase
+      const supabase = window.supabase;
+      if (!supabase) {
+        errorMsg = "Supabase 未加载，请刷新页面重试";
+        loading = false;
+        return;
+      }
 
-    if (email === "admin@test.com" && password === "123456") {
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userEmail", email);
-      show = false;
-      onLoginSuccess();
-      window.location.reload();
-    } else {
-      errorMsg = "邮箱或密码错误";
+      const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+      const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+      const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      const { data, error } = await client.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      loading = false;
+
+      if (error) {
+        errorMsg = error.message;
+        return;
+      }
+
+      if (data.session) {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userEmail", email);
+        show = false;
+        onLoginSuccess();
+        window.location.reload();
+      }
+    } catch (err: any) {
+      loading = false;
+      errorMsg = err.message || "登录失败，请重试";
     }
-
-    loading = false;
   }
 
-  function handleGoogleLogin() {
-    // 模拟 Google 登录
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("userEmail", "google_user@test.com");
-    show = false;
-    onLoginSuccess();
-    window.location.reload();
+  async function handleGoogleLogin() {
+    try {
+      const supabase = window.supabase;
+      if (!supabase) {
+        errorMsg = "Supabase 未加载，请刷新页面重试";
+        return;
+      }
+
+      const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+      const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+      const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      const { error } = await client.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
+      if (error) {
+        errorMsg = error.message;
+      }
+    } catch (err: any) {
+      errorMsg = err.message || "Google 登录失败";
+    }
   }
 
   function handleKeyDown(e: KeyboardEvent) {
