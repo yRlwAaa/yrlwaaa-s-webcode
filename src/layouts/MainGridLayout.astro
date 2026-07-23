@@ -209,7 +209,6 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 					}
 				</div>
 
-				<!-- 主内容 -->
 				<main
 					id="swup-container"
 					class={`${mainContentClass} transition-main`}
@@ -351,7 +350,24 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 			const LOGIN_KEY = 'isLoggedIn';
 			const USER_KEY = 'userEmail';
 
-			// 检查是否已登录
+			// 强制加载 Supabase
+			async function loadSupabase() {
+				if (typeof window.supabase !== 'undefined') {
+					return window.supabase;
+				}
+				return new Promise((resolve, reject) => {
+					const script = document.createElement('script');
+					script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+					script.onload = () => {
+						resolve(window.supabase);
+					};
+					script.onerror = () => {
+						reject(new Error('Supabase CDN 加载失败'));
+					};
+					document.head.appendChild(script);
+				});
+			}
+
 			const isLoggedIn = localStorage.getItem(LOGIN_KEY) === 'true';
 			const loginPage = document.getElementById('login-page');
 			const appContent = document.getElementById('swup-container');
@@ -359,7 +375,6 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 			function showLoginPage() {
 				if (loginPage) loginPage.style.display = 'flex';
 				if (appContent) appContent.style.display = 'none';
-				// 隐藏音乐播放器和悬浮控件
 				const player = document.querySelector('.music-player');
 				if (player) player.style.display = 'none';
 				const controls = document.querySelector('.floating-controls-container');
@@ -399,14 +414,18 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 				btn.disabled = true;
 
 				try {
-					// 使用 Supabase 登录
-					const supabase = window.supabase;
+					const supabase = await loadSupabase();
 					if (!supabase) {
-						throw new Error('Supabase 未加载，请刷新页面重试');
+						throw new Error('Supabase 加载失败，请刷新页面重试');
 					}
 
 					const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
 					const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+					
+					if (!SUPABASE_URL || !SUPABASE_KEY) {
+						throw new Error('请配置环境变量 SUPABASE_URL 和 SUPABASE_KEY');
+					}
+					
 					const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 					const { data, error } = await client.auth.signInWithPassword({
@@ -444,11 +463,9 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 			// Google 登录
 			document.getElementById('google-btn').addEventListener('click', async function() {
 				try {
-					const supabase = window.supabase;
+					const supabase = await loadSupabase();
 					if (!supabase) {
-						document.getElementById('login-error').style.display = 'block';
-						document.getElementById('login-error').textContent = 'Supabase 未加载';
-						return;
+						throw new Error('Supabase 加载失败');
 					}
 					const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
 					const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
