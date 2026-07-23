@@ -1,485 +1,123 @@
----
-import FloatingControls from "@components/control/FloatingControls.astro";
-import { SidebarTOC } from "@components/features/toc";
-import Banner from "@components/layout/Banner.astro";
-import RightSideBar from "@components/layout/RightSideBar.astro";
-import FullscreenWallpaper from "@components/misc/FullscreenWallpaper.astro";
-import IconifyLoader from "@components/misc/IconifyLoader.astro";
-import Footer from "@components/organisms/footer/Footer.astro";
-import Navbar from "@components/organisms/navigation/Navbar.astro";
-import SideBar from "@components/widgets/sidebar/SideBar.astro";
-import type { MarkdownHeading } from "astro";
-import { Icon } from "astro-icon/components";
+<script>
+	(function() {
+		const loginPage = document.getElementById('login-page');
+		const appContent = document.getElementById('swup-container');
 
-import { fullscreenWallpaperConfig, siteConfig } from "../config";
-import { BANNER_HEIGHT } from "../constants/constants";
-import {
-	calculateGridLayout,
-	getBannerImages,
-	getMainPanelTop,
-	getTransparencyClass,
-	shouldEnableTransparency,
-} from "../utils/grid-layout-utils";
-import { widgetManager } from "../utils/widget-manager";
-import Layout from "./Layout.astro";
-import GridScripts from "./partials/GridScripts.astro";
-
-interface Props {
-	title?: string;
-	banner?: string;
-	description?: string;
-	lang?: string;
-	setOGTypeArticle?: boolean;
-	postSlug?: string;
-	headings?: MarkdownHeading[];
-}
-
-// 获取 banner 图片
-const bannerImages = await getBannerImages(siteConfig);
-
-const {
-	title,
-	banner,
-	description,
-	lang,
-	setOGTypeArticle,
-	postSlug,
-	headings = [],
-} = Astro.props;
-const hasBannerCredit = siteConfig.banner.credit.enable;
-const hasBannerLink = !!siteConfig.banner.credit.url;
-
-// 检查是否为首页
-const isHomePage = Astro.url.pathname === "/" || Astro.url.pathname === "";
-// 手机端非首页不显示banner的CSS类
-const mobileNonHomeBannerClass = !isHomePage ? "mobile-hide-banner" : "";
-
-// 计算主内容区域位置
-const finalMainPanelTop = getMainPanelTop(
-	siteConfig.wallpaperMode.defaultMode,
-	BANNER_HEIGHT,
-);
-
-// 计算网格布局
-const {
-	gridCols,
-	sidebarClass,
-	rightSidebarClass,
-	mainContentClass,
-	sidebarPresence,
-	mobileShowSidebar,
-	tabletShowSidebar,
-	desktopShowSidebar,
-} = calculateGridLayout({
-	siteConfig,
-	widgetManager,
-});
-
-const { hasRightSidebarComponents, hasMobileDrawerComponents } =
-	sidebarPresence;
-
-// 半透明效果
-const shouldEnable = shouldEnableTransparency(
-	siteConfig.wallpaperMode.defaultMode,
-);
-const transparentClass = getTransparencyClass(shouldEnable);
-
-// 布局模式
-const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
----
-
-<Layout
-	title={title}
-	banner={banner}
-	description={description}
-	lang={lang}
-	setOGTypeArticle={setOGTypeArticle}
-	postSlug={postSlug}
->
-	<GridScripts
-		navbarTransparentMode={siteConfig.banner?.navbar?.transparentMode ||
-			"semi"}
-		defaultWallpaperMode={siteConfig.wallpaperMode.defaultMode}
-		defaultPostListLayout={siteConfig.postListLayout?.defaultMode || "list"}
-		BANNER_HEIGHT={BANNER_HEIGHT}
-		pageScaling={siteConfig.pageScaling}
-	/>
-
-	<!-- 全屏壁纸 - 始终渲染，通过 JS 控制显示隐藏 -->
-	<FullscreenWallpaper config={fullscreenWallpaperConfig} />
-
-	<!-- 全局图标加载器 -->
-	<IconifyLoader />
-
-	<!-- Navbar -->
-	<slot slot="head" name="head" />
-	<div
-		id="top-row"
-		class="z-50 pointer-events-none relative transition-all duration-700 max-w-(--page-width) px-0 md:px-4 mx-auto"
-		class:list={[""]}
-	>
-		<div
-			id="navbar-wrapper"
-			class="pointer-events-auto sticky top-0 transition-all"
-		>
-			<Navbar />
-		</div>
-	</div>
-
-	<!-- Banner 组件 -->
-	<Banner
-		bannerImages={bannerImages}
-		mobileNonHomeBannerClass={mobileNonHomeBannerClass}
-		showTextOverlay={isHomePage &&
-			(siteConfig.banner.homeText?.enable ?? false)}
-	/>
-
-	<!-- Main content -->
-	<div
-		class={`absolute w-full z-30 pointer-events-none ${mobileNonHomeBannerClass ? "mobile-main-no-banner" : ""} ${siteConfig.wallpaperMode.defaultMode === "none" ? "no-banner-layout" : ""} ${transparentClass}`}
-		style={`top: ${finalMainPanelTop}`}
-	>
-		<div class="relative max-w-(--page-width) mx-auto pointer-events-auto">
-			<div
-				id="main-grid"
-				class={`transition duration-700 w-full left-0 right-0 grid ${gridCols} grid-rows-none md:grid-rows-[auto] mx-auto gap-4 px-2 md:px-4 ${!mobileShowSidebar || !hasMobileDrawerComponents ? "mobile-no-sidebar" : ""} ${hasRightSidebarComponents ? "mobile-both-sidebar" : ""}`}
-				data-layout-mode={defaultPostListLayout}
-			>
-				{
-					hasBannerCredit && (
-						<a
-							href={siteConfig.banner.credit.url}
-							id="banner-credit"
-							target="_blank"
-							rel="noopener"
-							aria-label="Visit image source"
-							class:list={[
-								"group onload-animation transition-all absolute flex justify-center items-center rounded-full " +
-									"px-3 right-4 -top-13 bg-black/60 hover:bg-black/70 h-9",
-								{
-									"hover:pr-9 active:bg-black/80":
-										hasBannerLink,
-								},
-							]}
-						>
-							<Icon
-								class="text-white/75 text-[1.25rem] mr-1"
-								name="material-symbols:copyright-outline-rounded"
-							/>
-							<div class="text-white/75 text-xs">
-								{siteConfig.banner.credit.text}
-							</div>
-							<Icon
-								class:list={[
-									"transition absolute text-[oklch(0.75_0.14_var(--hue))] right-4 text-[0.75rem] opacity-0",
-									{
-										"group-hover:opacity-100":
-											hasBannerLink,
-									},
-								]}
-								name="fa7-solid:arrow-up-right-from-square"
-							/>
-						</a>
-					)
-				}
-
-				<div class="contents">
-					{
-						(mobileShowSidebar ||
-							tabletShowSidebar ||
-							desktopShowSidebar) && (
-							<SideBar
-								class={`${sidebarClass} ${transparentClass}`}
-								headings={headings}
-							/>
-						)
-					}
-
-					{
-						hasRightSidebarComponents && (
-							<div
-								class={`right-sidebar-container ${rightSidebarClass} ${transparentClass}`}
-							>
-								<RightSideBar headings={headings} />
-							</div>
-						)
-					}
-				</div>
-
-				<main
-					id="swup-container"
-					class={`${mainContentClass} transition-main`}
-				>
-					<div
-						id="content-wrapper"
-						class="onload-animation transition-leaving"
-					>
-						<slot />
-						<div
-							class="footer col-span-full onload-animation hidden lg:block"
-						>
-							<Footer />
-						</div>
-					</div>
-				</main>
-
-				<div
-					class="footer col-span-full onload-animation block lg:hidden"
-				>
-					<Footer />
-				</div>
-			</div>
-
-			<FloatingControls headings={headings} />
-		</div>
-	</div>
-
-	<style>
-		.right-sidebar-container {
-			align-self: start;
-			display: contents;
-		}
-
-		.right-sidebar-container #right-sidebar {
-			height: fit-content;
-		}
-	</style>
-
-	{
-		siteConfig.toc.enable && siteConfig.toc.desktopSidebar && (
-			<div class="absolute w-full z-0 hidden 2xl:block">
-				<div class="relative max-w-(--page-width) mx-auto">
-					<div
-						id="toc-wrapper"
-						class:list={[
-							"hidden lg:block transition absolute top-0 w-(--toc-width) items-center",
-							"-right-(--toc-width)",
-							{
-								"toc-hide":
-									siteConfig.wallpaperMode.defaultMode ===
-									"banner",
-							},
-						]}
-					>
-						<div
-							id="toc-inner-wrapper"
-							class="fixed top-14 w-(--toc-width) h-[calc(100vh-6rem)] max-h-[calc(100vh-6rem)] overflow-x-hidden overflow-y-auto"
-						>
-							<div
-								id="toc-container"
-								class="w-full h-full transition-swup-fade"
-							>
-								<SidebarTOC headings={headings} />
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		)
-	}
-
-	{
-		(!siteConfig.toc.enable || !siteConfig.toc.desktopSidebar) && (
-			<div id="toc-container" class="hidden" />
-		)
-	}
-
-	<!-- ============================================ -->
-	<!-- 整页登录界面 - Supabase 版本 -->
-	<!-- ============================================ -->
-	<div id="login-page" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; background:linear-gradient(145deg, var(--page-bg, #f0f2f5) 0%, var(--card-bg, #ffffff) 100%); display:flex; align-items:center; justify-content:center;">
-		<div style="background:var(--card-bg, rgba(255,255,255,0.85)); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); padding:48px 40px 40px; border-radius:28px; max-width:420px; width:90%; box-shadow:0 30px 80px rgba(0,0,0,0.12), 0 10px 30px rgba(0,0,0,0.06); border:1px solid var(--line-divider, rgba(0,0,0,0.06));">
-			<div style="text-align:center; margin-bottom:24px;">
-				<div style="width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg, var(--primary, #4a90d9), var(--primary-light, #6cb2eb)); margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:32px; box-shadow:0 8px 24px rgba(var(--color-primary-rgb, 74,144,217), 0.25);">
-					🌸
-				</div>
-				<h2 style="margin:0; font-size:22px; font-weight:700; color:var(--text, #1a1a1a); letter-spacing:-0.3px;">欢迎回来</h2>
-				<p style="margin:4px 0 0; font-size:14px; color:var(--text-secondary, #888);">登录以继续</p>
-			</div>
-
-			<div id="login-error" style="display:none; background:rgba(239,68,68,0.08); color:#dc2626; padding:10px 14px; border-radius:12px; font-size:13px; margin-bottom:16px; border:1px solid rgba(239,68,68,0.15);"></div>
-
-			<input id="login-email" type="email" placeholder="邮箱地址" style="width:100%; padding:14px 16px; margin-bottom:12px; border:2px solid var(--line-divider, #e5e7eb); border-radius:14px; font-size:15px; background:var(--input-bg, #f8fafc); color:var(--text, #1a1a1a); box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='var(--primary, #4a90d9)'; this.style.boxShadow='0 0 0 4px rgba(var(--color-primary-rgb, 74,144,217), 0.1)';" onblur="this.style.borderColor='var(--line-divider, #e5e7eb)'; this.style.boxShadow='none';" />
-
-			<input id="login-password" type="password" placeholder="密码" style="width:100%; padding:14px 16px; margin-bottom:8px; border:2px solid var(--line-divider, #e5e7eb); border-radius:14px; font-size:15px; background:var(--input-bg, #f8fafc); color:var(--text, #1a1a1a); box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='var(--primary, #4a90d9)'; this.style.boxShadow='0 0 0 4px rgba(var(--color-primary-rgb, 74,144,217), 0.1)';" onblur="this.style.borderColor='var(--line-divider, #e5e7eb)'; this.style.boxShadow='none';" onkeydown="if(event.key==='Enter') document.getElementById('login-btn').click();" />
-
-			<div style="text-align:right; margin-bottom:20px;">
-				<a href="/forgot-password" style="font-size:13px; color:var(--text-secondary, #888); text-decoration:none;">忘记密码？</a>
-			</div>
-
-			<button id="login-btn" style="width:100%; padding:14px; background:linear-gradient(135deg, var(--primary, #4a90d9), var(--primary-dark, #3b7bc8)); color:white; border:none; border-radius:14px; font-size:16px; font-weight:600; cursor:pointer; transition:transform 0.15s, box-shadow 0.2s; box-shadow:0 4px 16px rgba(var(--color-primary-rgb, 74,144,217), 0.25);">
-				登录
-			</button>
-
-			<div style="display:flex; align-items:center; gap:16px; margin:20px 0;">
-				<div style="flex:1; height:1px; background:var(--line-divider, #e5e7eb);"></div>
-				<span style="font-size:13px; color:var(--text-secondary, #999);">其他方式</span>
-				<div style="flex:1; height:1px; background:var(--line-divider, #e5e7eb);"></div>
-			</div>
-
-			<button id="google-btn" style="width:100%; padding:12px; background:var(--card-bg, #fff); border:2px solid var(--line-divider, #e5e7eb); border-radius:14px; font-size:14px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; color:var(--text, #1a1a1a);">
-				<svg viewBox="0 0 48 48" width="20" height="20">
-					<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-					<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-					<path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 0 1 9.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.99 23.99 0 0 0 0 24c0 3.77.87 7.35 2.56 10.56l7.97-5.97z"/>
-					<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 5.97C6.51 42.62 14.62 48 24 48z"/>
-				</svg>
-				使用 Google 登录
-			</button>
-
-			<p style="text-align:center; font-size:14px; color:var(--text-secondary, #666); margin-top:20px;">
-				还没有账号？<a href="/signup" style="color:var(--primary, #4a90d9); text-decoration:none; font-weight:500;">立即注册</a>
-			</p>
-		</div>
-	</div>
-
-	<script>
-		// 加载 Supabase SDK
-		const script = document.createElement('script');
-		script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
-		document.head.appendChild(script);
+		// Supabase 配置
+		const SUPABASE_URL = 'https://caguybanuoknufinlizq.supabase.co';
+		const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNhZ3V5YmFudW9rbnVmaW5saXpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3OTA5NDQsImV4cCI6MjEwMDM2Njk0NH0.n_2fpeagdAoutE0iND_iiVK2DAy8xhEXQD7xGaRsEyw';
 
 		let supabaseClient = null;
 
-		async function initSupabase() {
+		// 初始化 Supabase
+		function initSupabase() {
 			return new Promise((resolve) => {
-				const check = () => {
-					if (typeof window.supabase !== 'undefined') {
-						const SUPABASE_URL = 'https://caguybanuoknufinlizq.supabase.co';
-						const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNhZ3V5YmFudW9rbnVmaW5saXpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3OTA5NDQsImV4cCI6MjEwMDM2Njk0NH0.n_2fpeagdAoutE0iND_iiVK2DAy8xhEXQD7xGaRsEyw';
-						supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-						resolve(supabaseClient);
-					} else {
-						setTimeout(check, 100);
-					}
-				};
-				check();
+				if (typeof window.supabase !== 'undefined') {
+					supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+					resolve(supabaseClient);
+				} else {
+					const script = document.createElement('script');
+					script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+					script.onload = function() {
+						if (typeof window.supabase !== 'undefined') {
+							supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+							resolve(supabaseClient);
+						} else {
+							resolve(null);
+						}
+					};
+					script.onerror = function() {
+						resolve(null);
+					};
+					document.head.appendChild(script);
+				}
 			});
 		}
 
-		(function() {
-			const loginPage = document.getElementById('login-page');
-			const appContent = document.getElementById('swup-container');
-
-			function isLoggedIn() {
-				const cookies = document.cookie.split(';');
-				for (let cookie of cookies) {
-					if (cookie.trim() === 'cf_auth=1') {
-						return true;
-					}
-				}
-				return false;
-			}
-
-			function showLoginPage() {
-				if (loginPage) loginPage.style.display = 'flex';
-				if (appContent) appContent.style.display = 'none';
-				const player = document.querySelector('.music-player');
-				if (player) player.style.display = 'none';
-				const controls = document.querySelector('.floating-controls-container');
-				if (controls) controls.style.display = 'none';
-			}
-
-			function showAppContent() {
-				if (loginPage) loginPage.style.display = 'none';
-				if (appContent) appContent.style.display = 'block';
-				const player = document.querySelector('.music-player');
-				if (player) player.style.display = 'block';
-				const controls = document.querySelector('.floating-controls-container');
-				if (controls) controls.style.display = 'block';
-			}
-
-			async function handleLogin() {
-				const email = document.getElementById('login-email').value.trim();
-				const password = document.getElementById('login-password').value.trim();
-				const errorEl = document.getElementById('login-error');
-				const btn = document.getElementById('login-btn');
-
-				if (!email || !password) {
-					errorEl.style.display = 'block';
-					errorEl.textContent = '请输入邮箱和密码';
-					return;
-				}
-
-				errorEl.style.display = 'none';
-				btn.textContent = '登录中...';
-				btn.disabled = true;
-
-				try {
-					const client = await initSupabase();
-					if (!client) {
-						throw new Error('Supabase 初始化失败，请刷新页面重试');
-					}
-
-					const { data, error } = await client.auth.signInWithPassword({
-						email: email,
-						password: password
-					});
-
-					if (error) throw error;
-
-					if (data.session) {
-						document.cookie = 'cf_auth=1; path=/; max-age=86400';
-						showAppContent();
-						window.location.reload();
-					}
-				} catch (err) {
-					errorEl.style.display = 'block';
-					errorEl.textContent = err.message || '登录失败，请重试';
-				} finally {
-					btn.textContent = '登录';
-					btn.disabled = false;
+		function isLoggedIn() {
+			const cookies = document.cookie.split(';');
+			for (let cookie of cookies) {
+				if (cookie.trim() === 'cf_auth=1') {
+					return true;
 				}
 			}
+			return false;
+		}
 
-			// 检查登录状态
-			if (isLoggedIn()) {
-				showAppContent();
-			} else {
-				showLoginPage();
+		function showLoginPage() {
+			if (loginPage) loginPage.style.display = 'flex';
+			if (appContent) appContent.style.display = 'none';
+			const player = document.querySelector('.music-player');
+			if (player) player.style.display = 'none';
+			const controls = document.querySelector('.floating-controls-container');
+			if (controls) controls.style.display = 'none';
+		}
+
+		function showAppContent() {
+			if (loginPage) loginPage.style.display = 'none';
+			if (appContent) appContent.style.display = 'block';
+			const player = document.querySelector('.music-player');
+			if (player) player.style.display = 'block';
+			const controls = document.querySelector('.floating-controls-container');
+			if (controls) controls.style.display = 'block';
+		}
+
+		async function handleLogin() {
+			const email = document.getElementById('login-email').value.trim();
+			const password = document.getElementById('login-password').value.trim();
+			const errorEl = document.getElementById('login-error');
+			const btn = document.getElementById('login-btn');
+
+			if (!email || !password) {
+				errorEl.style.display = 'block';
+				errorEl.textContent = '请输入邮箱和密码';
+				return;
 			}
 
-			// 监听页面切换
-			document.addEventListener('visibilitychange', function() {
-				if (!document.hidden) {
-					if (isLoggedIn()) {
-						showAppContent();
-					} else {
-						showLoginPage();
-					}
+			errorEl.style.display = 'none';
+			btn.textContent = '登录中...';
+			btn.disabled = true;
+
+			try {
+				const client = await initSupabase();
+				if (!client) {
+					throw new Error('Supabase 初始化失败，请刷新页面重试');
 				}
-			});
 
-			// 绑定登录按钮
-			document.getElementById('login-btn').addEventListener('click', handleLogin);
-			document.getElementById('login-password').addEventListener('keydown', function(e) {
-				if (e.key === 'Enter') handleLogin();
-			});
-			document.getElementById('login-email').addEventListener('keydown', function(e) {
-				if (e.key === 'Enter') handleLogin();
-			});
+				const { data, error } = await client.auth.signInWithPassword({
+					email: email,
+					password: password
+				});
 
-			// Google 登录
-			document.getElementById('google-btn').addEventListener('click', async function() {
-				try {
-					const client = await initSupabase();
-					if (!client) {
-						throw new Error('Supabase 初始化失败');
-					}
-					const { error } = await client.auth.signInWithOAuth({
-						provider: 'google',
-						options: {
-							redirectTo: window.location.origin
-						}
-					});
-					if (error) throw error;
-				} catch (err) {
-					const errorEl = document.getElementById('login-error');
-					errorEl.style.display = 'block';
-					errorEl.textContent = err.message || 'Google 登录失败';
+				if (error) throw error;
+
+				if (data.session) {
+					document.cookie = 'cf_auth=1; path=/; max-age=86400';
+					showAppContent();
+					window.location.reload();
 				}
-			});
-		})();
-	</script>
+			} catch (err) {
+				errorEl.style.display = 'block';
+				errorEl.textContent = err.message || '登录失败，请重试';
+			} finally {
+				btn.textContent = '登录';
+				btn.disabled = false;
+			}
+		}
 
-</Layout>
+		// 初始化
+		if (isLoggedIn()) {
+			showAppContent();
+		} else {
+			showLoginPage();
+		}
+
+		document.getElementById('login-btn').addEventListener('click', handleLogin);
+		document.getElementById('login-password').addEventListener('keydown', function(e) {
+			if (e.key === 'Enter') handleLogin();
+		});
+		document.getElementById('login-email').addEventListener('keydown', function(e) {
+			if (e.key === 'Enter') handleLogin();
+		});
+	})();
+</script>
