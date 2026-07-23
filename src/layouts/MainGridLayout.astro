@@ -311,11 +311,9 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 			var errorEl = document.getElementById('login-error');
 
 			function checkLogin() {
-				if (localStorage.getItem('cf_auth') === '1') return true;
 				var cookies = document.cookie.split(';');
 				for (var i = 0; i < cookies.length; i++) {
 					if (cookies[i].trim() === 'cf_auth=1') {
-						localStorage.setItem('cf_auth', '1');
 						return true;
 					}
 				}
@@ -330,6 +328,7 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 				if (loginPage) loginPage.style.display = 'flex';
 			}
 
+			// 检测登录
 			if (checkLogin()) {
 				hideLogin();
 			} else {
@@ -351,7 +350,6 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 
 					if (email === 'admin@test.com' && password === '123456') {
 						document.cookie = 'cf_auth=1; path=/; max-age=86400';
-						localStorage.setItem('cf_auth', '1');
 						hideLogin();
 						window.location.reload();
 					} else {
