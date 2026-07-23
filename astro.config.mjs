@@ -30,7 +30,6 @@ import { remarkContent } from "./src/plugins/remark-content.mjs";
 import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
 import { remarkFixGithubAdmonitions } from "./src/plugins/remark-fix-github-admonitions.js";
 import { remarkMermaid } from "./src/plugins/remark-mermaid.js";
-import node from "@astrojs/node";
 
 // https://astro.build/config
 export default defineConfig({
@@ -38,11 +37,7 @@ export default defineConfig({
 	base: "/",
 	trailingSlash: "always",
 
-	output: "server",  // 改成 server
-
-	adapter: node({
-		mode: "standalone"
-	}),
+	output: "static",
 
 	integrations: [
 		oddmisc({
