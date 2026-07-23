@@ -239,6 +239,16 @@ if (siteConfig.font) {
 			};
 		</script>
 
+		<!-- 登录检查：未登录自动弹窗 -->
+		<script>
+			const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+			if (!isLoggedIn) {
+				document.addEventListener('DOMContentLoaded', function() {
+					document.dispatchEvent(new CustomEvent('openLoginModal'));
+				});
+			}
+		</script>
+
 		<ConfigCarrier />
 		<PageProgressBar
 			enable={siteConfig.pageProgressBar?.enable ?? false}
