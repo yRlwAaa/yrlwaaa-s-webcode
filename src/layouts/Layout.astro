@@ -262,6 +262,7 @@ if (siteConfig.font) {
 		<!-- ============================================ -->
 		<!-- 整页登录界面 - 未登录时覆盖整个页面 -->
 		<!-- ============================================ -->
+		<div id="login-page" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; background:linear-gradient(145deg, var(--page-bg, #f0f2f5) 0%, var(--card-bg, #ffffff) 100%); display:flex; align-items:center; justify-content:center;">
 			<div style="background:var(--card-bg, rgba(255,255,255,0.85)); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); padding:48px 40px 40px; border-radius:28px; max-width:420px; width:90%; box-shadow:0 30px 80px rgba(0,0,0,0.12), 0 10px 30px rgba(0,0,0,0.06); border:1px solid var(--line-divider, rgba(0,0,0,0.06));">
 				<!-- 头像/Logo -->
 				<div style="text-align:center; margin-bottom:24px;">
@@ -321,6 +322,7 @@ if (siteConfig.font) {
 				
 				// 检查是否已登录
 				const isLoggedIn = localStorage.getItem(LOGIN_KEY) === 'true';
+				const loginPage = document.getElementById('login-page');
 				const appContent = document.getElementById('app-content');
 				
 				function showLoginPage() {
