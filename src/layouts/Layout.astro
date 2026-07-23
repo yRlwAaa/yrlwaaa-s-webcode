@@ -262,17 +262,56 @@ if (siteConfig.font) {
 		<!-- ============================================ -->
 		<!-- 整页登录界面 - 未登录时覆盖整个页面 -->
 		<!-- ============================================ -->
-		<div id="login-page" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; background:var(--page-bg, #f5f7fb); display:flex; align-items:center; justify-content:center;">
-			<div style="background:var(--card-bg, #fff); padding:40px; border-radius:20px; max-width:400px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.2);">
-				<h2 style="text-align:center; margin-bottom:8px;">🔐 登录</h2>
-				<p style="text-align:center; color:var(--text-secondary, #888); margin-bottom:24px;">请登录后访问</p>
-				<div id="login-error" style="display:none; background:#fee; color:#c0392b; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:12px; border:1px solid #f5c6cb;"></div>
-				<input id="login-email" type="email" placeholder="邮箱" style="width:100%; padding:12px 14px; margin-bottom:12px; border:2px solid var(--line-divider, #e0e0e0); border-radius:8px; font-size:14px; background:var(--input-bg, #f5f5f5); color:var(--text); box-sizing:border-box;" />
-				<input id="login-password" type="password" placeholder="密码" style="width:100%; padding:12px 14px; margin-bottom:16px; border:2px solid var(--line-divider, #e0e0e0); border-radius:8px; font-size:14px; background:var(--input-bg, #f5f5f5); color:var(--text); box-sizing:border-box;" />
-				<button id="login-btn" style="width:100%; padding:12px; background:var(--primary, #4a90d9); color:white; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer;">登录</button>
-				<div style="text-align:center; color:var(--text-secondary, #999); font-size:13px; padding:16px 0; position:relative;">或</div>
-				<button id="google-btn" style="width:100%; padding:10px; background:var(--card-bg, #fff); border:2px solid var(--line-divider, #e0e0e0); border-radius:8px; font-size:14px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; color:var(--text);">使用 Google 登录</button>
-				<p style="text-align:center; font-size:13px; color:var(--text-secondary, #666); margin-top:16px;">还没有账号？<a href="/signup" style="color:var(--primary, #4a90d9); text-decoration:none;">注册</a></p>
+		<div id="login-page" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; background:linear-gradient(145deg, var(--page-bg, #f0f2f5) 0%, var(--card-bg, #ffffff) 100%); display:flex; align-items:center; justify-content:center;">
+			<div style="background:var(--card-bg, rgba(255,255,255,0.85)); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); padding:48px 40px 40px; border-radius:28px; max-width:420px; width:90%; box-shadow:0 30px 80px rgba(0,0,0,0.12), 0 10px 30px rgba(0,0,0,0.06); border:1px solid var(--line-divider, rgba(0,0,0,0.06));">
+				<!-- 头像/Logo -->
+				<div style="text-align:center; margin-bottom:24px;">
+					<div style="width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg, var(--primary, #4a90d9), var(--primary-light, #6cb2eb)); margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:32px; box-shadow:0 8px 24px rgba(var(--color-primary-rgb, 74,144,217), 0.25);">
+						🌸
+					</div>
+					<h2 style="margin:0; font-size:22px; font-weight:700; color:var(--text, #1a1a1a); letter-spacing:-0.3px;">欢迎回来</h2>
+					<p style="margin:4px 0 0; font-size:14px; color:var(--text-secondary, #888);">登录以继续</p>
+				</div>
+
+				<!-- 错误信息 -->
+				<div id="login-error" style="display:none; background:rgba(239,68,68,0.08); color:#dc2626; padding:10px 14px; border-radius:12px; font-size:13px; margin-bottom:16px; border:1px solid rgba(239,68,68,0.15);"></div>
+
+				<!-- 邮箱 -->
+				<input id="login-email" type="email" placeholder="邮箱地址" style="width:100%; padding:14px 16px; margin-bottom:12px; border:2px solid var(--line-divider, #e5e7eb); border-radius:14px; font-size:15px; background:var(--input-bg, #f8fafc); color:var(--text, #1a1a1a); box-sizing:border-box; transition:border-color 0.2s, box-shadow 0.2s; outline:none;" onfocus="this.style.borderColor='var(--primary, #4a90d9)'; this.style.boxShadow='0 0 0 4px rgba(var(--color-primary-rgb, 74,144,217), 0.1)';" onblur="this.style.borderColor='var(--line-divider, #e5e7eb)'; this.style.boxShadow='none';" />
+
+				<!-- 密码 -->
+				<input id="login-password" type="password" placeholder="密码" style="width:100%; padding:14px 16px; margin-bottom:8px; border:2px solid var(--line-divider, #e5e7eb); border-radius:14px; font-size:15px; background:var(--input-bg, #f8fafc); color:var(--text, #1a1a1a); box-sizing:border-box; transition:border-color 0.2s, box-shadow 0.2s; outline:none;" onfocus="this.style.borderColor='var(--primary, #4a90d9)'; this.style.boxShadow='0 0 0 4px rgba(var(--color-primary-rgb, 74,144,217), 0.1)';" onblur="this.style.borderColor='var(--line-divider, #e5e7eb)'; this.style.boxShadow='none';" onkeydown="if(event.key==='Enter') document.getElementById('login-btn').click();" />
+
+				<!-- 忘记密码 -->
+				<div style="text-align:right; margin-bottom:20px;">
+					<a href="/forgot-password" style="font-size:13px; color:var(--text-secondary, #888); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='var(--primary, #4a90d9)'" onmouseout="this.style.color='var(--text-secondary, #888)'">忘记密码？</a>
+				</div>
+
+				<!-- 登录按钮 -->
+				<button id="login-btn" style="width:100%; padding:14px; background:linear-gradient(135deg, var(--primary, #4a90d9), var(--primary-dark, #3b7bc8)); color:white; border:none; border-radius:14px; font-size:16px; font-weight:600; cursor:pointer; transition:transform 0.15s, box-shadow 0.2s; box-shadow:0 4px 16px rgba(var(--color-primary-rgb, 74,144,217), 0.25);" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 24px rgba(var(--color-primary-rgb, 74,144,217), 0.35)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(var(--color-primary-rgb, 74,144,217), 0.25)';">登录</button>
+
+				<!-- 分隔线 -->
+				<div style="display:flex; align-items:center; gap:16px; margin:20px 0;">
+					<div style="flex:1; height:1px; background:var(--line-divider, #e5e7eb);"></div>
+					<span style="font-size:13px; color:var(--text-secondary, #999); white-space:nowrap;">其他方式</span>
+					<div style="flex:1; height:1px; background:var(--line-divider, #e5e7eb);"></div>
+				</div>
+
+				<!-- Google 登录 -->
+				<button id="google-btn" style="width:100%; padding:12px; background:var(--card-bg, #fff); border:2px solid var(--line-divider, #e5e7eb); border-radius:14px; font-size:14px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; color:var(--text, #1a1a1a); transition:background 0.2s, border-color 0.2s;" onmouseover="this.style.background='var(--hover-bg, #f1f3f5)'; this.style.borderColor='var(--primary, #4a90d9)';" onmouseout="this.style.background='var(--card-bg, #fff)'; this.style.borderColor='var(--line-divider, #e5e7eb)';">
+					<svg viewBox="0 0 48 48" width="20" height="20">
+						<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+						<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+						<path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 0 1 9.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.99 23.99 0 0 0 0 24c0 3.77.87 7.35 2.56 10.56l7.97-5.97z"/>
+						<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 5.97C6.51 42.62 14.62 48 24 48z"/>
+					</svg>
+					使用 Google 登录
+				</button>
+
+				<!-- 注册链接 -->
+				<p style="text-align:center; font-size:14px; color:var(--text-secondary, #666); margin-top:20px;">
+					还没有账号？<a href="/signup" style="color:var(--primary, #4a90d9); text-decoration:none; font-weight:500; transition:color 0.2s;" onmouseover="this.style.color='var(--primary-dark, #3b7bc8)'" onmouseout="this.style.color='var(--primary, #4a90d9)'">立即注册</a>
+				</p>
 			</div>
 		</div>
 
@@ -285,7 +324,6 @@ if (siteConfig.font) {
 				const isLoggedIn = localStorage.getItem(LOGIN_KEY) === 'true';
 				const loginPage = document.getElementById('login-page');
 				const appContent = document.getElementById('app-content');
-				const musicPlayer = document.querySelector('.music-player');
 				
 				function showLoginPage() {
 					if (loginPage) loginPage.style.display = 'flex';
