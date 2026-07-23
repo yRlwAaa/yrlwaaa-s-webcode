@@ -287,6 +287,7 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 	<!-- ============================================ -->
 	<!-- 整页登录界面 - 使用 Supabase 认证 -->
 	<!-- ============================================ -->
+	<div id="login-page" style="display:flex; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; background:linear-gradient(145deg, var(--page-bg, #f0f2f5) 0%, var(--card-bg, #ffffff) 100%); align-items:center; justify-content:center;">
 		<div style="background:var(--card-bg, rgba(255,255,255,0.85)); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); padding:48px 40px 40px; border-radius:28px; max-width:420px; width:90%; box-shadow:0 30px 80px rgba(0,0,0,0.12), 0 10px 30px rgba(0,0,0,0.06); border:1px solid var(--line-divider, rgba(0,0,0,0.06));">
 			<div style="text-align:center; margin-bottom:24px;">
 				<div style="width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg, var(--primary, #4a90d9), var(--primary-light, #6cb2eb)); margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:32px; box-shadow:0 8px 24px rgba(var(--color-primary-rgb, 74,144,217), 0.25);">
@@ -334,6 +335,7 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 
 	<script>
 		(function() {
+			const loginPage = document.getElementById('login-page');
 			const appContent = document.getElementById('swup-container');
 
 			// Supabase 配置
@@ -374,6 +376,7 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 			function checkLoginStatus() {
 				const cookies = document.cookie.split(';');
 				for (let cookie of cookies) {
+					if (cookie.trim() === 'cf_auth=1') {
 						return true;
 					}
 				}
@@ -434,6 +437,7 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 
 					if (data.session) {
 						// 设置 cookie
+						document.cookie = 'cf_auth=1; path=/; max-age=86400; SameSite=Lax';
 						// 直接显示内容
 						showAppContent();
 						// 刷新页面确保完全切换
