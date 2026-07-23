@@ -253,7 +253,7 @@ if (siteConfig.font) {
 		<div id="page-height-extend" class="hidden h-[300vh]"></div>
 
 		<!-- ============================================ -->
-		<!-- 登录界面 - 直接硬编码在 Layout 里 -->
+		<!-- 登录界面 - 硬编码在 Layout 里 -->
 		<!-- ============================================ -->
 		<div id="login-page" style="display:flex; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; background:linear-gradient(145deg, #f0f2f5 0%, #ffffff 100%); align-items:center; justify-content:center;">
 			<div style="background:rgba(255,255,255,0.85); backdrop-filter:blur(20px); padding:48px 40px 40px; border-radius:28px; max-width:420px; width:90%; box-shadow:0 30px 80px rgba(0,0,0,0.12); border:1px solid rgba(0,0,0,0.06);">
@@ -275,9 +275,15 @@ if (siteConfig.font) {
 				const loginPage = document.getElementById('login-page');
 
 				function checkLogin() {
+					// 先检查 localStorage
+					if (localStorage.getItem('cf_auth') === '1') {
+						return true;
+					}
+					// 再检查 cookie
 					const cookies = document.cookie.split(';');
 					for (let cookie of cookies) {
 						if (cookie.trim() === 'cf_auth=1') {
+							localStorage.setItem('cf_auth', '1');
 							return true;
 						}
 					}
@@ -286,6 +292,9 @@ if (siteConfig.font) {
 
 				function hideLogin() {
 					if (loginPage) loginPage.style.display = 'none';
+					// 显示主内容
+					const main = document.querySelector('#swup-container, main, #app-content');
+					if (main) main.style.display = 'block';
 				}
 
 				function showLogin() {
@@ -313,6 +322,7 @@ if (siteConfig.font) {
 
 					if (email === 'admin@test.com' && password === '123456') {
 						document.cookie = 'cf_auth=1; path=/; max-age=86400';
+						localStorage.setItem('cf_auth', '1');
 						hideLogin();
 						window.location.reload();
 					} else {
