@@ -253,7 +253,7 @@ if (siteConfig.font) {
 		<div id="page-height-extend" class="hidden h-[300vh]"></div>
 
 		<!-- ============================================ -->
-		<!-- 登录界面 -->
+		<!-- 登录界面 - 直接硬编码在 Layout 里 -->
 		<!-- ============================================ -->
 		<div id="login-page" style="display:flex; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; background:linear-gradient(145deg, #f0f2f5 0%, #ffffff 100%); align-items:center; justify-content:center;">
 			<div style="background:rgba(255,255,255,0.85); backdrop-filter:blur(20px); padding:48px 40px 40px; border-radius:28px; max-width:420px; width:90%; box-shadow:0 30px 80px rgba(0,0,0,0.12); border:1px solid rgba(0,0,0,0.06);">
@@ -263,43 +263,45 @@ if (siteConfig.font) {
 					<p style="margin:4px 0 0; font-size:14px; color:#888;">登录以继续</p>
 				</div>
 				<div id="login-error" style="display:none; background:rgba(239,68,68,0.08); color:#dc2626; padding:10px 14px; border-radius:12px; font-size:13px; margin-bottom:16px; border:1px solid rgba(239,68,68,0.15);"></div>
-				<input id="login-email" type="email" placeholder="邮箱地址" value="admin@test.com" style="width:100%; padding:14px 16px; margin-bottom:12px; border:2px solid #e5e7eb; border-radius:14px; font-size:15px; background:#f8fafc; color:#1a1a1a; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#4a90d9';this.style.boxShadow='0 0 0 4px rgba(74,144,217,0.1)'" onblur="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
-				<input id="login-password" type="password" placeholder="密码" value="123456" style="width:100%; padding:14px 16px; margin-bottom:8px; border:2px solid #e5e7eb; border-radius:14px; font-size:15px; background:#f8fafc; color:#1a1a1a; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#4a90d9';this.style.boxShadow='0 0 0 4px rgba(74,144,217,0.1)'" onblur="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'" onkeydown="if(event.key==='Enter') document.getElementById('login-btn').click();">
-				<button id="login-btn" onclick="doLogin()" style="width:100%; padding:14px; background:linear-gradient(135deg, #4a90d9, #3b7bc8); color:white; border:none; border-radius:14px; font-size:16px; font-weight:600; cursor:pointer; box-shadow:0 4px 16px rgba(74,144,217,0.25);">登录</button>
+				<input id="login-email" type="email" placeholder="邮箱地址" style="width:100%; padding:14px 16px; margin-bottom:12px; border:2px solid #e5e7eb; border-radius:14px; font-size:15px; background:#f8fafc; color:#1a1a1a; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#4a90d9';this.style.boxShadow='0 0 0 4px rgba(74,144,217,0.1)'" onblur="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
+				<input id="login-password" type="password" placeholder="密码" style="width:100%; padding:14px 16px; margin-bottom:8px; border:2px solid #e5e7eb; border-radius:14px; font-size:15px; background:#f8fafc; color:#1a1a1a; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#4a90d9';this.style.boxShadow='0 0 0 4px rgba(74,144,217,0.1)'" onblur="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'" onkeydown="if(event.key==='Enter') document.getElementById('login-btn').click();">
+				<button id="login-btn" style="width:100%; padding:14px; background:linear-gradient(135deg, #4a90d9, #3b7bc8); color:white; border:none; border-radius:14px; font-size:16px; font-weight:600; cursor:pointer; box-shadow:0 4px 16px rgba(74,144,217,0.25);">登录</button>
 				<p style="text-align:center; font-size:14px; color:#666; margin-top:20px;">还没有账号？<a href="/signup" style="color:#4a90d9; text-decoration:none; font-weight:500;">立即注册</a></p>
 			</div>
 		</div>
 
 		<script>
 			(function() {
-				var loginPage = document.getElementById('login-page');
+				const loginPage = document.getElementById('login-page');
+
+				function checkLogin() {
+					const cookies = document.cookie.split(';');
+					for (let cookie of cookies) {
+						if (cookie.trim() === 'cf_auth=1') {
+							return true;
+						}
+					}
+					return false;
+				}
 
 				function hideLogin() {
 					if (loginPage) loginPage.style.display = 'none';
-					var mainContent = document.querySelector('#swup-container, main');
-					if (mainContent) mainContent.style.display = 'block';
-					var player = document.querySelector('.music-player');
-					if (player) player.style.display = 'block';
 				}
 
-				// 检查登录状态
-				var cookies = document.cookie.split(';');
-				var isLoggedIn = false;
-				for (var i = 0; i < cookies.length; i++) {
-					if (cookies[i].trim() === 'cf_auth=1') {
-						isLoggedIn = true;
-						break;
-					}
+				function showLogin() {
+					if (loginPage) loginPage.style.display = 'flex';
 				}
-				if (isLoggedIn) {
+
+				if (checkLogin()) {
 					hideLogin();
+				} else {
+					showLogin();
 				}
 
-				// ===== 登录函数 =====
-				window.doLogin = function() {
-					var email = document.getElementById('login-email').value.trim();
-					var password = document.getElementById('login-password').value.trim();
-					var errorEl = document.getElementById('login-error');
+				document.getElementById('login-btn').addEventListener('click', function() {
+					const email = document.getElementById('login-email').value.trim();
+					const password = document.getElementById('login-password').value.trim();
+					const errorEl = document.getElementById('login-error');
 
 					if (!email || !password) {
 						errorEl.style.display = 'block';
@@ -311,34 +313,20 @@ if (siteConfig.font) {
 
 					if (email === 'admin@test.com' && password === '123456') {
 						document.cookie = 'cf_auth=1; path=/; max-age=86400';
-						localStorage.setItem('cf_auth', '1');
 						hideLogin();
 						window.location.reload();
 					} else {
 						errorEl.style.display = 'block';
 						errorEl.textContent = '邮箱或密码错误';
 					}
-				};
+				});
 
-				// 绑定回车键
-				var pwdInput = document.getElementById('login-password');
-				var emailInput = document.getElementById('login-email');
-				if (pwdInput) {
-					pwdInput.onkeydown = function(e) {
-						if (e.key === 'Enter') {
-							e.preventDefault();
-							window.doLogin();
-						}
-					};
-				}
-				if (emailInput) {
-					emailInput.onkeydown = function(e) {
-						if (e.key === 'Enter') {
-							e.preventDefault();
-							window.doLogin();
-						}
-					};
-				}
+				document.getElementById('login-password').addEventListener('keydown', function(e) {
+					if (e.key === 'Enter') document.getElementById('login-btn').click();
+				});
+				document.getElementById('login-email').addEventListener('keydown', function(e) {
+					if (e.key === 'Enter') document.getElementById('login-btn').click();
+				});
 
 				console.log('✅ 登录系统已加载');
 				console.log('📧 测试账号: admin@test.com');
