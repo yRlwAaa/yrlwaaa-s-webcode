@@ -9,10 +9,6 @@
   let loading = false;
   let errorMsg = "";
 
-  function checkLogin() {
-    return localStorage.getItem("isLoggedIn") === "true";
-  }
-
   async function handleLogin() {
     if (!email || !password) {
       errorMsg = "请输入邮箱和密码";
@@ -23,7 +19,6 @@
     errorMsg = "";
 
     try {
-      // 从 window 获取 Supabase
       const supabase = window.supabase;
       if (!supabase) {
         errorMsg = "Supabase 未加载，请刷新页面重试";
@@ -92,7 +87,17 @@
 
   onMount(() => {
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    
+    // 监听自定义事件打开弹窗
+    const handleOpenModal = () => {
+      show = true;
+    };
+    document.addEventListener("openLoginModal", handleOpenModal);
+    
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("openLoginModal", handleOpenModal);
+    };
   });
 </script>
 
