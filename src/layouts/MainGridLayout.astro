@@ -296,26 +296,16 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 			</div>
 			<div id="login-error" style="display:none; background:rgba(239,68,68,0.08); color:#dc2626; padding:10px 14px; border-radius:12px; font-size:13px; margin-bottom:16px; border:1px solid rgba(239,68,68,0.15);"></div>
 			<input id="login-email" type="email" placeholder="邮箱地址" value="admin@test.com" style="width:100%; padding:14px 16px; margin-bottom:12px; border:2px solid #e5e7eb; border-radius:14px; font-size:15px; background:#f8fafc; color:#1a1a1a; box-sizing:border-box; outline:none;">
-			<input id="login-password" type="password" placeholder="密码" value="123456" style="width:100%; padding:14px 16px; margin-bottom:8px; border:2px solid #e5e7eb; border-radius:14px; font-size:15px; background:#f8fafc; color:#1a1a1a; box-sizing:border-box; outline:none;" onkeydown="if(event.key==='Enter') document.getElementById('login-btn').click();">
-			<button id="login-btn" onclick="doLogin()" style="width:100%; padding:14px; background:linear-gradient(135deg, #4a90d9, #3b7bc8); color:white; border:none; border-radius:14px; font-size:16px; font-weight:600; cursor:pointer; box-shadow:0 4px 16px rgba(74,144,217,0.25);">登录</button>
+			<input id="login-password" type="password" placeholder="密码" value="123456" style="width:100%; padding:14px 16px; margin-bottom:8px; border:2px solid #e5e7eb; border-radius:14px; font-size:15px; background:#f8fafc; color:#1a1a1a; box-sizing:border-box; outline:none;">
+			<button id="login-btn" style="width:100%; padding:14px; background:linear-gradient(135deg, #4a90d9, #3b7bc8); color:white; border:none; border-radius:14px; font-size:16px; font-weight:600; cursor:pointer; box-shadow:0 4px 16px rgba(74,144,217,0.25);">登录</button>
 			<p style="text-align:center; font-size:14px; color:#666; margin-top:20px;">还没有账号？<a href="/signup" style="color:#4a90d9; text-decoration:none; font-weight:500;">立即注册</a></p>
 		</div>
 	</div>
 
 	<script>
-		// ===== 修复: 用 addEventListener 方式绑定，不依赖 onclick 属性 =====
+		// ===== 最终修复：用最简单的方式绑定 =====
 		(function() {
 			var loginPage = document.getElementById('login-page');
-
-			function checkLogin() {
-				var cookies = document.cookie.split(';');
-				for (var i = 0; i < cookies.length; i++) {
-					if (cookies[i].trim() === 'cf_auth=1') {
-						return true;
-					}
-				}
-				return false;
-			}
 
 			function hideLogin() {
 				if (loginPage) loginPage.style.display = 'none';
@@ -325,60 +315,82 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 				if (player) player.style.display = 'block';
 			}
 
-			if (checkLogin()) {
+			// 检查登录状态
+			var cookies = document.cookie.split(';');
+			var isLoggedIn = false;
+			for (var i = 0; i < cookies.length; i++) {
+				if (cookies[i].trim() === 'cf_auth=1') {
+					isLoggedIn = true;
+					break;
+				}
+			}
+			if (isLoggedIn) {
 				hideLogin();
-				return;
 			}
 
-			// 等待 DOM 加载完成后绑定按钮
-			function bindButton() {
-				var btn = document.getElementById('login-btn');
-				if (!btn) {
-					setTimeout(bindButton, 100);
+			// 登录函数
+			function doLogin() {
+				var email = document.getElementById('login-email').value.trim();
+				var password = document.getElementById('login-password').value.trim();
+				var errorEl = document.getElementById('login-error');
+
+				if (!email || !password) {
+					errorEl.style.display = 'block';
+					errorEl.textContent = '请输入邮箱和密码';
 					return;
 				}
 
-				// 移除旧事件，用 addEventListener
+				errorEl.style.display = 'none';
+
+				if (email === 'admin@test.com' && password === '123456') {
+					document.cookie = 'cf_auth=1; path=/; max-age=86400';
+					localStorage.setItem('cf_auth', '1');
+					hideLogin();
+					// 刷新确保所有内容加载
+					window.location.reload();
+				} else {
+					errorEl.style.display = 'block';
+					errorEl.textContent = '邮箱或密码错误';
+				}
+			}
+
+			// ===== 方式1：直接给按钮添加 onclick 属性 =====
+			var btn = document.getElementById('login-btn');
+			if (btn) {
+				// 移除所有已有监听器
 				var newBtn = btn.cloneNode(true);
 				btn.parentNode.replaceChild(newBtn, btn);
-
-				newBtn.addEventListener('click', function(e) {
-					e.preventDefault();
-					var email = document.getElementById('login-email').value.trim();
-					var password = document.getElementById('login-password').value.trim();
-					var errorEl = document.getElementById('login-error');
-
-					if (!email || !password) {
-						errorEl.style.display = 'block';
-						errorEl.textContent = '请输入邮箱和密码';
-						return;
-					}
-
-					errorEl.style.display = 'none';
-
-					if (email === 'admin@test.com' && password === '123456') {
-						document.cookie = 'cf_auth=1; path=/; max-age=86400';
-						localStorage.setItem('cf_auth', '1');
-						hideLogin();
-						console.log('✅ 登录成功');
-					} else {
-						errorEl.style.display = 'block';
-						errorEl.textContent = '邮箱或密码错误';
-					}
-				});
-
-				console.log('✅ 按钮已绑定 (addEventListener)');
+				// 直接用 onclick 属性
+				newBtn.setAttribute('onclick', 'doLogin()');
 			}
 
-			// 页面加载完后执行
-			if (document.readyState === 'complete') {
-				bindButton();
-			} else {
-				window.addEventListener('load', bindButton);
+			// ===== 方式2：回车登录 =====
+			var pwdInput = document.getElementById('login-password');
+			var emailInput = document.getElementById('login-email');
+			if (pwdInput) {
+				pwdInput.onkeydown = function(e) {
+					if (e.key === 'Enter') {
+						e.preventDefault();
+						doLogin();
+					}
+				};
+			}
+			if (emailInput) {
+				emailInput.onkeydown = function(e) {
+					if (e.key === 'Enter') {
+						e.preventDefault();
+						doLogin();
+					}
+				};
 			}
 
+			// 暴露全局函数
+			window.doLogin = doLogin;
+
+			console.log('✅ 登录系统已加载');
 			console.log('📧 测试账号: admin@test.com');
 			console.log('🔑 测试密码: 123456');
+			console.log('💡 点击登录按钮或按回车键');
 		})();
 	</script>
 
