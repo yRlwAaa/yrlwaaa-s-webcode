@@ -5,7 +5,6 @@ import Pio from "@components/features/pio/Pio.svelte";
 import { PageProgressBar } from "@components/control/PageProgressBar";
 import { pioConfig, profileConfig, siteConfig } from "@/config";
 import { sidebarLayoutConfig } from "@/config";
-import LoginModal from "@components/widgets/LoginModal.svelte";
 
 const BANNER_HEIGHT = 35;
 const BANNER_HEIGHT_EXTEND = 30;
@@ -239,23 +238,17 @@ if (siteConfig.font) {
 			};
 		</script>
 
-		<!-- 登录检查：未登录自动弹窗 -->
-		<script>
-			const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-			if (!isLoggedIn) {
-				document.addEventListener('DOMContentLoaded', function() {
-					document.dispatchEvent(new CustomEvent('openLoginModal'));
-				});
-			}
-		</script>
-
 		<ConfigCarrier />
 		<PageProgressBar
 			enable={siteConfig.pageProgressBar?.enable ?? false}
 			height={siteConfig.pageProgressBar?.height ?? 3}
 			duration={siteConfig.pageProgressBar?.duration ?? 8000}
 		/>
-		<slot />
+		
+		<!-- 主内容 - 登录后显示 -->
+		<div id="app-content">
+			<slot />
+		</div>
 
 		<!-- Music Player - 核心始终加载（当enable=true），UI通过showFloatingPlayer控制 -->
 		<MusicPlayer client:idle />
@@ -263,11 +256,143 @@ if (siteConfig.font) {
 		<!-- Pio 看板娘组件 - 仅在进入视口时加载 -->
 		{pioConfig.enable && <Pio client:visible />}
 
-		<!-- 登录弹窗 -->
-		<LoginModal client:load />
-
 		<!-- increase the page height during page transition to prevent the scrolling animation from jumping -->
 		<div id="page-height-extend" class="hidden h-[300vh]"></div>
+
+		<!-- ============================================ -->
+		<!-- 整页登录界面 - 未登录时覆盖整个页面 -->
+		<!-- ============================================ -->
+		<div id="login-page" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; background:var(--page-bg, #f5f7fb); display:flex; align-items:center; justify-content:center;">
+			<div style="background:var(--card-bg, #fff); padding:40px; border-radius:20px; max-width:400px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+				<h2 style="text-align:center; margin-bottom:8px;">🔐 登录</h2>
+				<p style="text-align:center; color:var(--text-secondary, #888); margin-bottom:24px;">请登录后访问</p>
+				<div id="login-error" style="display:none; background:#fee; color:#c0392b; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:12px; border:1px solid #f5c6cb;"></div>
+				<input id="login-email" type="email" placeholder="邮箱" style="width:100%; padding:12px 14px; margin-bottom:12px; border:2px solid var(--line-divider, #e0e0e0); border-radius:8px; font-size:14px; background:var(--input-bg, #f5f5f5); color:var(--text); box-sizing:border-box;" />
+				<input id="login-password" type="password" placeholder="密码" style="width:100%; padding:12px 14px; margin-bottom:16px; border:2px solid var(--line-divider, #e0e0e0); border-radius:8px; font-size:14px; background:var(--input-bg, #f5f5f5); color:var(--text); box-sizing:border-box;" />
+				<button id="login-btn" style="width:100%; padding:12px; background:var(--primary, #4a90d9); color:white; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer;">登录</button>
+				<div style="text-align:center; color:var(--text-secondary, #999); font-size:13px; padding:16px 0; position:relative;">或</div>
+				<button id="google-btn" style="width:100%; padding:10px; background:var(--card-bg, #fff); border:2px solid var(--line-divider, #e0e0e0); border-radius:8px; font-size:14px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; color:var(--text);">使用 Google 登录</button>
+				<p style="text-align:center; font-size:13px; color:var(--text-secondary, #666); margin-top:16px;">还没有账号？<a href="/signup" style="color:var(--primary, #4a90d9); text-decoration:none;">注册</a></p>
+			</div>
+		</div>
+
+		<script>
+			(function() {
+				const LOGIN_KEY = 'isLoggedIn';
+				const USER_KEY = 'userEmail';
+				
+				// 检查是否已登录
+				const isLoggedIn = localStorage.getItem(LOGIN_KEY) === 'true';
+				const loginPage = document.getElementById('login-page');
+				const appContent = document.getElementById('app-content');
+				const musicPlayer = document.querySelector('.music-player');
+				
+				function showLoginPage() {
+					if (loginPage) loginPage.style.display = 'flex';
+					if (appContent) appContent.style.display = 'none';
+					// 隐藏音乐播放器
+					const player = document.querySelector('.music-player');
+					if (player) player.style.display = 'none';
+				}
+				
+				function showAppContent() {
+					if (loginPage) loginPage.style.display = 'none';
+					if (appContent) appContent.style.display = 'block';
+					const player = document.querySelector('.music-player');
+					if (player) player.style.display = 'block';
+				}
+				
+				if (isLoggedIn) {
+					showAppContent();
+				} else {
+					showLoginPage();
+				}
+				
+				// 登录逻辑
+				async function handleLogin() {
+					const email = document.getElementById('login-email').value.trim();
+					const password = document.getElementById('login-password').value.trim();
+					const errorEl = document.getElementById('login-error');
+					const btn = document.getElementById('login-btn');
+					
+					if (!email || !password) {
+						errorEl.style.display = 'block';
+						errorEl.textContent = '请输入邮箱和密码';
+						return;
+					}
+					
+					errorEl.style.display = 'none';
+					btn.textContent = '登录中...';
+					btn.disabled = true;
+					
+					try {
+						// 使用 Supabase 登录
+						const supabase = window.supabase;
+						if (!supabase) {
+							throw new Error('Supabase 未加载，请刷新页面重试');
+						}
+						
+						const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+						const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+						const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+						
+						const { data, error } = await client.auth.signInWithPassword({
+							email: email,
+							password: password
+						});
+						
+						if (error) {
+							throw new Error(error.message);
+						}
+						
+						if (data.session) {
+							localStorage.setItem(LOGIN_KEY, 'true');
+							localStorage.setItem(USER_KEY, email);
+							showAppContent();
+							window.location.reload();
+						}
+					} catch (err) {
+						errorEl.style.display = 'block';
+						errorEl.textContent = err.message || '登录失败，请重试';
+					} finally {
+						btn.textContent = '登录';
+						btn.disabled = false;
+					}
+				}
+				
+				document.getElementById('login-btn').addEventListener('click', handleLogin);
+				document.getElementById('login-password').addEventListener('keydown', function(e) {
+					if (e.key === 'Enter') handleLogin();
+				});
+				document.getElementById('login-email').addEventListener('keydown', function(e) {
+					if (e.key === 'Enter') handleLogin();
+				});
+				
+				// Google 登录
+				document.getElementById('google-btn').addEventListener('click', async function() {
+					try {
+						const supabase = window.supabase;
+						if (!supabase) {
+							document.getElementById('login-error').style.display = 'block';
+							document.getElementById('login-error').textContent = 'Supabase 未加载';
+							return;
+						}
+						const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+						const SUPABASE_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+						const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+						const { error } = await client.auth.signInWithOAuth({
+							provider: 'google',
+							options: { redirectTo: window.location.origin }
+						});
+						if (error) throw new Error(error.message);
+					} catch (err) {
+						const errorEl = document.getElementById('login-error');
+						errorEl.style.display = 'block';
+						errorEl.textContent = err.message || 'Google 登录失败';
+					}
+				});
+			})();
+		</script>
 	</body>
 </html>
 
