@@ -30,6 +30,7 @@ import { remarkContent } from "./src/plugins/remark-content.mjs";
 import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
 import { remarkFixGithubAdmonitions } from "./src/plugins/remark-fix-github-admonitions.js";
 import { remarkMermaid } from "./src/plugins/remark-mermaid.js";
+import node from "@astrojs/node";
 
 // https://astro.build/config
 export default defineConfig({
@@ -37,7 +38,11 @@ export default defineConfig({
 	base: "/",
 	trailingSlash: "always",
 
-	output: "static",
+	output: "server",  // 改成 server
+
+	adapter: node({
+		mode: "standalone"
+	}),
 
 	integrations: [
 		oddmisc({
@@ -49,18 +54,16 @@ export default defineConfig({
 			theme: false,
 			animationClass: "transition-swup-",
 			containers: ["main"],
-			smoothScrolling: false, // 禁用平滑滚动以提升性能，避免与锚点导航冲突
+			smoothScrolling: false,
 			cache: true,
-			preload: false, // 禁用预加载以提升性能
+			preload: false,
 			accessibility: true,
 			updateHead: process.env.NODE_ENV === "production",
 			updateBodyClass: false,
 			globalInstance: true,
-			// 滚动相关配置优化
 			resolveUrl: (url) => url,
 			animateHistoryBrowsing: false,
 			skipPopStateHandling: (event) => {
-				// 跳过锚点链接的处理，让浏览器原生处理
 				return (
 					event.state &&
 					event.state.url &&
@@ -181,7 +184,6 @@ export default defineConfig({
 	},
 	vite: {
 		plugins: [tailwindcss()],
-		// 开发环境预打包优化：将常用依赖提前编译，避免首次页面加载时 on-demand 编译导致 8s+ 的等待
 		optimizeDeps: {
 			include: [
 				"@iconify/svelte",
@@ -195,7 +197,6 @@ export default defineConfig({
 				"qrcode",
 			],
 		},
-		// 预热常用入口文件，让 Vite 在服务器启动后立即开始转换，而不是等到浏览器请求
 		server: {
 			warmup: {
 				clientFiles: [
@@ -210,14 +211,10 @@ export default defineConfig({
 			},
 		},
 		build: {
-			// 静态资源处理优化，防止小图片转 base64 导致 HTML 体积过大
 			assetsInlineLimit: 4096,
-			// CSS 代码分割
 			cssCodeSplit: true,
 			cssMinify: "esbuild",
-			// 内联小型 CSS 文件以减少网络请求
 			inlineStylesheets: "auto",
-			// 生产环境移除 console 和 debugger
 			minify: "esbuild",
 			rollupOptions: {
 				onwarn(warning, warn) {
@@ -235,7 +232,6 @@ export default defineConfig({
 				},
 			},
 		},
-		// 生产环境移除 console.log 和 debugger
 		esbuildOptions: {
 			drop:
 				process.env.NODE_ENV === "production"
