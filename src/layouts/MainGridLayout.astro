@@ -285,66 +285,223 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 	}
 
 	<!-- ============================================ -->
-	<!-- 登录界面 -->
+	<!-- 整页登录界面 - 使用 Supabase 认证 -->
 	<!-- ============================================ -->
-	<div id="login-page" style="display:flex; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; background:linear-gradient(145deg, #f0f2f5 0%, #ffffff 100%); align-items:center; justify-content:center;">
-		<div style="background:rgba(255,255,255,0.85); backdrop-filter:blur(20px); padding:48px 40px 40px; border-radius:28px; max-width:420px; width:90%; box-shadow:0 30px 80px rgba(0,0,0,0.12); border:1px solid rgba(0,0,0,0.06);">
+	<div id="login-page" style="display:flex; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; background:linear-gradient(145deg, var(--page-bg, #f0f2f5) 0%, var(--card-bg, #ffffff) 100%); align-items:center; justify-content:center;">
+		<div style="background:var(--card-bg, rgba(255,255,255,0.85)); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); padding:48px 40px 40px; border-radius:28px; max-width:420px; width:90%; box-shadow:0 30px 80px rgba(0,0,0,0.12), 0 10px 30px rgba(0,0,0,0.06); border:1px solid var(--line-divider, rgba(0,0,0,0.06));">
 			<div style="text-align:center; margin-bottom:24px;">
-				<div style="width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg, #4a90d9, #6cb2eb); margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:32px; box-shadow:0 8px 24px rgba(74,144,217,0.25);">🌸</div>
-				<h2 style="margin:0; font-size:22px; font-weight:700; color:#1a1a1a;">欢迎回来</h2>
-				<p style="margin:4px 0 0; font-size:14px; color:#888;">登录以继续</p>
+				<div style="width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg, var(--primary, #4a90d9), var(--primary-light, #6cb2eb)); margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:32px; box-shadow:0 8px 24px rgba(var(--color-primary-rgb, 74,144,217), 0.25);">
+					🌸
+				</div>
+				<h2 style="margin:0; font-size:22px; font-weight:700; color:var(--text, #1a1a1a); letter-spacing:-0.3px;">欢迎回来</h2>
+				<p style="margin:4px 0 0; font-size:14px; color:var(--text-secondary, #888);">登录以继续</p>
 			</div>
+
 			<div id="login-error" style="display:none; background:rgba(239,68,68,0.08); color:#dc2626; padding:10px 14px; border-radius:12px; font-size:13px; margin-bottom:16px; border:1px solid rgba(239,68,68,0.15);"></div>
-			<input id="login-email" type="email" placeholder="邮箱地址" value="admin@test.com" style="width:100%; padding:14px 16px; margin-bottom:12px; border:2px solid #e5e7eb; border-radius:14px; font-size:15px; background:#f8fafc; color:#1a1a1a; box-sizing:border-box; outline:none;">
-			<input id="login-password" type="password" placeholder="密码" value="123456" style="width:100%; padding:14px 16px; margin-bottom:8px; border:2px solid #e5e7eb; border-radius:14px; font-size:15px; background:#f8fafc; color:#1a1a1a; box-sizing:border-box; outline:none;" onkeydown="if(event.key==='Enter') document.getElementById('login-btn').click();">
-			<button id="login-btn" onclick="doLogin()" style="width:100%; padding:14px; background:linear-gradient(135deg, #4a90d9, #3b7bc8); color:white; border:none; border-radius:14px; font-size:16px; font-weight:600; cursor:pointer; box-shadow:0 4px 16px rgba(74,144,217,0.25);">登录</button>
-			<p style="text-align:center; font-size:14px; color:#666; margin-top:20px;">还没有账号？<a href="/signup" style="color:#4a90d9; text-decoration:none; font-weight:500;">立即注册</a></p>
+
+			<input id="login-email" type="email" placeholder="邮箱地址" style="width:100%; padding:14px 16px; margin-bottom:12px; border:2px solid var(--line-divider, #e5e7eb); border-radius:14px; font-size:15px; background:var(--input-bg, #f8fafc); color:var(--text, #1a1a1a); box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='var(--primary, #4a90d9)'; this.style.boxShadow='0 0 0 4px rgba(var(--color-primary-rgb, 74,144,217), 0.1)';" onblur="this.style.borderColor='var(--line-divider, #e5e7eb)'; this.style.boxShadow='none';" />
+
+			<input id="login-password" type="password" placeholder="密码" style="width:100%; padding:14px 16px; margin-bottom:8px; border:2px solid var(--line-divider, #e5e7eb); border-radius:14px; font-size:15px; background:var(--input-bg, #f8fafc); color:var(--text, #1a1a1a); box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='var(--primary, #4a90d9)'; this.style.boxShadow='0 0 0 4px rgba(var(--color-primary-rgb, 74,144,217), 0.1)';" onblur="this.style.borderColor='var(--line-divider, #e5e7eb)'; this.style.boxShadow='none';" onkeydown="if(event.key==='Enter') document.getElementById('login-btn').click();" />
+
+			<div style="text-align:right; margin-bottom:20px;">
+				<a href="/forgot-password" style="font-size:13px; color:var(--text-secondary, #888); text-decoration:none;">忘记密码？</a>
+			</div>
+
+			<button id="login-btn" style="width:100%; padding:14px; background:linear-gradient(135deg, var(--primary, #4a90d9), var(--primary-dark, #3b7bc8)); color:white; border:none; border-radius:14px; font-size:16px; font-weight:600; cursor:pointer; transition:transform 0.15s, box-shadow 0.2s; box-shadow:0 4px 16px rgba(var(--color-primary-rgb, 74,144,217), 0.25);">
+				登录
+			</button>
+
+			<div style="display:flex; align-items:center; gap:16px; margin:20px 0;">
+				<div style="flex:1; height:1px; background:var(--line-divider, #e5e7eb);"></div>
+				<span style="font-size:13px; color:var(--text-secondary, #999);">其他方式</span>
+				<div style="flex:1; height:1px; background:var(--line-divider, #e5e7eb);"></div>
+			</div>
+
+			<button id="google-btn" style="width:100%; padding:12px; background:var(--card-bg, #fff); border:2px solid var(--line-divider, #e5e7eb); border-radius:14px; font-size:14px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; color:var(--text, #1a1a1a);">
+				<svg viewBox="0 0 48 48" width="20" height="20">
+					<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+					<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+					<path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 0 1 9.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.99 23.99 0 0 0 0 24c0 3.77.87 7.35 2.56 10.56l7.97-5.97z"/>
+					<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 5.97C6.51 42.62 14.62 48 24 48z"/>
+				</svg>
+				使用 Google 登录
+			</button>
+
+			<p style="text-align:center; font-size:14px; color:var(--text-secondary, #666); margin-top:20px;">
+				还没有账号？<a href="/signup" style="color:var(--primary, #4a90d9); text-decoration:none; font-weight:500;">立即注册</a>
+			</p>
 		</div>
 	</div>
 
 	<script>
-		window.doLogin = function() {
-			var email = document.getElementById('login-email').value.trim();
-			var password = document.getElementById('login-password').value.trim();
-			var errorEl = document.getElementById('login-error');
-
-			if (!email || !password) {
-				errorEl.style.display = 'block';
-				errorEl.textContent = '请输入邮箱和密码';
-				return;
-			}
-
-			errorEl.style.display = 'none';
-
-			if (email === 'admin@test.com' && password === '123456') {
-				document.cookie = 'cf_auth=1; path=/; max-age=86400';
-				localStorage.setItem('cf_auth', '1');
-				document.getElementById('login-page').style.display = 'none';
-				window.location.reload();
-			} else {
-				errorEl.style.display = 'block';
-				errorEl.textContent = '邮箱或密码错误';
-			}
-		};
-
-		// 检查登录状态
 		(function() {
-			var cookies = document.cookie.split(';');
-			var isLoggedIn = false;
-			for (var i = 0; i < cookies.length; i++) {
-				if (cookies[i].trim() === 'cf_auth=1') {
-					isLoggedIn = true;
-					break;
+			const loginPage = document.getElementById('login-page');
+			const appContent = document.getElementById('swup-container');
+
+			// Supabase 配置
+			const SUPABASE_URL = 'https://caguybanuoknufinlizq.supabase.co';
+			const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNhZ3V5YmFudW9rbnVmaW5saXpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3OTA5NDQsImV4cCI6MjEwMDM2Njk0NH0.n_2fpeagdAoutE0iND_iiVK2DAy8xhEXQD7xGaRsEyw';
+
+			let supabaseClient = null;
+			let supabaseReady = false;
+
+			// 加载 Supabase SDK
+			function loadSupabaseSDK() {
+				return new Promise((resolve) => {
+					if (typeof window.supabase !== 'undefined') {
+						supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+						supabaseReady = true;
+						resolve(true);
+						return;
+					}
+					const script = document.createElement('script');
+					script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+					script.onload = function() {
+						if (typeof window.supabase !== 'undefined') {
+							supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+							supabaseReady = true;
+							resolve(true);
+						} else {
+							resolve(false);
+						}
+					};
+					script.onerror = function() {
+						resolve(false);
+					};
+					document.head.appendChild(script);
+				});
+			}
+
+			// 检测登录状态
+			function checkLoginStatus() {
+				const cookies = document.cookie.split(';');
+				for (let cookie of cookies) {
+					if (cookie.trim() === 'cf_auth=1') {
+						return true;
+					}
+				}
+				return false;
+			}
+
+			// 显示登录界面
+			function showLoginPage() {
+				if (loginPage) loginPage.style.display = 'flex';
+				if (appContent) appContent.style.display = 'none';
+				const player = document.querySelector('.music-player');
+				if (player) player.style.display = 'none';
+				const controls = document.querySelector('.floating-controls-container');
+				if (controls) controls.style.display = 'none';
+			}
+
+			// 显示主内容
+			function showAppContent() {
+				if (loginPage) loginPage.style.display = 'none';
+				if (appContent) appContent.style.display = 'block';
+				const player = document.querySelector('.music-player');
+				if (player) player.style.display = 'block';
+				const controls = document.querySelector('.floating-controls-container');
+				if (controls) controls.style.display = 'block';
+			}
+
+			// 登录处理
+			async function handleLogin() {
+				const email = document.getElementById('login-email').value.trim();
+				const password = document.getElementById('login-password').value.trim();
+				const errorEl = document.getElementById('login-error');
+				const btn = document.getElementById('login-btn');
+
+				if (!email || !password) {
+					errorEl.style.display = 'block';
+					errorEl.textContent = '请输入邮箱和密码';
+					return;
+				}
+
+				errorEl.style.display = 'none';
+				btn.textContent = '登录中...';
+				btn.disabled = true;
+
+				try {
+					if (!supabaseReady) {
+						await loadSupabaseSDK();
+						if (!supabaseReady) {
+							throw new Error('Supabase 加载失败，请刷新页面重试');
+						}
+					}
+
+					const { data, error } = await supabaseClient.auth.signInWithPassword({
+						email: email,
+						password: password
+					});
+
+					if (error) throw error;
+
+					if (data.session) {
+						// 设置 cookie
+						document.cookie = 'cf_auth=1; path=/; max-age=86400; SameSite=Lax';
+						// 直接显示内容
+						showAppContent();
+						// 刷新页面确保完全切换
+						setTimeout(() => {
+							window.location.reload();
+						}, 100);
+					}
+				} catch (err) {
+					errorEl.style.display = 'block';
+					errorEl.textContent = err.message || '登录失败，请重试';
+				} finally {
+					btn.textContent = '登录';
+					btn.disabled = false;
 				}
 			}
-			if (isLoggedIn) {
-				document.getElementById('login-page').style.display = 'none';
-			}
-		})();
 
-		console.log('✅ 登录系统已加载');
-		console.log('📧 测试账号: admin@test.com');
-		console.log('🔑 测试密码: 123456');
+			// ============ 初始化 ============
+			(async function init() {
+				// 先加载 Supabase
+				await loadSupabaseSDK();
+
+				// 检查登录状态
+				if (checkLoginStatus()) {
+					showAppContent();
+				} else {
+					showLoginPage();
+				}
+
+				// 绑定事件
+				const loginBtn = document.getElementById('login-btn');
+				const emailInput = document.getElementById('login-email');
+				const passwordInput = document.getElementById('login-password');
+
+				if (loginBtn) {
+					loginBtn.addEventListener('click', handleLogin);
+				} else {
+					console.error('登录按钮未找到');
+				}
+
+				if (passwordInput) {
+					passwordInput.addEventListener('keydown', function(e) {
+						if (e.key === 'Enter') handleLogin();
+					});
+				}
+				if (emailInput) {
+					emailInput.addEventListener('keydown', function(e) {
+						if (e.key === 'Enter') handleLogin();
+					});
+				}
+
+				// 监听页面可见性变化，重新检查登录状态
+				document.addEventListener('visibilitychange', function() {
+					if (!document.hidden) {
+						if (checkLoginStatus()) {
+							showAppContent();
+						}
+					}
+				});
+
+				console.log('✅ 登录系统已初始化');
+				console.log('📧 测试账号: admin@test.com');
+				console.log('🔑 测试密码: 123456');
+			})();
+		})();
 	</script>
 
 </Layout>
