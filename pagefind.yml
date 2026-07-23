@@ -1,3 +1,5 @@
+site: dist
+root_selector: html
 exclude_selectors:
   - "span.katex"
   - "span.katex-display"
