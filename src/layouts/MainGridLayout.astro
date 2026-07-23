@@ -8,6 +8,7 @@ import IconifyLoader from "@components/misc/IconifyLoader.astro";
 import Footer from "@components/organisms/footer/Footer.astro";
 import Navbar from "@components/organisms/navigation/Navbar.astro";
 import SideBar from "@components/widgets/sidebar/SideBar.astro";
+import LoginModal from "@components/widgets/LoginModal.svelte";
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
 
@@ -290,6 +291,10 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 			<div id="toc-container" class="hidden" />
 		)
 	}
+
+	<!-- 登录弹窗 -->
+	<LoginModal client:load />
+
 </Layout>
 
 <!--
