@@ -320,7 +320,12 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 				document.cookie = 'cf_auth=1; path=/; max-age=86400';
 				localStorage.setItem('cf_auth', '1');
 				document.getElementById('login-page').style.display = 'none';
-				window.location.reload();
+				// 显示主内容
+				var mainContent = document.querySelector('#swup-container, main');
+				if (mainContent) mainContent.style.display = 'block';
+				var player = document.querySelector('.music-player');
+				if (player) player.style.display = 'block';
+				console.log('✅ 登录成功，已显示内容');
 			} else {
 				errorEl.style.display = 'block';
 				errorEl.textContent = '邮箱或密码错误';
@@ -339,6 +344,10 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
 			}
 			if (isLoggedIn) {
 				document.getElementById('login-page').style.display = 'none';
+				var mainContent = document.querySelector('#swup-container, main');
+				if (mainContent) mainContent.style.display = 'block';
+				var player = document.querySelector('.music-player');
+				if (player) player.style.display = 'block';
 			}
 		})();
 
