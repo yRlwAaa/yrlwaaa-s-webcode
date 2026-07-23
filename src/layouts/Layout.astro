@@ -253,7 +253,7 @@ if (siteConfig.font) {
 		<div id="page-height-extend" class="hidden h-[300vh]"></div>
 
 		<!-- ============================================ -->
-		<!-- 登录界面 -->
+		<!-- 登录界面 - 直接硬编码在 Layout 里 -->
 		<!-- ============================================ -->
 		<div id="login-page" style="display:flex; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; background:linear-gradient(145deg, #f0f2f5 0%, #ffffff 100%); align-items:center; justify-content:center;">
 			<div style="background:rgba(255,255,255,0.85); backdrop-filter:blur(20px); padding:48px 40px 40px; border-radius:28px; max-width:420px; width:90%; box-shadow:0 30px 80px rgba(0,0,0,0.12); border:1px solid rgba(0,0,0,0.06);">
@@ -271,81 +271,66 @@ if (siteConfig.font) {
 		</div>
 
 		<script>
-			// ============================================
-			// 独立登录脚本 - 不依赖任何框架
-			// ============================================
 			(function() {
-				// 登录检测
+				const loginPage = document.getElementById('login-page');
+
 				function checkLogin() {
-					if (localStorage.getItem('cf_auth') === '1') return true;
-					var cookies = document.cookie.split(';');
-					for (var i = 0; i < cookies.length; i++) {
-						if (cookies[i].trim() === 'cf_auth=1') {
-							localStorage.setItem('cf_auth', '1');
+					const cookies = document.cookie.split(';');
+					for (let cookie of cookies) {
+						if (cookie.trim() === 'cf_auth=1') {
 							return true;
 						}
 					}
 					return false;
 				}
 
-				// 获取元素
-				var loginPage = document.getElementById('login-page');
-				var loginBtn = document.getElementById('login-btn');
-				var emailInput = document.getElementById('login-email');
-				var passwordInput = document.getElementById('login-password');
-				var errorEl = document.getElementById('login-error');
-
-				// 如果已登录，隐藏登录界面
-				if (checkLogin()) {
+				function hideLogin() {
 					if (loginPage) loginPage.style.display = 'none';
-					return;
 				}
 
-				// 如果按钮存在，绑定事件
-				if (loginBtn) {
-					loginBtn.onclick = function() {
-						var email = emailInput ? emailInput.value.trim() : '';
-						var password = passwordInput ? passwordInput.value.trim() : '';
+				function showLogin() {
+					if (loginPage) loginPage.style.display = 'flex';
+				}
 
-						if (!email || !password) {
-							if (errorEl) {
-								errorEl.style.display = 'block';
-								errorEl.textContent = '请输入邮箱和密码';
-							}
-							return;
-						}
-
-						if (errorEl) errorEl.style.display = 'none';
-
-						if (email === 'admin@test.com' && password === '123456') {
-							document.cookie = 'cf_auth=1; path=/; max-age=86400';
-							localStorage.setItem('cf_auth', '1');
-							if (loginPage) loginPage.style.display = 'none';
-							window.location.reload();
-						} else {
-							if (errorEl) {
-								errorEl.style.display = 'block';
-								errorEl.textContent = '邮箱或密码错误';
-							}
-						}
-					};
-
-					// 回车键
-					if (passwordInput) {
-						passwordInput.onkeydown = function(e) {
-							if (e.key === 'Enter') loginBtn.click();
-						};
-					}
-					if (emailInput) {
-						emailInput.onkeydown = function(e) {
-							if (e.key === 'Enter') loginBtn.click();
-						};
-					}
-
-					console.log('✅ 登录按钮已绑定');
+				if (checkLogin()) {
+					hideLogin();
 				} else {
-					console.error('❌ 登录按钮未找到');
+					showLogin();
 				}
+
+				document.getElementById('login-btn').addEventListener('click', function() {
+					const email = document.getElementById('login-email').value.trim();
+					const password = document.getElementById('login-password').value.trim();
+					const errorEl = document.getElementById('login-error');
+
+					if (!email || !password) {
+						errorEl.style.display = 'block';
+						errorEl.textContent = '请输入邮箱和密码';
+						return;
+					}
+
+					errorEl.style.display = 'none';
+
+					if (email === 'admin@test.com' && password === '123456') {
+						document.cookie = 'cf_auth=1; path=/; max-age=86400';
+						hideLogin();
+						window.location.reload();
+					} else {
+						errorEl.style.display = 'block';
+						errorEl.textContent = '邮箱或密码错误';
+					}
+				});
+
+				document.getElementById('login-password').addEventListener('keydown', function(e) {
+					if (e.key === 'Enter') document.getElementById('login-btn').click();
+				});
+				document.getElementById('login-email').addEventListener('keydown', function(e) {
+					if (e.key === 'Enter') document.getElementById('login-btn').click();
+				});
+
+				console.log('✅ 登录系统已加载');
+				console.log('📧 测试账号: admin@test.com');
+				console.log('🔑 测试密码: 123456');
 			})();
 		</script>
 
