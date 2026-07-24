@@ -1,6 +1,5 @@
 ---
-// 天气组件 - 使用 Open-Meteo API（无需 API Key，全球可用）
-// 显示用户 IP 所在位置的天气
+// 天气组件 - 简化版
 ---
 
 <div id="weather-widget" class="weather-card">
@@ -19,7 +18,6 @@
     <div id="weather-details" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line-divider);font-size:12px;color:var(--text-secondary);">
       <div>💧 湿度: <span id="weather-humidity">--</span>%</div>
       <div>💨 风速: <span id="weather-wind">--</span> km/h</div>
-      <div>🌅 日出: <span id="weather-sunrise">--</span> / 日落: <span id="weather-sunset">--</span></div>
     </div>
     <div style="text-align:center;margin-top:8px;">
       <button id="weather-toggle" style="background:none;border:none;color:var(--primary);font-size:12px;cursor:pointer;opacity:0.7;">📊 查看更多</button>
@@ -61,94 +59,55 @@
     const conditionEl = document.getElementById('weather-condition');
     const humidityEl = document.getElementById('weather-humidity');
     const windEl = document.getElementById('weather-wind');
-    const sunriseEl = document.getElementById('weather-sunrise');
-    const sunsetEl = document.getElementById('weather-sunset');
     const detailsEl = document.getElementById('weather-details');
     const toggleBtn = document.getElementById('weather-toggle');
 
     let detailsVisible = false;
 
-    // 天气状况映射
-    function getWeatherEmoji(code) {
-      if (code === 0) return '☀️';
-      if (code === 1 || code === 2 || code === 3) return '⛅';
-      if (code === 45 || code === 48) return '🌫️';
-      if (code === 51 || code === 53 || code === 55) return '🌧️';
-      if (code === 56 || code === 57 || code === 61 || code === 63 || code === 65 || code === 66 || code === 67 || code === 80 || code === 81 || code === 82) return '🌧️';
-      if (code === 71 || code === 73 || code === 75 || code === 77 || code === 85 || code === 86) return '❄️';
-      if (code === 95 || code === 96 || code === 99) return '⛈️';
-      return '🌤️';
-    }
-
-    function getWeatherDesc(code) {
-      if (code === 0) return '晴天';
-      if (code === 1 || code === 2 || code === 3) return '多云';
-      if (code === 45 || code === 48) return '雾天';
-      if (code === 51 || code === 53 || code === 55) return '小雨';
-      if (code === 56 || code === 57) return '冻雨';
-      if (code === 61 || code === 63 || code === 65) return '大雨';
-      if (code === 66 || code === 67) return '冻雨';
-      if (code === 71 || code === 73 || code === 75 || code === 77) return '降雪';
-      if (code === 80 || code === 81 || code === 82) return '阵雨';
-      if (code === 85 || code === 86) return '阵雪';
-      if (code === 95 || code === 96 || code === 99) return '雷暴';
-      return '--';
-    }
-
     async function getWeather() {
       try {
-        // 1. 获取用户位置（通过IP）
-        const locationRes = await fetch('https://ipapi.co/json/');
-        const locationData = await locationRes.json();
-        const city = locationData.city || locationData.region || '未知城市';
-        const lat = locationData.latitude;
-        const lon = locationData.longitude;
+        // 1. 获取位置
+        const locRes = await fetch('https://ip-api.com/json/?fields=city,region,country', {
+          timeout: 5000
+        });
+        const locData = await locRes.json();
+        const city = locData.city || '未知城市';
 
-        if (!lat || !lon) {
-          throw new Error('无法获取位置信息');
-        }
+        // 2. 获取天气
+        const weatherRes = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1&lang=zh`, {
+          timeout: 8000
+        });
+        const data = await weatherRes.json();
 
-        cityEl.textContent = city;
+        if (data && data.current_condition) {
+          const cur = data.current_condition[0];
+          const temp = cur.temp_C || '--';
+          const desc = cur.weatherDesc[0]?.value || '--';
+          const humidity = cur.humidity || '--';
+          const wind = cur.windSpeedKmph || '--';
+          const code = cur.weatherCode || '113';
 
-        // 2. 获取天气数据（Open-Meteo）
-        const weatherRes = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,windspeed_10m&timezone=auto`
-        );
-        const weatherData = await weatherRes.json();
+          const iconMap = {
+            '113': '☀️', '116': '⛅', '119': '☁️', '122': '☁️',
+            '143': '🌫️', '176': '🌦️', '179': '🌨️', '182': '🌧️',
+            '185': '🌧️', '200': '⛈️', '227': '❄️', '230': '❄️',
+            '248': '🌫️', '260': '🌫️', '263': '🌦️', '266': '🌧️',
+            '281': '🌧️', '284': '🌧️', '293': '🌦️', '296': '🌧️',
+            '299': '🌧️', '302': '🌧️', '305': '🌧️', '308': '🌧️',
+            '311': '🌧️', '314': '🌧️', '317': '🌧️', '320': '❄️',
+            '323': '❄️', '326': '❄️', '329': '❄️', '332': '❄️',
+            '335': '❄️', '338': '❄️', '350': '🌧️', '353': '🌦️',
+            '356': '🌧️', '359': '🌧️', '362': '🌧️', '365': '🌧️',
+            '368': '🌧️', '371': '🌧️', '377': '🌧️', '386': '⛈️',
+            '389': '⛈️', '392': '🌨️', '395': '🌨️'
+          };
 
-        if (weatherData && weatherData.current_weather) {
-          const current = weatherData.current_weather;
-          const temp = current.temperature || '--';
-          const weatherCode = current.weathercode || 0;
-          const windSpeed = current.windspeed || '--';
-
-          // 获取湿度（从hourly数据中取最近时间）
-          let humidity = '--';
-          if (weatherData.hourly && weatherData.hourly.relativehumidity_2m && weatherData.hourly.time) {
-            const now = new Date();
-            const currentHour = now.getHours();
-            // 找最近的时间点
-            for (let i = 0; i < weatherData.hourly.time.length; i++) {
-              const time = new Date(weatherData.hourly.time[i]);
-              if (time.getHours() >= currentHour) {
-                humidity = weatherData.hourly.relativehumidity_2m[i] || '--';
-                break;
-              }
-            }
-          }
-
-          const emoji = getWeatherEmoji(weatherCode);
-          const desc = getWeatherDesc(weatherCode);
-
+          cityEl.textContent = city;
           tempEl.textContent = `${temp}°C`;
-          iconEl.textContent = emoji;
+          iconEl.textContent = iconMap[code] || '🌤️';
           conditionEl.textContent = desc;
           humidityEl.textContent = humidity;
-          windEl.textContent = windSpeed;
-
-          // 日出日落（简化处理，不显示具体时间）
-          sunriseEl.textContent = '--';
-          sunsetEl.textContent = '--';
+          windEl.textContent = wind;
 
           loading.style.display = 'none';
           content.style.display = 'block';
@@ -168,7 +127,7 @@
         }
       } catch (error) {
         console.error('天气加载失败:', error);
-        loading.innerHTML = '🌧️ 无法获取天气<br><span style="font-size:12px;color:#999;">点击刷新</span>';
+        loading.innerHTML = '🌧️ 加载失败<br><span style="font-size:12px;color:#999;">点击重试</span>';
         loading.style.cursor = 'pointer';
         loading.onclick = function() {
           loading.innerHTML = '⏳ 重试中...';
