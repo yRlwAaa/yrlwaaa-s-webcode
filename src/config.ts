@@ -448,6 +448,12 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			animationDelay: 0,
 		},
 		{
+			type: "weather",
+			position: "top",
+			class: "onload-animation",
+			animationDelay: 75,
+		},
+		{
 			type: "announcement",
 			position: "top",
 			class: "onload-animation",
@@ -497,7 +503,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 		},
 	],
 	components: {
-		left: ["profile", "announcement", "tags", "card-toc"],
+		left: ["profile", "weather", "announcement", "tags", "card-toc"],
 		right: ["site-stats", "calendar", "categories", "music-sidebar"],
 		drawer: ["profile", "announcement", "music-sidebar", "categories", "tags", "site-stats"],
 	},

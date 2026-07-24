@@ -1,0 +1,150 @@
+---
+// 天气组件 - 显示用户IP所在位置的天气
+// 使用 wttr.in 免费天气 API
+---
+
+<div id="weather-widget" class="weather-card">
+  <div id="weather-loading" style="text-align:center;padding:12px 0;color:var(--text-secondary);font-size:13px;">
+    ⏳ 获取天气中...
+  </div>
+  <div id="weather-content" style="display:none;">
+    <div id="weather-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <span id="weather-city" style="font-weight:600;font-size:15px;color:var(--text);">--</span>
+      <span id="weather-temp" style="font-size:20px;font-weight:700;color:var(--text);">--°C</span>
+    </div>
+    <div id="weather-desc" style="display:flex;align-items:center;gap:8px;">
+      <span id="weather-icon" style="font-size:28px;">☀️</span>
+      <span id="weather-condition" style="font-size:13px;color:var(--text-secondary);">--</span>
+    </div>
+    <div id="weather-details" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line-divider);font-size:12px;color:var(--text-secondary);">
+      <div>💧 湿度: <span id="weather-humidity">--</span>%</div>
+      <div>💨 风速: <span id="weather-wind">--</span> km/h</div>
+      <div>🌅 日出: <span id="weather-sunrise">--</span> / 日落: <span id="weather-sunset">--</span></div>
+    </div>
+    <div style="text-align:center;margin-top:8px;">
+      <button id="weather-toggle" style="background:none;border:none;color:var(--primary);font-size:12px;cursor:pointer;opacity:0.7;">📊 查看更多</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .weather-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border: 1px solid var(--line-divider);
+    transition: all 0.2s;
+  }
+  .weather-card:hover {
+    border-color: var(--primary);
+  }
+  [data-theme="dark"] .weather-card {
+    background: var(--card-bg-dark);
+    border-color: var(--line-divider-dark);
+  }
+  #weather-details {
+    transition: all 0.3s ease;
+  }
+  #weather-details.show {
+    display: block !important;
+  }
+</style>
+
+<script>
+  (function() {
+    const loading = document.getElementById('weather-loading');
+    const content = document.getElementById('weather-content');
+    const cityEl = document.getElementById('weather-city');
+    const tempEl = document.getElementById('weather-temp');
+    const iconEl = document.getElementById('weather-icon');
+    const conditionEl = document.getElementById('weather-condition');
+    const humidityEl = document.getElementById('weather-humidity');
+    const windEl = document.getElementById('weather-wind');
+    const sunriseEl = document.getElementById('weather-sunrise');
+    const sunsetEl = document.getElementById('weather-sunset');
+    const detailsEl = document.getElementById('weather-details');
+    const toggleBtn = document.getElementById('weather-toggle');
+
+    let detailsVisible = false;
+
+    async function getWeather() {
+      try {
+        const locationRes = await fetch('https://ip-api.com/json/?fields=city,region,country');
+        const locationData = await locationRes.json();
+        const city = locationData.city || '未知城市';
+        const region = locationData.region || '';
+
+        const weatherRes = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1&lang=zh`);
+        const weatherData = await weatherRes.json();
+
+        if (weatherData && weatherData.current_condition) {
+          const current = weatherData.current_condition[0];
+          const temp = current.temp_C || '--';
+          const condition = current.weatherDesc[0]?.value || '--';
+          const humidity = current.humidity || '--';
+          const windSpeed = current.windSpeedKmph || '--';
+          const iconCode = current.weatherCode || '113';
+
+          const iconMap = {
+            '113': '☀️', '116': '⛅', '119': '☁️', '122': '☁️',
+            '143': '🌫️', '176': '🌦️', '179': '🌨️', '182': '🌧️',
+            '185': '🌧️', '200': '⛈️', '227': '❄️', '230': '❄️',
+            '248': '🌫️', '260': '🌫️', '263': '🌦️', '266': '🌧️',
+            '281': '🌧️', '284': '🌧️', '293': '🌦️', '296': '🌧️',
+            '299': '🌧️', '302': '🌧️', '305': '🌧️', '308': '🌧️',
+            '311': '🌧️', '314': '🌧️', '317': '🌧️', '320': '❄️',
+            '323': '❄️', '326': '❄️', '329': '❄️', '332': '❄️',
+            '335': '❄️', '338': '❄️', '350': '🌧️', '353': '🌦️',
+            '356': '🌧️', '359': '🌧️', '362': '🌧️', '365': '🌧️',
+            '368': '🌧️', '371': '🌧️', '377': '🌧️', '386': '⛈️',
+            '389': '⛈️', '392': '🌨️', '395': '🌨️'
+          };
+
+          const emoji = iconMap[iconCode] || '🌤️';
+
+          cityEl.textContent = `${city}${region ? ', ' + region : ''}`;
+          tempEl.textContent = `${temp}°C`;
+          iconEl.textContent = emoji;
+          conditionEl.textContent = condition;
+          humidityEl.textContent = humidity;
+          windEl.textContent = windSpeed;
+
+          if (weatherData.weather && weatherData.weather[0]) {
+            const astronomy = weatherData.weather[0].astronomy[0];
+            if (astronomy) {
+              sunriseEl.textContent = astronomy.sunrise || '--';
+              sunsetEl.textContent = astronomy.sunset || '--';
+            }
+          }
+
+          loading.style.display = 'none';
+          content.style.display = 'block';
+
+          toggleBtn.addEventListener('click', function() {
+            detailsVisible = !detailsVisible;
+            if (detailsVisible) {
+              detailsEl.classList.add('show');
+              toggleBtn.textContent = '📊 收起';
+            } else {
+              detailsEl.classList.remove('show');
+              toggleBtn.textContent = '📊 查看更多';
+            }
+          });
+        } else {
+          throw new Error('无法获取天气数据');
+        }
+      } catch (error) {
+        console.error('天气加载失败:', error);
+        loading.innerHTML = '🌧️ 无法获取天气<br><span style="font-size:12px;color:#999;">点击刷新</span>';
+        loading.style.cursor = 'pointer';
+        loading.onclick = function() {
+          loading.innerHTML = '⏳ 重试中...';
+          getWeather();
+        };
+      }
+    }
+
+    getWeather();
+  })();
+</script>
