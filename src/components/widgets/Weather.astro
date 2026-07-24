@@ -1,197 +1,139 @@
 ---
-// 天气组件 - 和风天气
-// 使用免费API，无需key
+// 天气组件 - iframe 嵌入版（保留搜索和定位功能）
+// 使用中国天气网，稳定可用
 ---
 
-<div id="weather-widget" class="weather-card">
-  <div id="weather-loading" style="text-align:center;padding:20px 0;color:var(--text-secondary);font-size:13px;">
-    <div style="font-size:28px;margin-bottom:8px;">⏳</div>
-    获取天气中...
+<div class="weather-card">
+  <!-- 城市搜索 -->
+  <div style="display:flex;gap:6px;padding:8px 12px 4px 12px;">
+    <input id="w-city-input" type="text" placeholder="输入城市名..." 
+      style="flex:1;padding:4px 10px;border:1px solid var(--line-divider);border-radius:6px;font-size:12px;background:var(--input-bg);color:var(--text);outline:none;">
+    <button id="w-city-btn" 
+      style="padding:4px 12px;background:var(--primary);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;">定位</button>
   </div>
 
-  <div id="weather-content" style="display:none;">
-    <div style="display:flex;gap:6px;margin-bottom:10px;">
-      <input id="w-search" type="text" placeholder="输入城市名..." 
-        style="flex:1;padding:6px 10px;border:1px solid var(--line-divider);border-radius:8px;font-size:13px;background:var(--input-bg);color:var(--text);outline:none;">
-      <button id="w-search-btn" 
-        style="padding:6px 14px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;">搜索</button>
-    </div>
-
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 12px;border-bottom:1px solid var(--line-divider);">
-      <div>
-        <div id="w-city" style="font-size:18px;font-weight:700;color:var(--text);">--</div>
-        <div id="w-date" style="font-size:12px;color:var(--text-secondary);">--</div>
-        <div id="w-cond" style="font-size:14px;color:var(--text-secondary);">--</div>
-      </div>
-      <div style="text-align:right;">
-        <div id="w-temp" style="font-size:32px;font-weight:700;color:var(--text);">--°C</div>
-        <div style="font-size:12px;color:var(--text-secondary);">
-          💧 <span id="w-humidity">--</span>%　💨 <span id="w-wind">--</span>
-        </div>
-      </div>
-    </div>
-
-    <div id="w-forecast" style="display:flex;gap:6px;padding:12px 0;overflow-x:auto;"></div>
-  </div>
+  <!-- iframe 天气 -->
+  <iframe id="w-iframe" 
+    src="https://www.weather.com.cn/weather1d/101210101.shtml" 
+    style="width:100%;height:280px;border:none;border-radius:0 0 12px 12px;"
+    loading="lazy"
+  ></iframe>
 </div>
 
 <style>
   .weather-card {
     background: var(--card-bg);
     border-radius: 12px;
-    padding: 14px 16px;
     margin-bottom: 8px;
     border: 1px solid var(--line-divider);
+    overflow: hidden;
   }
-  [data-theme="dark"] .weather-card,
-  [data-theme="dark"] .weather-card * { color: #ffffff !important; }
-  [data-theme="dark"] #w-city { color: #ffffff !important; }
-  [data-theme="dark"] #w-temp { color: #ffffff !important; }
-  [data-theme="dark"] .forecast-day { background: rgba(255,255,255,0.1); color: #fff !important; }
-  [data-theme="dark"] .forecast-day .day-temp { color: #fff !important; }
-  [data-theme="dark"] #w-search {
+  [data-theme="dark"] .weather-card {
+    background: var(--card-bg-dark);
+    border-color: var(--line-divider-dark);
+  }
+  [data-theme="dark"] #w-city-input {
     background: rgba(255,255,255,0.1);
     color: #fff !important;
     border-color: rgba(255,255,255,0.2);
   }
-  [data-theme="dark"] #w-search::placeholder { color: rgba(255,255,255,0.5); }
-  .forecast-day {
-    flex: 0 0 52px;
-    text-align: center;
-    font-size: 12px;
-    padding: 4px 0;
-    border-radius: 8px;
-    background: var(--hover-bg, rgba(0,0,0,0.03));
+  [data-theme="dark"] #w-city-input::placeholder {
+    color: rgba(255,255,255,0.5);
   }
-  .forecast-day .day-temp { font-weight: 600; color: var(--text); }
-  #w-forecast::-webkit-scrollbar { height: 3px; }
-  #w-forecast::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 </style>
 
 <script>
   (function() {
-    const loading = document.getElementById('weather-loading');
-    const content = document.getElementById('weather-content');
+    const input = document.getElementById('w-city-input');
+    const btn = document.getElementById('w-city-btn');
+    const iframe = document.getElementById('w-iframe');
 
-    const wCity = document.getElementById('w-city');
-    const wDate = document.getElementById('w-date');
-    const wCond = document.getElementById('w-cond');
-    const wTemp = document.getElementById('w-temp');
-    const wHumidity = document.getElementById('w-humidity');
-    const wWind = document.getElementById('w-wind');
-    const forecastEl = document.getElementById('w-forecast');
-    const searchInput = document.getElementById('w-search');
-    const searchBtn = document.getElementById('w-search-btn');
+    // 城市代码映射（中国天气网）
+    const cityCodes = {
+      '北京': '101010100',
+      '上海': '101210101',
+      '广州': '101280101',
+      '深圳': '101280601',
+      '杭州': '101210101',
+      '成都': '101270101',
+      '武汉': '101200101',
+      '南京': '101190101',
+      '重庆': '101040100',
+      '西安': '101110101',
+      '天津': '101030100',
+      '苏州': '101190401',
+      '长沙': '101250101',
+      '郑州': '101180101',
+      '东莞': '101281601',
+      '佛山': '101280800',
+      '宁波': '101210401',
+      '青岛': '101120201',
+      '沈阳': '101070101',
+      '大连': '101070201',
+      '厦门': '101230201',
+      '福州': '101230101',
+      '昆明': '101290101',
+      '贵阳': '101260101',
+      '南宁': '101300101',
+      '海口': '101310101',
+      '兰州': '101160101',
+      '西宁': '101150101',
+      '银川': '101170101',
+      '乌鲁木齐': '101130101',
+      '拉萨': '101140101',
+      '哈尔滨': '101050101',
+      '长春': '101060101',
+      '呼和浩特': '101080101',
+      '太原': '101100101',
+      '石家庄': '101090101',
+      '济南': '101120101',
+      '合肥': '101220101',
+      '南昌': '101240101'
+    };
 
-    let currentCity = '上海';
-
-    function getEmoji(code) {
-      const m = {
-        0: '☀️', 1: '⛅', 2: '⛅', 3: '☁️',
-        45: '🌫️', 48: '🌫️',
-        51: '🌧️', 53: '🌧️', 55: '🌧️',
-        61: '🌧️', 63: '🌧️', 65: '🌧️',
-        71: '❄️', 73: '❄️', 75: '❄️', 77: '❄️',
-        80: '🌧️', 81: '🌧️', 82: '🌧️',
-        85: '❄️', 86: '❄️',
-        95: '⛈️', 96: '⛈️', 99: '⛈️'
-      };
-      return m[code] || '🌤️';
-    }
-
-    function getDesc(code) {
-      const m = {
-        0: '晴天', 1: '晴间多云', 2: '多云', 3: '阴天',
-        45: '雾天', 48: '雾天',
-        51: '小雨', 53: '小雨', 55: '中雨',
-        61: '中雨', 63: '大雨', 65: '暴雨',
-        71: '小雪', 73: '中雪', 75: '大雪', 77: '雪粒',
-        80: '阵雨', 81: '阵雨', 82: '强阵雨',
-        85: '阵雪', 86: '强阵雪',
-        95: '雷暴', 96: '雷暴', 99: '强雷暴'
-      };
-      return m[code] || '--';
-    }
-
-    async function fetchWeather(city) {
-      loading.style.display = 'block';
-      content.style.display = 'none';
-      loading.innerHTML = '⏳ 获取中...';
-
-      try {
-        const url = `https://wttr.in/${encodeURIComponent(city)}?format=j1&lang=zh`;
-        const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
-        const data = await res.json();
-
-        if (!data || !data.current_condition) throw new Error('数据异常');
-
-        const cur = data.current_condition[0];
-        const code = parseInt(cur.weatherCode) || 0;
-
-        wCity.textContent = city;
-        wDate.textContent = new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' });
-        wCond.textContent = cur.weatherDesc?.[0]?.value || '--';
-        wTemp.textContent = `${cur.temp_C || '--'}°C`;
-        wHumidity.textContent = cur.humidity || '--';
-        wWind.textContent = cur.windSpeedKmph || '--';
-
-        // 预报
-        if (data.weather) {
-          const days = ['周日','周一','周二','周三','周四','周五','周六'];
-          const today = new Date().getDay();
-          let html = '';
-          for (let i = 0; i < Math.min(data.weather.length, 7); i++) {
-            const d = data.weather[i];
-            const dayName = i === 0 ? '今天' : days[(today + i) % 7];
-            const max = d.maxtempC || '--';
-            const min = d.mintempC || '--';
-            const c = d.hourly?.[0]?.weatherCode || '113';
-            html += `<div class="forecast-day">
-              <div>${dayName}</div>
-              <div style="font-size:18px;">${getEmoji(parseInt(c))}</div>
-              <div class="day-temp">${max}°</div>
-              <div style="font-size:10px;color:var(--text-secondary);">${min}°</div>
-            </div>`;
-          }
-          forecastEl.innerHTML = html;
+    function getCityCode(city) {
+      for (let key in cityCodes) {
+        if (city.includes(key) || key.includes(city)) {
+          return cityCodes[key];
         }
+      }
+      return null;
+    }
 
-        loading.style.display = 'none';
-        content.style.display = 'block';
-        currentCity = city;
-
-      } catch (err) {
-        console.error(err);
-        loading.innerHTML = '🌧️ 加载失败<br><span style="font-size:12px;color:#999;">点击重试</span>';
-        loading.style.cursor = 'pointer';
-        loading.onclick = function() { fetchWeather(city); };
+    function updateWeather(city) {
+      const code = getCityCode(city);
+      if (code) {
+        iframe.src = `https://www.weather.com.cn/weather1d/${code}.shtml`;
+      } else {
+        // 未找到城市，用搜索链接
+        iframe.src = `https://www.weather.com.cn/search?q=${encodeURIComponent(city)}`;
       }
     }
 
     // 定位
     async function locate() {
-      loading.style.display = 'block';
-      loading.innerHTML = '⏳ 定位中...';
       try {
         const res = await fetch('https://ip-api.com/json/?fields=city', { signal: AbortSignal.timeout(5000) });
         const data = await res.json();
         if (data.city) {
-          await fetchWeather(data.city);
+          input.value = data.city;
+          updateWeather(data.city);
           return;
         }
       } catch (e) {}
-      await fetchWeather('上海');
+      // 默认上海
+      updateWeather('上海');
     }
 
-    // 搜索
-    searchBtn.addEventListener('click', function() {
-      const val = searchInput.value.trim();
-      if (val) fetchWeather(val);
+    btn.addEventListener('click', function() {
+      const val = input.value.trim();
+      if (val) updateWeather(val);
     });
-    searchInput.addEventListener('keydown', function(e) {
+
+    input.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
-        const val = searchInput.value.trim();
-        if (val) fetchWeather(val);
+        const val = input.value.trim();
+        if (val) updateWeather(val);
       }
     });
 
