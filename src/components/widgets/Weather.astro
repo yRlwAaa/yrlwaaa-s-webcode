@@ -1,7 +1,6 @@
 ---
-// 天气组件 - 完整版
+// 天气组件 - 完整版（带超时和深色模式适配）
 // 功能：自动定位、未来7天预报、城市搜索
-// 使用 Open-Meteo API (免费，无需Key)
 ---
 
 <div id="weather-widget" class="weather-card">
@@ -16,8 +15,7 @@
     <!-- 城市搜索栏 -->
     <div style="display:flex;gap:6px;margin-bottom:10px;">
       <input id="weather-search" type="text" placeholder="搜索城市..." 
-        style="flex:1;padding:6px 10px;border:1px solid var(--line-divider);border-radius:8px;font-size:13px;background:var(--input-bg);color:var(--text);outline:none;"
-        onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--line-divider)'">
+        style="flex:1;padding:6px 10px;border:1px solid var(--line-divider);border-radius:8px;font-size:13px;background:var(--input-bg);color:var(--text);outline:none;">
       <button id="weather-search-btn" 
         style="padding:6px 14px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;">搜索</button>
     </div>
@@ -74,10 +72,52 @@
   .weather-card:hover {
     border-color: var(--primary);
   }
-  [data-theme="dark"] .weather-card {
-    background: var(--card-bg-dark);
-    border-color: var(--line-divider-dark);
+  
+  /* 深色模式强制白色文字 */
+  [data-theme="dark"] .weather-card,
+  html.dark .weather-card,
+  .dark .weather-card {
+    color: #ffffff !important;
   }
+  [data-theme="dark"] .weather-card *,
+  html.dark .weather-card *,
+  .dark .weather-card * {
+    color: #ffffff !important;
+  }
+  [data-theme="dark"] #weather-city-name,
+  html.dark #weather-city-name,
+  .dark #weather-city-name {
+    color: #ffffff !important;
+  }
+  [data-theme="dark"] #weather-temp-big,
+  html.dark #weather-temp-big,
+  .dark #weather-temp-big {
+    color: #ffffff !important;
+  }
+  [data-theme="dark"] .forecast-day .day-temp,
+  html.dark .forecast-day .day-temp,
+  .dark .forecast-day .day-temp {
+    color: #ffffff !important;
+  }
+  [data-theme="dark"] .forecast-day,
+  html.dark .forecast-day,
+  .dark .forecast-day {
+    background: rgba(255,255,255,0.08);
+    color: #ffffff !important;
+  }
+  [data-theme="dark"] #weather-search,
+  html.dark #weather-search,
+  .dark #weather-search {
+    background: rgba(255,255,255,0.1);
+    color: #ffffff !important;
+    border-color: rgba(255,255,255,0.2);
+  }
+  [data-theme="dark"] #weather-search::placeholder,
+  html.dark #weather-search::placeholder,
+  .dark #weather-search::placeholder {
+    color: rgba(255,255,255,0.5);
+  }
+
   #weather-forecast::-webkit-scrollbar {
     height: 3px;
   }
@@ -103,6 +143,17 @@
   }
   #weather-extended.show {
     display: block !important;
+  }
+  /* 深色模式扩展详情文字 */
+  [data-theme="dark"] #weather-extended,
+  html.dark #weather-extended,
+  .dark #weather-extended {
+    color: #cccccc !important;
+  }
+  [data-theme="dark"] #weather-extended span,
+  html.dark #weather-extended span,
+  .dark #weather-extended span {
+    color: #ffffff !important;
   }
 </style>
 
@@ -133,6 +184,7 @@
     let currentCity = '';
     let currentLat = 0;
     let currentLon = 0;
+    let retryCount = 0;
 
     // ===== 天气图标映射 =====
     function getWeatherEmoji(code) {
@@ -171,7 +223,10 @@
     async function fetchWeather(lat, lon, city) {
       try {
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&hourly=temperature_2m,relativehumidity_2m,windspeed_10m,cloudcover,apparent_temperature,gusts_10m,visibility&timezone=auto&forecast_days=7`;
-        const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
         const data = await res.json();
 
         if (!data || !data.current_weather) {
@@ -184,37 +239,31 @@
         const temp = Math.round(current.temperature);
         const wind = Math.round(current.windspeed || 0);
 
-        // 湿度取小时数据第一个
         let humidity = '--';
         if (data.hourly && data.hourly.relativehumidity_2m && data.hourly.relativehumidity_2m.length > 0) {
           humidity = data.hourly.relativehumidity_2m[0] || '--';
         }
 
-        // 体感温度
         let feels = '--';
         if (data.hourly && data.hourly.apparent_temperature && data.hourly.apparent_temperature.length > 0) {
           feels = Math.round(data.hourly.apparent_temperature[0]);
         }
 
-        // 云量
         let cloud = '--';
         if (data.hourly && data.hourly.cloudcover && data.hourly.cloudcover.length > 0) {
           cloud = data.hourly.cloudcover[0] || '--';
         }
 
-        // 阵风
         let gustVal = '--';
         if (data.hourly && data.hourly.gusts_10m && data.hourly.gusts_10m.length > 0) {
           gustVal = Math.round(data.hourly.gusts_10m[0] || 0);
         }
 
-        // 能见度
         let vis = '--';
         if (data.hourly && data.hourly.visibility && data.hourly.visibility.length > 0) {
           vis = Math.round((data.hourly.visibility[0] || 0) / 1000);
         }
 
-        // 日出日落
         let sunriseStr = '--', sunsetStr = '--';
         if (data.daily && data.daily.sunrise && data.daily.sunrise.length > 0) {
           const d = new Date(data.daily.sunrise[0]);
@@ -225,7 +274,6 @@
           sunsetStr = d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
         }
 
-        // 更新 UI
         cityName.textContent = city;
         dateEl.textContent = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
         conditionText.textContent = getWeatherDesc(weatherCode);
@@ -239,25 +287,37 @@
         gust.textContent = gustVal;
         visibility.textContent = vis;
 
-        // 未来7天预报
         renderForecast(data.daily);
 
-        // 显示内容
         loading.style.display = 'none';
         content.style.display = 'block';
+        retryCount = 0;
 
       } catch (err) {
         console.error('天气获取失败:', err);
-        loading.innerHTML = `🌧️ 获取失败<br><span style="font-size:12px;color:#999;">${err.message || '请重试'}</span>`;
-        loading.style.cursor = 'pointer';
-        loading.onclick = function() {
-          loading.innerHTML = '⏳ 重试中...';
-          if (currentCity) {
-            searchCity(currentCity);
-          } else {
-            getLocationAndWeather();
-          }
-        };
+        if (retryCount < 3) {
+          retryCount++;
+          loading.innerHTML = `⏳ 重试中 (${retryCount}/3)...`;
+          setTimeout(() => {
+            if (currentCity) {
+              fetchWeather(currentLat, currentLon, currentCity);
+            } else {
+              getLocationAndWeather();
+            }
+          }, 2000);
+        } else {
+          loading.innerHTML = `🌧️ 获取失败<br><span style="font-size:12px;color:#999;">点击重试</span>`;
+          loading.style.cursor = 'pointer';
+          loading.onclick = function() {
+            retryCount = 0;
+            loading.innerHTML = '⏳ 重试中...';
+            if (currentCity) {
+              fetchWeather(currentLat, currentLon, currentCity);
+            } else {
+              getLocationAndWeather();
+            }
+          };
+        }
       }
     }
 
@@ -294,7 +354,6 @@
       loading.innerHTML = '⏳ 搜索中...';
 
       try {
-        // 使用 Open-Meteo 地理编码
         const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=3&language=zh`);
         const geoData = await geoRes.json();
         if (!geoData.results || geoData.results.length === 0) {
@@ -307,6 +366,7 @@
         currentCity = result.name + (result.admin1 ? `, ${result.admin1}` : '');
         currentLat = result.latitude;
         currentLon = result.longitude;
+        retryCount = 0;
         await fetchWeather(currentLat, currentLon, currentCity);
       } catch (err) {
         loading.innerHTML = '❌ 搜索失败<br><span style="font-size:12px;color:#999;">请重试</span>';
@@ -320,6 +380,7 @@
       loading.style.display = 'block';
       content.style.display = 'none';
       loading.innerHTML = '⏳ 定位中...';
+      retryCount = 0;
 
       try {
         const locRes = await fetch('https://ip-api.com/json/?fields=city,region,country,lat,lon', { signal: AbortSignal.timeout(5000) });
@@ -329,7 +390,6 @@
         const lon = locData.lon || 0;
 
         if (lat === 0 || lon === 0) {
-          // 备用 ipapi
           const fallback = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(5000) });
           const fbData = await fallback.json();
           currentCity = fbData.city || fbData.region || '未知城市';
@@ -348,7 +408,6 @@
         await fetchWeather(currentLat, currentLon, currentCity);
 
       } catch (err) {
-        // 默认上海
         currentCity = '上海';
         currentLat = 31.23;
         currentLon = 121.47;
@@ -377,8 +436,6 @@
 
     // ===== 启动 =====
     getLocationAndWeather();
-
-    // 暴露刷新方法
     window.refreshWeather = getLocationAndWeather;
 
     console.log('🌤️ 天气组件已加载');
