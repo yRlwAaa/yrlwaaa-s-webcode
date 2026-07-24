@@ -31,7 +31,6 @@ export const siteConfig: SiteConfig = {
 	timeZone: SITE_TIMEZONE,
 	lang: SITE_LANG,
 
-	// 翻译配置 - 按钮在右上角
 	translate: {
 		enable: true,
 		service: "client.edge",
@@ -200,7 +199,6 @@ export const siteConfig: SiteConfig = {
 	},
 };
 
-// 其余配置保持不变...
 export const fullscreenWallpaperConfig: FullscreenWallpaperConfig = {
 	src: {
 		desktop: [

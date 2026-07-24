@@ -1,3 +1,83 @@
+---
+// 天气组件 - 使用和风天气API
+---
+
+<div id="weather-widget" class="weather-card">
+  <div id="weather-loading" style="text-align:center;padding:20px 0;color:var(--text-secondary);font-size:13px;">
+    <div style="font-size:28px;margin-bottom:8px;">⏳</div>
+    获取天气中...
+  </div>
+
+  <div id="weather-content" style="display:none;">
+    <div style="display:flex;gap:6px;margin-bottom:10px;">
+      <input id="w-search" type="text" placeholder="搜索城市..." 
+        style="flex:1;padding:6px 10px;border:1px solid var(--line-divider);border-radius:8px;font-size:13px;background:var(--input-bg);color:var(--text);outline:none;">
+      <button id="w-search-btn" 
+        style="padding:6px 14px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;">搜索</button>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0 12px;border-bottom:1px solid var(--line-divider);">
+      <div>
+        <div id="w-city" style="font-size:18px;font-weight:700;color:var(--text);">--</div>
+        <div id="w-date" style="font-size:12px;color:var(--text-secondary);">--</div>
+        <div id="w-cond" style="font-size:14px;color:var(--text-secondary);margin-top:2px;">--</div>
+      </div>
+      <div style="text-align:right;">
+        <div id="w-temp" style="font-size:32px;font-weight:700;color:var(--text);">--°C</div>
+        <div style="font-size:12px;color:var(--text-secondary);">
+          <span>💧 <span id="w-humidity">--</span>%</span>
+          <span style="margin-left:12px;">💨 <span id="w-wind">--</span>km/h</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="w-forecast" style="display:flex;gap:6px;padding:12px 0 8px;overflow-x:auto;scrollbar-width:thin;"></div>
+
+    <div style="text-align:center;padding-top:6px;">
+      <button id="w-toggle" style="background:none;border:none;color:var(--primary);font-size:12px;cursor:pointer;opacity:0.7;">📊 查看更多</button>
+    </div>
+
+    <div id="w-details" style="display:none;padding-top:10px;border-top:1px solid var(--line-divider);font-size:13px;color:var(--text-secondary);">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;">
+        <div>🌡️ 体感: <span id="w-feels">--</span>°C</div>
+        <div>☁️ 云量: <span id="w-cloud">--</span>%</div>
+        <div>🌅 日出: <span id="w-sunrise">--</span></div>
+        <div>🌇 日落: <span id="w-sunset">--</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .weather-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    border: 1px solid var(--line-divider);
+  }
+  [data-theme="dark"] .weather-card,
+  [data-theme="dark"] .weather-card * { color: #ffffff !important; }
+  [data-theme="dark"] #w-city,
+  [data-theme="dark"] #w-temp { color: #ffffff !important; }
+  [data-theme="dark"] .forecast-day { background: rgba(255,255,255,0.08); color: #fff !important; }
+  [data-theme="dark"] .forecast-day .day-temp { color: #fff !important; }
+  [data-theme="dark"] #w-search {
+    background: rgba(255,255,255,0.1); color: #fff !important;
+    border-color: rgba(255,255,255,0.2);
+  }
+  [data-theme="dark"] #w-search::placeholder { color: rgba(255,255,255,0.5); }
+  #w-forecast::-webkit-scrollbar { height: 3px; }
+  #w-forecast::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+  .forecast-day {
+    flex: 0 0 52px; text-align: center; font-size: 12px; padding: 4px 0;
+    border-radius: 8px; background: var(--hover-bg, rgba(0,0,0,0.03));
+    color: var(--text-secondary);
+  }
+  .forecast-day .day-temp { font-weight: 600; color: var(--text); }
+  #w-details.show { display: block !important; }
+</style>
+
 <script>
   (function() {
     console.log('🌤️ 天气组件启动');
@@ -15,13 +95,11 @@
     const wCloud = document.getElementById('w-cloud');
     const wSunrise = document.getElementById('w-sunrise');
     const wSunset = document.getElementById('w-sunset');
-    const wGust = document.getElementById('w-gust');
-    const wVis = document.getElementById('w-vis');
     const forecastEl = document.getElementById('w-forecast');
     const toggleBtn = document.getElementById('w-toggle');
     const detailsEl = document.getElementById('w-details');
-    const searchInput = document.getElementById('weather-search');
-    const searchBtn = document.getElementById('weather-search-btn');
+    const searchInput = document.getElementById('w-search');
+    const searchBtn = document.getElementById('w-search-btn');
 
     let detailsVisible = false;
     let currentCity = '上海';
@@ -60,101 +138,84 @@
       return m[code] || '--';
     }
 
-    function displayWeather(data, city) {
-      console.log('显示天气数据:', data);
+    function renderWeather(data, city) {
+      try {
+        const cur = data.current_condition[0];
+        const temp = cur.temp_C || '--';
+        const cond = cur.weatherDesc?.[0]?.value || '--';
+        const humidity = cur.humidity || '--';
+        const wind = cur.windSpeedKmph || '--';
+        const code = parseInt(cur.weatherCode) || 0;
+        const feels = cur.FeelsLikeC || '--';
+        const cloud = cur.cloudcover || '--';
 
-      if (!data || !data.current_condition) {
-        console.error('数据格式错误:', data);
+        wCity.textContent = city;
+        wDate.textContent = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+        wCond.textContent = cond;
+        wTemp.textContent = `${temp}°C`;
+        wHumidity.textContent = humidity;
+        wWind.textContent = wind;
+        wFeels.textContent = feels;
+        wCloud.textContent = cloud;
+
+        if (data.weather?.[0]?.astronomy?.[0]) {
+          const astro = data.weather[0].astronomy[0];
+          wSunrise.textContent = astro.sunrise || '--';
+          wSunset.textContent = astro.sunset || '--';
+        }
+
+        if (data.weather && data.weather.length > 0) {
+          const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+          const today = new Date().getDay();
+          let html = '';
+          for (let i = 0; i < Math.min(data.weather.length, 7); i++) {
+            const d = data.weather[i];
+            const dayName = i === 0 ? '今天' : days[(today + i) % 7];
+            const max = d.maxtempC || '--';
+            const min = d.mintempC || '--';
+            const code2 = d.hourly?.[0]?.weatherCode || '113';
+            html += `<div class="forecast-day">
+              <div>${dayName}</div>
+              <div style="font-size:18px;">${getEmoji(parseInt(code2))}</div>
+              <div class="day-temp">${max}°</div>
+              <div style="font-size:10px;color:var(--text-secondary);">${min}°</div>
+            </div>`;
+          }
+          forecastEl.innerHTML = html;
+        }
+
+        loading.style.display = 'none';
+        content.style.display = 'block';
+        return true;
+      } catch (e) {
+        console.error('渲染失败:', e);
         return false;
       }
-
-      const cur = data.current_condition[0];
-      const temp = cur.temp_C || '--';
-      const cond = cur.weatherDesc?.[0]?.value || '--';
-      const humidity = cur.humidity || '--';
-      const wind = cur.windSpeedKmph || '--';
-      const code = parseInt(cur.weatherCode) || 0;
-      const feels = cur.FeelsLikeC || '--';
-      const vis = cur.visibility || '--';
-      const cloud = cur.cloudcover || '--';
-      const gust = cur.windGustKmph || '--';
-
-      wCity.textContent = city;
-      wDate.textContent = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
-      wCond.textContent = cond;
-      wTemp.textContent = `${temp}°C`;
-      wHumidity.textContent = humidity;
-      wWind.textContent = wind;
-      wFeels.textContent = feels;
-      wCloud.textContent = cloud;
-      wGust.textContent = gust;
-      wVis.textContent = vis;
-
-      if (data.weather?.[0]?.astronomy?.[0]) {
-        const astro = data.weather[0].astronomy[0];
-        wSunrise.textContent = astro.sunrise || '--';
-        wSunset.textContent = astro.sunset || '--';
-      } else {
-        wSunrise.textContent = '--';
-        wSunset.textContent = '--';
-      }
-
-      if (data.weather && data.weather.length > 0) {
-        const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-        const today = new Date().getDay();
-        let html = '';
-        for (let i = 0; i < Math.min(data.weather.length, 7); i++) {
-          const d = data.weather[i];
-          const dayName = i === 0 ? '今天' : days[(today + i) % 7];
-          const max = d.maxtempC || '--';
-          const min = d.mintempC || '--';
-          const code2 = d.hourly?.[0]?.weatherCode || '113';
-          html += `<div class="forecast-day">
-            <div>${dayName}</div>
-            <div style="font-size:18px;">${getEmoji(parseInt(code2))}</div>
-            <div class="day-temp">${max}°</div>
-            <div style="font-size:10px;color:var(--text-secondary);">${min}°</div>
-          </div>`;
-        }
-        forecastEl.innerHTML = html;
-      }
-
-      return true;
     }
 
-    async function fetchWeather(city, lat, lon) {
-      console.log('🌤️ 获取天气:', city, lat, lon);
+    async function getWeather(city, lat, lon) {
+      console.log('🌤️ 获取天气:', city);
       loading.style.display = 'block';
       content.style.display = 'none';
       loading.innerHTML = '⏳ 获取中...';
 
       try {
-        // 直接用你测试能通的格式
         const url = `https://wttr.in/${encodeURIComponent(city)}?format=j1&lang=zh`;
-        console.log('请求URL:', url);
-        const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
-        console.log('响应状态:', res.status);
+        const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
         const data = await res.json();
-        console.log('返回数据:', data);
-
-        const success = displayWeather(data, city);
-        if (success) {
-          loading.style.display = 'none';
-          content.style.display = 'block';
+        const ok = renderWeather(data, city);
+        if (ok) {
           currentCity = city;
           currentLat = lat;
           currentLon = lon;
-          console.log('✅ 天气加载成功');
         } else {
-          throw new Error('数据解析失败');
+          throw new Error('渲染失败');
         }
       } catch (err) {
         console.error('❌ 天气获取失败:', err);
         loading.innerHTML = `🌧️ 加载失败<br><span style="font-size:12px;color:#999;">点击重试</span>`;
         loading.style.cursor = 'pointer';
-        loading.onclick = function() {
-          fetchWeather(city, lat, lon);
-        };
+        loading.onclick = function() { getWeather(city, lat, lon); };
       }
     }
 
@@ -170,10 +231,10 @@
           const city = data.city + (data.region ? `, ${data.region}` : '');
           currentLat = data.lat;
           currentLon = data.lon;
-          await fetchWeather(city, currentLat, currentLon);
+          await getWeather(city, currentLat, currentLon);
           return;
         }
-      } catch (e) { console.log('ip-api失败:', e); }
+      } catch (e) {}
 
       try {
         const res2 = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(5000) });
@@ -182,12 +243,12 @@
           const city = data2.city || data2.region || '未知城市';
           currentLat = data2.latitude || 31.23;
           currentLon = data2.longitude || 121.47;
-          await fetchWeather(city, currentLat, currentLon);
+          await getWeather(city, currentLat, currentLon);
           return;
         }
-      } catch (e) { console.log('ipapi失败:', e); }
+      } catch (e) {}
 
-      await fetchWeather('上海', 31.23, 121.47);
+      await getWeather('上海', 31.23, 121.47);
     }
 
     async function searchCity(query) {
@@ -200,20 +261,16 @@
         const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=3&language=zh`);
         const data = await res.json();
         if (!data.results || data.results.length === 0) {
-          loading.innerHTML = '❌ 未找到该城市<br><span style="font-size:12px;color:#999;">点击重试</span>';
-          loading.style.cursor = 'pointer';
-          loading.onclick = function() { searchCity(query); };
+          loading.innerHTML = '❌ 未找到该城市';
           return;
         }
         const r = data.results[0];
         const city = r.name + (r.admin1 ? `, ${r.admin1}` : '');
         currentLat = r.latitude;
         currentLon = r.longitude;
-        await fetchWeather(city, currentLat, currentLon);
+        await getWeather(city, currentLat, currentLon);
       } catch (err) {
-        loading.innerHTML = '❌ 搜索失败<br><span style="font-size:12px;color:#999;">点击重试</span>';
-        loading.style.cursor = 'pointer';
-        loading.onclick = function() { searchCity(query); };
+        loading.innerHTML = '❌ 搜索失败';
       }
     }
 
@@ -223,12 +280,8 @@
       toggleBtn.textContent = detailsVisible ? '📊 收起' : '📊 查看更多';
     });
 
-    searchBtn.addEventListener('click', function() {
-      searchCity(searchInput.value);
-    });
-    searchInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') searchCity(searchInput.value);
-    });
+    searchBtn.addEventListener('click', function() { searchCity(searchInput.value); });
+    searchInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') searchCity(searchInput.value); });
 
     locate();
     console.log('🌤️ 天气组件已加载');
