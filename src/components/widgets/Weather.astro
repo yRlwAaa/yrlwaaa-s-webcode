@@ -1,6 +1,6 @@
 ---
-// 天气组件 - 显示用户IP所在位置的天气
-// 使用 wttr.in 免费天气 API
+// 天气组件 - 使用 Open-Meteo API（无需 API Key，全球可用）
+// 显示用户 IP 所在位置的天气
 ---
 
 <div id="weather-widget" class="weather-card">
@@ -68,55 +68,87 @@
 
     let detailsVisible = false;
 
+    // 天气状况映射
+    function getWeatherEmoji(code) {
+      if (code === 0) return '☀️';
+      if (code === 1 || code === 2 || code === 3) return '⛅';
+      if (code === 45 || code === 48) return '🌫️';
+      if (code === 51 || code === 53 || code === 55) return '🌧️';
+      if (code === 56 || code === 57 || code === 61 || code === 63 || code === 65 || code === 66 || code === 67 || code === 80 || code === 81 || code === 82) return '🌧️';
+      if (code === 71 || code === 73 || code === 75 || code === 77 || code === 85 || code === 86) return '❄️';
+      if (code === 95 || code === 96 || code === 99) return '⛈️';
+      return '🌤️';
+    }
+
+    function getWeatherDesc(code) {
+      if (code === 0) return '晴天';
+      if (code === 1 || code === 2 || code === 3) return '多云';
+      if (code === 45 || code === 48) return '雾天';
+      if (code === 51 || code === 53 || code === 55) return '小雨';
+      if (code === 56 || code === 57) return '冻雨';
+      if (code === 61 || code === 63 || code === 65) return '大雨';
+      if (code === 66 || code === 67) return '冻雨';
+      if (code === 71 || code === 73 || code === 75 || code === 77) return '降雪';
+      if (code === 80 || code === 81 || code === 82) return '阵雨';
+      if (code === 85 || code === 86) return '阵雪';
+      if (code === 95 || code === 96 || code === 99) return '雷暴';
+      return '--';
+    }
+
     async function getWeather() {
       try {
-        const locationRes = await fetch('https://ip-api.com/json/?fields=city,region,country');
+        // 1. 获取用户位置（通过IP）
+        const locationRes = await fetch('https://ipapi.co/json/');
         const locationData = await locationRes.json();
-        const city = locationData.city || '未知城市';
-        const region = locationData.region || '';
+        const city = locationData.city || locationData.region || '未知城市';
+        const lat = locationData.latitude;
+        const lon = locationData.longitude;
 
-        const weatherRes = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1&lang=zh`);
+        if (!lat || !lon) {
+          throw new Error('无法获取位置信息');
+        }
+
+        cityEl.textContent = city;
+
+        // 2. 获取天气数据（Open-Meteo）
+        const weatherRes = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,windspeed_10m&timezone=auto`
+        );
         const weatherData = await weatherRes.json();
 
-        if (weatherData && weatherData.current_condition) {
-          const current = weatherData.current_condition[0];
-          const temp = current.temp_C || '--';
-          const condition = current.weatherDesc[0]?.value || '--';
-          const humidity = current.humidity || '--';
-          const windSpeed = current.windSpeedKmph || '--';
-          const iconCode = current.weatherCode || '113';
+        if (weatherData && weatherData.current_weather) {
+          const current = weatherData.current_weather;
+          const temp = current.temperature || '--';
+          const weatherCode = current.weathercode || 0;
+          const windSpeed = current.windspeed || '--';
 
-          const iconMap = {
-            '113': '☀️', '116': '⛅', '119': '☁️', '122': '☁️',
-            '143': '🌫️', '176': '🌦️', '179': '🌨️', '182': '🌧️',
-            '185': '🌧️', '200': '⛈️', '227': '❄️', '230': '❄️',
-            '248': '🌫️', '260': '🌫️', '263': '🌦️', '266': '🌧️',
-            '281': '🌧️', '284': '🌧️', '293': '🌦️', '296': '🌧️',
-            '299': '🌧️', '302': '🌧️', '305': '🌧️', '308': '🌧️',
-            '311': '🌧️', '314': '🌧️', '317': '🌧️', '320': '❄️',
-            '323': '❄️', '326': '❄️', '329': '❄️', '332': '❄️',
-            '335': '❄️', '338': '❄️', '350': '🌧️', '353': '🌦️',
-            '356': '🌧️', '359': '🌧️', '362': '🌧️', '365': '🌧️',
-            '368': '🌧️', '371': '🌧️', '377': '🌧️', '386': '⛈️',
-            '389': '⛈️', '392': '🌨️', '395': '🌨️'
-          };
+          // 获取湿度（从hourly数据中取最近时间）
+          let humidity = '--';
+          if (weatherData.hourly && weatherData.hourly.relativehumidity_2m && weatherData.hourly.time) {
+            const now = new Date();
+            const currentHour = now.getHours();
+            // 找最近的时间点
+            for (let i = 0; i < weatherData.hourly.time.length; i++) {
+              const time = new Date(weatherData.hourly.time[i]);
+              if (time.getHours() >= currentHour) {
+                humidity = weatherData.hourly.relativehumidity_2m[i] || '--';
+                break;
+              }
+            }
+          }
 
-          const emoji = iconMap[iconCode] || '🌤️';
+          const emoji = getWeatherEmoji(weatherCode);
+          const desc = getWeatherDesc(weatherCode);
 
-          cityEl.textContent = `${city}${region ? ', ' + region : ''}`;
           tempEl.textContent = `${temp}°C`;
           iconEl.textContent = emoji;
-          conditionEl.textContent = condition;
+          conditionEl.textContent = desc;
           humidityEl.textContent = humidity;
           windEl.textContent = windSpeed;
 
-          if (weatherData.weather && weatherData.weather[0]) {
-            const astronomy = weatherData.weather[0].astronomy[0];
-            if (astronomy) {
-              sunriseEl.textContent = astronomy.sunrise || '--';
-              sunsetEl.textContent = astronomy.sunset || '--';
-            }
-          }
+          // 日出日落（简化处理，不显示具体时间）
+          sunriseEl.textContent = '--';
+          sunsetEl.textContent = '--';
 
           loading.style.display = 'none';
           content.style.display = 'block';
