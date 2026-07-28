@@ -245,12 +245,7 @@ export const navBarConfig: NavBarConfig = {
 					external: true,
 					icon: "fa7-brands:github",
 				},
-				{
-					name: "X",
-					url: "https://x.com/yRlwAaa",
-					external: true,
-					icon: "fa7-brands:x-twitter",
-				},
+				
 				{
 					name: "Twitch",
 					url: "https://www.twitch.tv/yrlwa",
@@ -353,11 +348,7 @@ export const profileConfig: ProfileConfig = {
 			icon: "fa7-brands:github",
 			url: "https://github.com/yRlwAaa",
 		},
-		{
-			name: "X",
-			icon: "fa7-brands:x-twitter",
-			url: "https://x.com/yRlwAaa",
-		},
+		
 		{
 			name: "Twitch",
 			icon: "fa7-brands:twitch",
