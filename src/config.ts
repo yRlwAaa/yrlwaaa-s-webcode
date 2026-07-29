@@ -402,7 +402,7 @@ export const shareConfig: ShareConfig = {
 
 export const announcementConfig: AnnouncementConfig = {
 	title: "",
-	content: "私のサイトへようこそ！X：@yRlwAaa (｡･ω･)ﾉ✨",
+	content: "私のサイトへようこそ！(｡･ω･)ﾉ✨",
 	closable: true,
 	link: {
 		enable: true,
