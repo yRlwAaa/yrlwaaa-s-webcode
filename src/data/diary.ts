@@ -53,7 +53,7 @@ const diaryData: DiaryItem[] = [
 		content:
 			"设立了音乐模块",
 		date:"2026-08-09T16:00:00Z",
-		images: ["/images/diary/2026-8-9/1.jpg","/images/diary/2026-8-9/2.jpg"],
+		images: ["/images/diary/2026-8-9/1.png","/images/diary/2026-8-9/2.png"],
 	}
 ];
 
