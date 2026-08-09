@@ -18,8 +18,8 @@ const albums = musicData.albums.filter(a => a.artistId === id);
     <div class="artist-header">
       <img src={artist?.image} alt={artist?.name} class="artist-avatar" />
       <div>
-        <h1>{artist?.name}</h1>
-        <p>{artist?.bio || ""}</p>
+        <h1 class="text-primary">{artist?.name}</h1>
+        <p class="text-secondary">{artist?.bio || ""}</p>
         <span class="album-count">{albums.length} 张专辑</span>
       </div>
     </div>
@@ -29,8 +29,8 @@ const albums = musicData.albums.filter(a => a.artistId === id);
         <a href={`/music/album/${album.id}`} class="album-card">
           <img src={album.cover} alt={album.title} />
           <div class="album-info">
-            <h3>{album.title}</h3>
-            <p>{album.year} · {album.tracks.length} 首</p>
+            <h3 class="text-primary">{album.title}</h3>
+            <p class="text-secondary">{album.year} · {album.tracks.length} 首</p>
           </div>
         </a>
       ))}
@@ -39,6 +39,8 @@ const albums = musicData.albums.filter(a => a.artistId === id);
 </MainGridLayout>
 
 <style>
+  .text-primary { color: var(--text-primary); }
+  .text-secondary { color: var(--text-secondary); }
   .artist-header {
     display: flex; align-items: center; gap: 2rem;
     padding: 1.5rem; background: var(--card-bg);
@@ -67,6 +69,6 @@ const albums = musicData.albums.filter(a => a.artistId === id);
   .album-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
   .album-info { padding: 0.75rem; }
   .album-info h3 { font-size: 0.95rem; }
-  .album-info p { font-size: 0.8rem; color: var(--text-secondary); }
+  .album-info p { font-size: 0.8rem; }
   @media (max-width: 640px) { .artist-header { flex-direction: column; text-align: center; } }
 </style>
