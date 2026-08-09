@@ -7,14 +7,14 @@ import musicData from "../../data/music.json";
   <div id="music-app">
     <div class="page-header">
       <h1>音乐</h1>
-      <p class="text-secondary">{musicData.artists.length} 位歌手</p>
+      <p>{musicData.artists.length} 位歌手</p>
     </div>
     <div class="artist-grid">
       {musicData.artists.map(artist => (
         <a href={`/music/artist/${artist.id}`} class="artist-card">
           <img src={artist.image} alt={artist.name} />
-          <h3 class="text-primary">{artist.name}</h3>
-          <p class="text-secondary">{artist.bio || ''}</p>
+          <h3>{artist.name}</h3>
+          <p>{artist.bio || ''}</p>
         </a>
       ))}
     </div>
@@ -24,8 +24,7 @@ import musicData from "../../data/music.json";
 <style>
   .page-header { margin-bottom: 2rem; }
   .page-header h1 { font-size: 2rem; margin-bottom: 0.25rem; color: var(--text-primary); }
-  .text-secondary { color: var(--text-secondary); }
-  .text-primary { color: var(--text-primary); }
+  .page-header p { color: var(--text-secondary); }
   .artist-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -33,7 +32,7 @@ import musicData from "../../data/music.json";
   }
   .artist-card {
     text-decoration: none;
-    color: inherit;
+    color: var(--text-primary);
     text-align: center;
     border-radius: 12px;
     overflow: hidden;
@@ -49,6 +48,6 @@ import musicData from "../../data/music.json";
     object-fit: cover;
     border-radius: 50%;
   }
-  .artist-card h3 { margin-top: 0.75rem; font-size: 1rem; }
-  .artist-card p { font-size: 0.8rem; }
+  .artist-card h3 { margin-top: 0.75rem; font-size: 1rem; color: var(--text-primary); }
+  .artist-card p { font-size: 0.8rem; color: var(--text-secondary); }
 </style>

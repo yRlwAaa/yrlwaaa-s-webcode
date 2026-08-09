@@ -19,7 +19,7 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
       <img src={album?.cover} alt={album?.title} class="album-cover" />
       <div class="album-meta">
         <span class="type">专辑</span>
-        <h1 class="text-primary">{album?.title}</h1>
+        <h1>{album?.title}</h1>
         <p class="artist-name">
           <a href={`/music/artist/${artist?.id}`}>{artist?.name || "未知"}</a>
         </p>
@@ -37,7 +37,7 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
           <div class="track-item">
             <span class="track-number">{String(index + 1).padStart(2, '0')}</span>
             <div class="track-info">
-              <span class="track-title text-primary">{track.title}</span>
+              <span class="track-title">{track.title}</span>
               <span class="track-duration">{track.duration || "--"}</span>
             </div>
             <a href={downloadUrl} download={filename} class="download-btn">下载</a>
@@ -49,8 +49,6 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
 </MainGridLayout>
 
 <style>
-  .text-primary { color: var(--text-primary); }
-  .text-secondary { color: var(--text-secondary); }
   .album-header {
     display: flex;
     gap: 2rem;
@@ -63,7 +61,7 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
   .album-cover { width: 200px; height: 200px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
   .album-meta { display: flex; flex-direction: column; justify-content: center; }
   .album-meta .type { font-size: 0.75rem; color: var(--text-secondary); letter-spacing: 1px; }
-  .album-meta h1 { font-size: 2rem; margin: 0.25rem 0; }
+  .album-meta h1 { font-size: 2rem; margin: 0.25rem 0; color: var(--text-primary); }
   .album-meta .artist-name a { color: var(--primary); text-decoration: none; }
   .album-meta .details { color: var(--text-secondary); font-size: 0.9rem; }
   .track-count {
@@ -80,7 +78,7 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
   .track-item:hover { background: var(--hover-bg); }
   .track-number { width: 40px; font-size: 0.85rem; color: var(--text-secondary); }
   .track-info { flex: 1; display: flex; justify-content: space-between; align-items: center; }
-  .track-title { font-size: 0.95rem; }
+  .track-title { font-size: 0.95rem; color: var(--text-primary); }
   .track-duration { font-size: 0.8rem; color: var(--text-secondary); }
   .download-btn {
     padding: 0.25rem 0.75rem; font-size: 0.8rem;

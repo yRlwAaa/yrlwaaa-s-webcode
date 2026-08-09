@@ -18,8 +18,8 @@ const albums = musicData.albums.filter(a => a.artistId === id);
     <div class="artist-header">
       <img src={artist?.image} alt={artist?.name} class="artist-avatar" />
       <div>
-        <h1 class="text-primary">{artist?.name}</h1>
-        <p class="text-secondary">{artist?.bio || ""}</p>
+        <h1>{artist?.name}</h1>
+        <p>{artist?.bio || ""}</p>
         <span class="album-count">{albums.length} 张专辑</span>
       </div>
     </div>
@@ -29,8 +29,8 @@ const albums = musicData.albums.filter(a => a.artistId === id);
         <a href={`/music/album/${album.id}`} class="album-card">
           <img src={album.cover} alt={album.title} />
           <div class="album-info">
-            <h3 class="text-primary">{album.title}</h3>
-            <p class="text-secondary">{album.year} · {album.tracks.length} 首</p>
+            <h3>{album.title}</h3>
+            <p>{album.year} · {album.tracks.length} 首</p>
           </div>
         </a>
       ))}
@@ -39,8 +39,6 @@ const albums = musicData.albums.filter(a => a.artistId === id);
 </MainGridLayout>
 
 <style>
-  .text-primary { color: var(--text-primary); }
-  .text-secondary { color: var(--text-secondary); }
   .artist-header {
     display: flex; align-items: center; gap: 2rem;
     padding: 1.5rem; background: var(--card-bg);
@@ -48,7 +46,8 @@ const albums = musicData.albums.filter(a => a.artistId === id);
     margin-bottom: 2rem;
   }
   .artist-avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; }
-  .artist-header h1 { font-size: 2rem; }
+  .artist-header h1 { font-size: 2rem; color: var(--text-primary); }
+  .artist-header p { color: var(--text-secondary); }
   .album-count {
     display: inline-block; margin-top: 0.5rem; font-size: 0.8rem;
     color: var(--text-secondary); background: var(--hover-bg);
@@ -60,7 +59,7 @@ const albums = musicData.albums.filter(a => a.artistId === id);
     gap: 1.5rem;
   }
   .album-card {
-    text-decoration: none; color: inherit;
+    text-decoration: none;
     border-radius: 12px; overflow: hidden;
     border: 1px solid var(--line-divider);
     transition: transform 0.2s; background: var(--card-bg);
@@ -68,7 +67,7 @@ const albums = musicData.albums.filter(a => a.artistId === id);
   .album-card:hover { transform: translateY(-4px); }
   .album-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
   .album-info { padding: 0.75rem; }
-  .album-info h3 { font-size: 0.95rem; }
-  .album-info p { font-size: 0.8rem; }
+  .album-info h3 { font-size: 0.95rem; color: var(--text-primary); }
+  .album-info p { font-size: 0.8rem; color: var(--text-secondary); }
   @media (max-width: 640px) { .artist-header { flex-direction: column; text-align: center; } }
 </style>
