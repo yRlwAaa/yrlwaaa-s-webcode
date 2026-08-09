@@ -53,37 +53,97 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
     display: flex;
     gap: 2rem;
     padding: 1.5rem;
-    background: var(--color-bg);
+    background: var(--color-bg, #fff);
     border-radius: 16px;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-border, #e5e7eb);
     margin-bottom: 2rem;
+  }
+  .album-header.dark {
+    background: #1a1a2e;
+    border-color: #2d2d44;
   }
   .album-cover { width: 200px; height: 200px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
   .album-meta { display: flex; flex-direction: column; justify-content: center; }
-  .album-meta .type { font-size: 0.75rem; color: var(--color-text-secondary); letter-spacing: 1px; }
-  .album-meta h1 { font-size: 2rem; margin: 0.25rem 0; color: var(--color-text); }
-  .album-meta .artist-name a { color: var(--color-primary); text-decoration: none; }
-  .album-meta .details { color: var(--color-text-secondary); font-size: 0.9rem; }
+  .album-meta .type { 
+    font-size: 0.75rem; 
+    color: #6b7280; 
+    letter-spacing: 1px; 
+  }
+  .album-meta .type.dark { color: #9ca3af; }
+  .album-meta h1 { 
+    font-size: 2rem; 
+    margin: 0.25rem 0; 
+    color: #000; 
+  }
+  .album-meta h1.dark { color: #fff; }
+  .album-meta .artist-name a { 
+    color: #3b82f6; 
+    text-decoration: none; 
+  }
+  .album-meta .details { 
+    color: #6b7280; 
+    font-size: 0.9rem; 
+  }
+  .album-meta .details.dark { color: #9ca3af; }
   .track-count {
-    margin-top: 0.5rem; font-size: 0.8rem; color: var(--color-text-secondary);
-    background: var(--color-bg-hover); padding: 0.25rem 0.75rem; border-radius: 20px;
+    margin-top: 0.5rem; 
+    font-size: 0.8rem; 
+    color: #6b7280;
+    background: #f3f4f6; 
+    padding: 0.25rem 0.75rem; 
+    border-radius: 20px;
     display: inline-block;
   }
-  .track-list { background: var(--color-bg); border-radius: 12px; border: 1px solid var(--color-border); overflow: hidden; }
-  .track-item {
-    display: flex; align-items: center; padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--color-border);
+  .track-count.dark { 
+    color: #9ca3af; 
+    background: #2d2d44; 
   }
+  .track-list { 
+    background: #fff; 
+    border-radius: 12px; 
+    border: 1px solid #e5e7eb; 
+    overflow: hidden; 
+  }
+  .track-list.dark { 
+    background: #1a1a2e; 
+    border-color: #2d2d44; 
+  }
+  .track-item {
+    display: flex; 
+    align-items: center; 
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .track-item.dark { border-color: #2d2d44; }
   .track-item:last-child { border-bottom: none; }
-  .track-item:hover { background: var(--color-bg-hover); }
-  .track-number { width: 40px; font-size: 0.85rem; color: var(--color-text-secondary); }
+  .track-item:hover { background: #f3f4f6; }
+  .track-item.dark:hover { background: #2d2d44; }
+  .track-number { 
+    width: 40px; 
+    font-size: 0.85rem; 
+    color: #6b7280; 
+  }
+  .track-number.dark { color: #9ca3af; }
   .track-info { flex: 1; display: flex; justify-content: space-between; align-items: center; }
-  .track-title { font-size: 0.95rem; color: var(--color-text); }
-  .track-duration { font-size: 0.8rem; color: var(--color-text-secondary); }
+  .track-title { 
+    font-size: 0.95rem; 
+    color: #000; 
+  }
+  .track-title.dark { color: #fff; }
+  .track-duration { 
+    font-size: 0.8rem; 
+    color: #6b7280; 
+  }
+  .track-duration.dark { color: #9ca3af; }
   .download-btn {
-    padding: 0.25rem 0.75rem; font-size: 0.8rem;
-    background: var(--color-primary); color: #fff; border-radius: 6px;
-    text-decoration: none; margin-left: 1rem; white-space: nowrap;
+    padding: 0.25rem 0.75rem; 
+    font-size: 0.8rem;
+    background: #3b82f6; 
+    color: #fff; 
+    border-radius: 6px;
+    text-decoration: none; 
+    margin-left: 1rem; 
+    white-space: nowrap;
   }
   .download-btn:hover { opacity: 0.8; }
   @media (max-width: 640px) {
@@ -94,3 +154,27 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
     .download-btn { margin-left: 0; order: 3; width: 100%; text-align: center; }
   }
 </style>
+
+<script>
+  // 监听主题变化，切换 dark 类
+  function updateTheme() {
+    const isDark = document.documentElement.classList.contains('dark');
+    document.querySelectorAll('.album-header, .type, .album-meta h1, .details, .track-count, .track-list, .track-item, .track-number, .track-title, .track-duration')
+      .forEach(el => {
+        if (isDark) {
+          el.classList.add('dark');
+        } else {
+          el.classList.remove('dark');
+        }
+      });
+  }
+
+  // 初始执行
+  setTimeout(updateTheme, 100);
+
+  // 监听主题变化
+  const observer = new MutationObserver(() => {
+    updateTheme();
+  });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+</script>
