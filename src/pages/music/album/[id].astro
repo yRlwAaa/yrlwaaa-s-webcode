@@ -1,6 +1,6 @@
 ---
 import MainGridLayout from "@layouts/MainGridLayout.astro";
-import musicData from "../../data/music.json";
+import musicData from "../../../data/music.json";
 
 export async function getStaticPaths() {
   return musicData.albums.map((album) => ({
