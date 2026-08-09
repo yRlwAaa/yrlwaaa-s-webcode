@@ -14,33 +14,33 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
 ---
 
 <MainGridLayout title={album?.title || "专辑"}>
-  <div id="album-detail">
-    <div class="album-header">
+  <div id="album-detail" style="color: var(--color-text, #000);">
+    <div class="album-header" style="background: var(--color-bg, #fff); border-color: var(--color-border, #e5e7eb);">
       <img src={album?.cover} alt={album?.title} class="album-cover" />
       <div class="album-meta">
-        <span class="type">专辑</span>
-        <h1>{album?.title}</h1>
+        <span class="type" style="color: var(--color-text-secondary, #6b7280);">专辑</span>
+        <h1 style="color: var(--color-text, #000);">{album?.title}</h1>
         <p class="artist-name">
-          <a href={`/music/artist/${artist?.id}`}>{artist?.name || "未知"}</a>
+          <a href={`/music/artist/${artist?.id}`} style="color: var(--color-primary, #3b82f6);">{artist?.name || "未知"}</a>
         </p>
-        <p class="details">{album?.year} · {album?.genre || "未知"}</p>
-        <span class="track-count">{album?.tracks.length} 首歌曲</span>
+        <p class="details" style="color: var(--color-text-secondary, #6b7280);">{album?.year} · {album?.genre || "未知"}</p>
+        <span class="track-count" style="color: var(--color-text-secondary, #6b7280); background: var(--color-bg-hover, #f3f4f6);">{album?.tracks.length} 首歌曲</span>
       </div>
     </div>
 
-    <div class="track-list">
+    <div class="track-list" style="background: var(--color-bg, #fff); border-color: var(--color-border, #e5e7eb);">
       {album?.tracks.map((track, index) => {
         const downloadUrl = `/music/${track.file}`;
         const filename = track.file.split('/').pop();
         
         return (
-          <div class="track-item">
-            <span class="track-number">{String(index + 1).padStart(2, '0')}</span>
+          <div class="track-item" style="border-color: var(--color-border, #e5e7eb);">
+            <span class="track-number" style="color: var(--color-text-secondary, #6b7280);">{String(index + 1).padStart(2, '0')}</span>
             <div class="track-info">
-              <span class="track-title">{track.title}</span>
-              <span class="track-duration">{track.duration || "--"}</span>
+              <span class="track-title" style="color: var(--color-text, #000);">{track.title}</span>
+              <span class="track-duration" style="color: var(--color-text-secondary, #6b7280);">{track.duration || "--"}</span>
             </div>
-            <a href={downloadUrl} download={filename} class="download-btn">下载</a>
+            <a href={downloadUrl} download={filename} class="download-btn" style="background: var(--color-primary, #3b82f6);">下载</a>
           </div>
         );
       })}
@@ -53,45 +53,49 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
     display: flex;
     gap: 2rem;
     padding: 1.5rem;
-    background: var(--color-bg, #ffffff);
     border-radius: 16px;
-    border: 1px solid var(--color-border, #e5e7eb);
+    border: 1px solid;
     margin-bottom: 2rem;
     transition: all 0.3s;
   }
   .album-cover { width: 200px; height: 200px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
   .album-meta { display: flex; flex-direction: column; justify-content: center; }
-  .album-meta .type { font-size: 0.75rem; color: var(--color-text-secondary, #6b7280); letter-spacing: 1px; transition: color 0.3s; }
-  .album-meta h1 { font-size: 2rem; margin: 0.25rem 0; color: var(--color-text, #000000); transition: color 0.3s; }
-  .album-meta .artist-name a { color: var(--color-primary, #3b82f6); text-decoration: none; transition: color 0.3s; }
-  .album-meta .details { color: var(--color-text-secondary, #6b7280); font-size: 0.9rem; transition: color 0.3s; }
+  .album-meta .type { font-size: 0.75rem; letter-spacing: 1px; }
+  .album-meta h1 { font-size: 2rem; margin: 0.25rem 0; }
+  .album-meta .artist-name a { text-decoration: none; }
+  .album-meta .details { font-size: 0.9rem; }
   .track-count {
-    margin-top: 0.5rem; font-size: 0.8rem; color: var(--color-text-secondary, #6b7280);
-    background: var(--color-bg-hover, #f3f4f6); padding: 0.25rem 0.75rem; border-radius: 20px;
-    display: inline-block; transition: all 0.3s;
+    margin-top: 0.5rem; font-size: 0.8rem;
+    padding: 0.25rem 0.75rem; border-radius: 20px;
+    display: inline-block;
   }
   .track-list { 
-    background: var(--color-bg, #ffffff); 
     border-radius: 12px; 
-    border: 1px solid var(--color-border, #e5e7eb); 
+    border: 1px solid;
     overflow: hidden; 
     transition: all 0.3s;
   }
   .track-item {
-    display: flex; align-items: center; padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--color-border, #e5e7eb);
+    display: flex; 
+    align-items: center; 
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid;
     transition: all 0.3s;
   }
   .track-item:last-child { border-bottom: none; }
   .track-item:hover { background: var(--color-bg-hover, #f3f4f6); }
-  .track-number { width: 40px; font-size: 0.85rem; color: var(--color-text-secondary, #6b7280); transition: color 0.3s; }
+  .track-number { width: 40px; font-size: 0.85rem; }
   .track-info { flex: 1; display: flex; justify-content: space-between; align-items: center; }
-  .track-title { font-size: 0.95rem; color: var(--color-text, #000000); transition: color 0.3s; }
-  .track-duration { font-size: 0.8rem; color: var(--color-text-secondary, #6b7280); transition: color 0.3s; }
+  .track-title { font-size: 0.95rem; }
+  .track-duration { font-size: 0.8rem; }
   .download-btn {
-    padding: 0.25rem 0.75rem; font-size: 0.8rem;
-    background: var(--color-primary, #3b82f6); color: #ffffff; border-radius: 6px;
-    text-decoration: none; margin-left: 1rem; white-space: nowrap;
+    padding: 0.25rem 0.75rem; 
+    font-size: 0.8rem;
+    color: #fff; 
+    border-radius: 6px;
+    text-decoration: none; 
+    margin-left: 1rem; 
+    white-space: nowrap;
     transition: all 0.3s;
   }
   .download-btn:hover { opacity: 0.8; }
@@ -110,20 +114,20 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
     const root = document.documentElement;
     const styles = getComputedStyle(root);
     
-    // 读取主题定义的变量
-    const bg = styles.getPropertyValue('--color-bg').trim() || styles.getPropertyValue('--bg-primary').trim() || '#ffffff';
-    const text = styles.getPropertyValue('--color-text').trim() || styles.getPropertyValue('--text-primary').trim() || '#000000';
-    const textSecondary = styles.getPropertyValue('--color-text-secondary').trim() || styles.getPropertyValue('--text-secondary').trim() || '#6b7280';
-    const border = styles.getPropertyValue('--color-border').trim() || styles.getPropertyValue('--border-color').trim() || '#e5e7eb';
-    const bgHover = styles.getPropertyValue('--color-bg-hover').trim() || styles.getPropertyValue('--bg-hover').trim() || '#f3f4f6';
-    const primary = styles.getPropertyValue('--color-primary').trim() || styles.getPropertyValue('--primary-color').trim() || '#3b82f6';
+    // 读取主题实际颜色
+    const text = styles.getPropertyValue('--color-text').trim() || '#000000';
+    const textSecondary = styles.getPropertyValue('--color-text-secondary').trim() || '#6b7280';
+    const bg = styles.getPropertyValue('--color-bg').trim() || '#ffffff';
+    const border = styles.getPropertyValue('--color-border').trim() || '#e5e7eb';
+    const bgHover = styles.getPropertyValue('--color-bg-hover').trim() || '#f3f4f6';
+    const primary = styles.getPropertyValue('--color-primary').trim() || styles.getPropertyValue('--primary').trim() || '#3b82f6';
     
     // 应用到专辑页
     const detail = document.getElementById('album-detail');
     if (detail) {
-      detail.style.setProperty('--color-bg', bg);
       detail.style.setProperty('--color-text', text);
       detail.style.setProperty('--color-text-secondary', textSecondary);
+      detail.style.setProperty('--color-bg', bg);
       detail.style.setProperty('--color-border', border);
       detail.style.setProperty('--color-bg-hover', bgHover);
       detail.style.setProperty('--color-primary', primary);
@@ -138,8 +142,4 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
     applyTheme();
   });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
-  
-  // 监听主题色滑块变化（如果有自定义事件）
-  document.addEventListener('themeChanged', applyTheme);
-  document.addEventListener('colorSchemeChange', applyTheme);
 </script>
