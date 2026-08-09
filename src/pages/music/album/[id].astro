@@ -49,103 +49,79 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
 </MainGridLayout>
 
 <style>
+  /* 白天模式 */
   .album-header {
     display: flex;
     gap: 2rem;
     padding: 1.5rem;
-    background: var(--color-bg, #fff);
+    background: #ffffff;
     border-radius: 16px;
-    border: 1px solid var(--color-border, #e5e7eb);
+    border: 1px solid #e5e7eb;
     margin-bottom: 2rem;
-  }
-  .album-header.dark {
-    background: #1a1a2e;
-    border-color: #2d2d44;
+    transition: all 0.3s;
   }
   .album-cover { width: 200px; height: 200px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
   .album-meta { display: flex; flex-direction: column; justify-content: center; }
-  .album-meta .type { 
-    font-size: 0.75rem; 
-    color: #6b7280; 
-    letter-spacing: 1px; 
-  }
-  .album-meta .type.dark { color: #9ca3af; }
-  .album-meta h1 { 
-    font-size: 2rem; 
-    margin: 0.25rem 0; 
-    color: #000; 
-  }
-  .album-meta h1.dark { color: #fff; }
-  .album-meta .artist-name a { 
-    color: #3b82f6; 
-    text-decoration: none; 
-  }
-  .album-meta .details { 
-    color: #6b7280; 
-    font-size: 0.9rem; 
-  }
-  .album-meta .details.dark { color: #9ca3af; }
+  .album-meta .type { font-size: 0.75rem; color: #6b7280; letter-spacing: 1px; transition: color 0.3s; }
+  .album-meta h1 { font-size: 2rem; margin: 0.25rem 0; color: #000000; transition: color 0.3s; }
+  .album-meta .artist-name a { color: #3b82f6; text-decoration: none; transition: color 0.3s; }
+  .album-meta .details { color: #6b7280; font-size: 0.9rem; transition: color 0.3s; }
   .track-count {
-    margin-top: 0.5rem; 
-    font-size: 0.8rem; 
-    color: #6b7280;
-    background: #f3f4f6; 
-    padding: 0.25rem 0.75rem; 
-    border-radius: 20px;
-    display: inline-block;
-  }
-  .track-count.dark { 
-    color: #9ca3af; 
-    background: #2d2d44; 
+    margin-top: 0.5rem; font-size: 0.8rem; color: #6b7280;
+    background: #f3f4f6; padding: 0.25rem 0.75rem; border-radius: 20px;
+    display: inline-block; transition: all 0.3s;
   }
   .track-list { 
-    background: #fff; 
+    background: #ffffff; 
     border-radius: 12px; 
     border: 1px solid #e5e7eb; 
     overflow: hidden; 
-  }
-  .track-list.dark { 
-    background: #1a1a2e; 
-    border-color: #2d2d44; 
+    transition: all 0.3s;
   }
   .track-item {
-    display: flex; 
-    align-items: center; 
-    padding: 0.75rem 1rem;
+    display: flex; align-items: center; padding: 0.75rem 1rem;
     border-bottom: 1px solid #e5e7eb;
+    transition: all 0.3s;
   }
-  .track-item.dark { border-color: #2d2d44; }
   .track-item:last-child { border-bottom: none; }
   .track-item:hover { background: #f3f4f6; }
-  .track-item.dark:hover { background: #2d2d44; }
-  .track-number { 
-    width: 40px; 
-    font-size: 0.85rem; 
-    color: #6b7280; 
-  }
-  .track-number.dark { color: #9ca3af; }
+  .track-number { width: 40px; font-size: 0.85rem; color: #6b7280; transition: color 0.3s; }
   .track-info { flex: 1; display: flex; justify-content: space-between; align-items: center; }
-  .track-title { 
-    font-size: 0.95rem; 
-    color: #000; 
-  }
-  .track-title.dark { color: #fff; }
-  .track-duration { 
-    font-size: 0.8rem; 
-    color: #6b7280; 
-  }
-  .track-duration.dark { color: #9ca3af; }
+  .track-title { font-size: 0.95rem; color: #000000; transition: color 0.3s; }
+  .track-duration { font-size: 0.8rem; color: #6b7280; transition: color 0.3s; }
   .download-btn {
-    padding: 0.25rem 0.75rem; 
-    font-size: 0.8rem;
-    background: #3b82f6; 
-    color: #fff; 
-    border-radius: 6px;
-    text-decoration: none; 
-    margin-left: 1rem; 
-    white-space: nowrap;
+    padding: 0.25rem 0.75rem; font-size: 0.8rem;
+    background: #3b82f6; color: #ffffff; border-radius: 6px;
+    text-decoration: none; margin-left: 1rem; white-space: nowrap;
+    transition: all 0.3s;
   }
   .download-btn:hover { opacity: 0.8; }
+  
+  /* 黑夜模式 - 用 .dark 类控制 */
+  .dark .album-header {
+    background: #1a1a2e;
+    border-color: #2d2d44;
+  }
+  .dark .album-meta .type { color: #9ca3af; }
+  .dark .album-meta h1 { color: #ffffff; }
+  .dark .album-meta .details { color: #9ca3af; }
+  .dark .track-count {
+    color: #9ca3af;
+    background: #2d2d44;
+  }
+  .dark .track-list {
+    background: #1a1a2e;
+    border-color: #2d2d44;
+  }
+  .dark .track-item {
+    border-color: #2d2d44;
+  }
+  .dark .track-item:hover { background: #2d2d44; }
+  .dark .track-number { color: #9ca3af; }
+  .dark .track-title { color: #ffffff; }
+  .dark .track-duration { color: #9ca3af; }
+  .dark .download-btn { background: #3b82f6; }
+  
   @media (max-width: 640px) {
     .album-header { flex-direction: column; align-items: center; text-align: center; }
     .album-cover { width: 160px; height: 160px; }
@@ -156,25 +132,25 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
 </style>
 
 <script>
-  // 监听主题变化，切换 dark 类
-  function updateTheme() {
+  // 页面加载后检查主题
+  function applyTheme() {
     const isDark = document.documentElement.classList.contains('dark');
-    document.querySelectorAll('.album-header, .type, .album-meta h1, .details, .track-count, .track-list, .track-item, .track-number, .track-title, .track-duration')
-      .forEach(el => {
-        if (isDark) {
-          el.classList.add('dark');
-        } else {
-          el.classList.remove('dark');
-        }
-      });
+    const detail = document.getElementById('album-detail');
+    if (detail) {
+      if (isDark) {
+        detail.classList.add('dark');
+      } else {
+        detail.classList.remove('dark');
+      }
+    }
   }
-
+  
   // 初始执行
-  setTimeout(updateTheme, 100);
-
+  setTimeout(applyTheme, 50);
+  
   // 监听主题变化
   const observer = new MutationObserver(() => {
-    updateTheme();
+    applyTheme();
   });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 </script>
