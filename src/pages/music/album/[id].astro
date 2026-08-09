@@ -54,44 +54,44 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
     gap: 2rem;
     padding: 1.5rem;
     border-radius: 16px;
-    border: 1px solid var(--music-border, #e5e7eb);
+    border: 1px solid var(--music-border, rgba(255,255,255,0.08));
     margin-bottom: 2rem;
-    background: var(--music-bg, #fff);
+    background: var(--music-bg, #1a1a2e);
   }
   .album-cover { width: 200px; height: 200px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
   .album-meta { display: flex; flex-direction: column; justify-content: center; }
-  .album-meta .type { font-size: 0.75rem; color: var(--music-text-sec, #6b7280); letter-spacing: 1px; }
-  .album-meta h1 { font-size: 2rem; margin: 0.25rem 0; color: var(--music-text, #000); }
+  .album-meta .type { font-size: 0.75rem; color: var(--music-text-sec, #9ca3af); letter-spacing: 1px; }
+  .album-meta h1 { font-size: 2rem; margin: 0.25rem 0; color: var(--music-text, #fff); }
   .album-meta .artist-name a { color: var(--music-primary, #3b82f6); text-decoration: none; }
-  .album-meta .details { color: var(--music-text-sec, #6b7280); font-size: 0.9rem; }
+  .album-meta .details { color: var(--music-text-sec, #9ca3af); font-size: 0.9rem; }
   .track-count {
     margin-top: 0.5rem; font-size: 0.8rem;
     padding: 0.25rem 0.75rem; border-radius: 20px;
     display: inline-block;
-    color: var(--music-text-sec, #6b7280);
-    background: var(--music-hover, #f3f4f6);
+    color: var(--music-text-sec, #9ca3af);
+    background: var(--music-hover, rgba(255,255,255,0.05));
   }
   .track-list { 
     border-radius: 12px; 
-    border: 1px solid var(--music-border, #e5e7eb);
+    border: 1px solid var(--music-border, rgba(255,255,255,0.08));
     overflow: hidden; 
-    background: var(--music-bg, #fff);
+    background: var(--music-bg, #1a1a2e);
   }
   .track-item {
     display: flex; 
     align-items: center; 
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--music-border, #e5e7eb);
+    border-bottom: 1px solid var(--music-border, rgba(255,255,255,0.08));
     background: transparent;
   }
   .track-item:last-child { border-bottom: none; }
   .track-item:hover { 
     background: transparent !important;
   }
-  .track-number { width: 40px; font-size: 0.85rem; color: var(--music-text-sec, #6b7280); }
+  .track-number { width: 40px; font-size: 0.85rem; color: var(--music-text-sec, #9ca3af); }
   .track-info { flex: 1; display: flex; justify-content: space-between; align-items: center; }
-  .track-title { font-size: 0.95rem; color: var(--music-text, #000); }
-  .track-duration { font-size: 0.8rem; color: var(--music-text-sec, #6b7280); }
+  .track-title { font-size: 0.95rem; color: var(--music-text, #fff); }
+  .track-duration { font-size: 0.8rem; color: var(--music-text-sec, #9ca3af); }
   .download-btn {
     padding: 0.25rem 0.75rem; 
     font-size: 0.8rem;
@@ -114,15 +114,22 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
 </style>
 
 <script>
+  function getHue() {
+    const hue = localStorage.getItem('hue');
+    if (hue !== null) return parseInt(hue);
+    return 50;
+  }
+
   function applyTheme() {
     const isDark = document.documentElement.classList.contains('dark');
-    const htmlBg = getComputedStyle(document.documentElement).backgroundColor;
+    const hue = getHue();
+    const bg = `oklch(0.23 0.015 ${hue})`;
     const text = isDark ? '#ffffff' : '#000000';
     const textSec = isDark ? '#9ca3af' : '#6b7280';
     const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
     const hover = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
     const primary = '#3b82f6';
-    document.documentElement.style.setProperty('--music-bg', htmlBg);
+    document.documentElement.style.setProperty('--music-bg', bg);
     document.documentElement.style.setProperty('--music-text', text);
     document.documentElement.style.setProperty('--music-text-sec', textSec);
     document.documentElement.style.setProperty('--music-border', border);
@@ -132,4 +139,7 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
   setTimeout(applyTheme, 0);
   const observer = new MutationObserver(() => applyTheme());
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'hue') applyTheme();
+  });
 </script>
