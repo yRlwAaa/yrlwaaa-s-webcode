@@ -13,6 +13,22 @@ const album = musicData.albums.find(a => a.id === id);
 const artist = musicData.artists.find(a => a.id === album?.artistId);
 ---
 
+<script is:inline>
+  const isDark = document.documentElement.classList.contains('dark');
+  const cardBg = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim() || '#1a1a2e';
+  const text = isDark ? '#ffffff' : '#000000';
+  const textSec = isDark ? '#9ca3af' : '#6b7280';
+  const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+  const hover = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+  const primary = '#3b82f6';
+  document.documentElement.style.setProperty('--music-bg', cardBg);
+  document.documentElement.style.setProperty('--music-text', text);
+  document.documentElement.style.setProperty('--music-text-sec', textSec);
+  document.documentElement.style.setProperty('--music-border', border);
+  document.documentElement.style.setProperty('--music-hover', hover);
+  document.documentElement.style.setProperty('--music-primary', primary);
+</script>
+
 <MainGridLayout title={album?.title || "专辑"}>
   <div id="album-detail">
     <div class="album-header">
@@ -31,7 +47,6 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
     <div class="track-list">
       {album?.tracks.map((track, index) => {
         const R2_URL = 'https://pub-d77dbb19357f4d6fb7e0269c8aef4ed7.r2.dev';
-        // 去掉 /music/ 前缀
         const downloadUrl = `${R2_URL}${track.file.replace('/music/', '/')}`;
         const filename = track.file.split('/').pop();
         
@@ -131,7 +146,6 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
     document.documentElement.style.setProperty('--music-hover', hover);
     document.documentElement.style.setProperty('--music-primary', primary);
   }
-  setTimeout(applyTheme, 0);
   const observer = new MutationObserver(() => applyTheme());
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
 </script>

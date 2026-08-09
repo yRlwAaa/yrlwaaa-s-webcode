@@ -13,6 +13,20 @@ const artist = musicData.artists.find(a => a.id === id);
 const albums = musicData.albums.filter(a => a.artistId === id);
 ---
 
+<script is:inline>
+  const isDark = document.documentElement.classList.contains('dark');
+  const cardBg = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim() || '#1a1a2e';
+  const text = isDark ? '#ffffff' : '#000000';
+  const textSec = isDark ? '#9ca3af' : '#6b7280';
+  const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+  const hover = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+  document.documentElement.style.setProperty('--music-bg', cardBg);
+  document.documentElement.style.setProperty('--music-text', text);
+  document.documentElement.style.setProperty('--music-text-sec', textSec);
+  document.documentElement.style.setProperty('--music-border', border);
+  document.documentElement.style.setProperty('--music-hover', hover);
+</script>
+
 <MainGridLayout title={artist?.name || "歌手"}>
   <div id="artist-detail">
     <div class="artist-header">
@@ -90,7 +104,6 @@ const albums = musicData.albums.filter(a => a.artistId === id);
     document.documentElement.style.setProperty('--music-border', border);
     document.documentElement.style.setProperty('--music-hover', hover);
   }
-  setTimeout(applyTheme, 0);
   const observer = new MutationObserver(() => applyTheme());
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
 </script>

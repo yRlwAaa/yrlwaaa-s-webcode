@@ -3,6 +3,18 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 import musicData from "../../data/music.json";
 ---
 
+<script is:inline>
+  const isDark = document.documentElement.classList.contains('dark');
+  const cardBg = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim() || '#1a1a2e';
+  const text = isDark ? '#ffffff' : '#000000';
+  const textSec = isDark ? '#9ca3af' : '#6b7280';
+  const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+  document.documentElement.style.setProperty('--music-bg', cardBg);
+  document.documentElement.style.setProperty('--music-text', text);
+  document.documentElement.style.setProperty('--music-text-sec', textSec);
+  document.documentElement.style.setProperty('--music-border', border);
+</script>
+
 <MainGridLayout title="音乐">
   <div id="music-app">
     <div class="page-header">
@@ -62,7 +74,6 @@ import musicData from "../../data/music.json";
     document.documentElement.style.setProperty('--music-text-sec', textSec);
     document.documentElement.style.setProperty('--music-border', border);
   }
-  setTimeout(applyTheme, 0);
   const observer = new MutationObserver(() => applyTheme());
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
 </script>
