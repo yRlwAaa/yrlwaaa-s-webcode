@@ -48,22 +48,6 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
   </div>
 </MainGridLayout>
 
-<script is:inline>
-  const isDark = document.documentElement.classList.contains('dark');
-  const bg = isDark ? '#1a1a2e' : '#ffffff';
-  const text = isDark ? '#ffffff' : '#000000';
-  const textSec = isDark ? '#9ca3af' : '#6b7280';
-  const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
-  const hover = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-  const primary = '#3b82f6';
-  document.documentElement.style.setProperty('--music-bg', bg);
-  document.documentElement.style.setProperty('--music-text', text);
-  document.documentElement.style.setProperty('--music-text-sec', textSec);
-  document.documentElement.style.setProperty('--music-border', border);
-  document.documentElement.style.setProperty('--music-hover', hover);
-  document.documentElement.style.setProperty('--music-primary', primary);
-</script>
-
 <style>
   .album-header {
     display: flex;
@@ -130,17 +114,20 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
 <script>
   function applyTheme() {
     const isDark = document.documentElement.classList.contains('dark');
-    const bg = isDark ? '#1a1a2e' : '#ffffff';
+    const htmlBg = getComputedStyle(document.documentElement).backgroundColor;
     const text = isDark ? '#ffffff' : '#000000';
     const textSec = isDark ? '#9ca3af' : '#6b7280';
     const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
     const hover = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-    document.documentElement.style.setProperty('--music-bg', bg);
+    const primary = '#3b82f6';
+    document.documentElement.style.setProperty('--music-bg', htmlBg);
     document.documentElement.style.setProperty('--music-text', text);
     document.documentElement.style.setProperty('--music-text-sec', textSec);
     document.documentElement.style.setProperty('--music-border', border);
     document.documentElement.style.setProperty('--music-hover', hover);
+    document.documentElement.style.setProperty('--music-primary', primary);
   }
+  setTimeout(applyTheme, 0);
   const observer = new MutationObserver(() => applyTheme());
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
 </script>
