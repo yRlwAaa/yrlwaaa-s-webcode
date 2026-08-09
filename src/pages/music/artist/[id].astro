@@ -38,19 +38,37 @@ const albums = musicData.albums.filter(a => a.artistId === id);
   </div>
 </MainGridLayout>
 
+<script is:inline>
+  const isDark = document.documentElement.classList.contains('dark');
+  const bg = isDark ? '#1a1a2e' : '#ffffff';
+  const text = isDark ? '#ffffff' : '#000000';
+  const textSec = isDark ? '#9ca3af' : '#6b7280';
+  const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+  const hover = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+  document.documentElement.style.setProperty('--music-bg', bg);
+  document.documentElement.style.setProperty('--music-text', text);
+  document.documentElement.style.setProperty('--music-text-sec', textSec);
+  document.documentElement.style.setProperty('--music-border', border);
+  document.documentElement.style.setProperty('--music-hover', hover);
+</script>
+
 <style>
   .artist-header {
     display: flex; align-items: center; gap: 2rem;
     padding: 1.5rem;
     border-radius: 16px;
-    border: 1px solid;
+    border: 1px solid var(--music-border, #e5e7eb);
     margin-bottom: 2rem;
+    background: var(--music-bg, #fff);
   }
   .artist-avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; }
-  .artist-header h1 { font-size: 2rem; }
+  .artist-header h1 { font-size: 2rem; color: var(--music-text, #000); }
+  .artist-header p { color: var(--music-text-sec, #6b7280); }
   .album-count {
     display: inline-block; margin-top: 0.5rem; font-size: 0.8rem;
     padding: 0.25rem 0.75rem; border-radius: 20px;
+    color: var(--music-text-sec, #6b7280);
+    background: var(--music-hover, #f3f4f6);
   }
   .album-grid {
     display: grid;
@@ -60,55 +78,32 @@ const albums = musicData.albums.filter(a => a.artistId === id);
   .album-card {
     text-decoration: none;
     border-radius: 12px; overflow: hidden;
-    border: 1px solid;
+    border: 1px solid var(--music-border, #e5e7eb);
     transition: transform 0.2s;
+    background: var(--music-bg, #fff);
   }
   .album-card:hover { transform: translateY(-4px); }
   .album-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
   .album-info { padding: 0.75rem; }
-  .album-info h3 { font-size: 0.95rem; }
-  .album-info p { font-size: 0.8rem; }
+  .album-info h3 { font-size: 0.95rem; color: var(--music-text, #000); }
+  .album-info p { font-size: 0.8rem; color: var(--music-text-sec, #6b7280); }
   @media (max-width: 640px) { .artist-header { flex-direction: column; text-align: center; } }
 </style>
 
 <script>
   function applyTheme() {
     const isDark = document.documentElement.classList.contains('dark');
-    const htmlBg = getComputedStyle(document.documentElement).backgroundColor;
+    const bg = isDark ? '#1a1a2e' : '#ffffff';
     const text = isDark ? '#ffffff' : '#000000';
     const textSec = isDark ? '#9ca3af' : '#6b7280';
     const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
     const hover = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-    
-    const header = document.querySelector('.artist-header');
-    if (header) {
-      header.style.backgroundColor = htmlBg;
-      header.style.borderColor = border;
-    }
-    
-    const name = document.getElementById('artist-name');
-    if (name) name.style.color = text;
-    
-    const bio = document.getElementById('artist-bio');
-    if (bio) bio.style.color = textSec;
-    
-    const count = document.getElementById('album-count');
-    if (count) {
-      count.style.color = textSec;
-      count.style.backgroundColor = hover;
-    }
-    
-    document.querySelectorAll('.album-card').forEach(card => {
-      card.style.backgroundColor = htmlBg;
-      card.style.borderColor = border;
-      const title = card.querySelector('.album-title');
-      const meta = card.querySelector('.album-meta');
-      if (title) title.style.color = text;
-      if (meta) meta.style.color = textSec;
-    });
+    document.documentElement.style.setProperty('--music-bg', bg);
+    document.documentElement.style.setProperty('--music-text', text);
+    document.documentElement.style.setProperty('--music-text-sec', textSec);
+    document.documentElement.style.setProperty('--music-border', border);
+    document.documentElement.style.setProperty('--music-hover', hover);
   }
-  
-  setTimeout(applyTheme, 50);
   const observer = new MutationObserver(() => applyTheme());
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 </script>

@@ -21,10 +21,21 @@ import musicData from "../../data/music.json";
   </div>
 </MainGridLayout>
 
+<script is:inline>
+  const isDark = document.documentElement.classList.contains('dark');
+  const bg = isDark ? '#1a1a2e' : '#ffffff';
+  const text = isDark ? '#ffffff' : '#000000';
+  const textSec = isDark ? '#9ca3af' : '#6b7280';
+  const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+  document.documentElement.style.setProperty('--music-bg', bg);
+  document.documentElement.style.setProperty('--music-text', text);
+  document.documentElement.style.setProperty('--music-text-sec', textSec);
+  document.documentElement.style.setProperty('--music-border', border);
+</script>
+
 <style>
-  .page-header { margin-bottom: 2rem; }
-  .page-header h1 { font-size: 2rem; margin-bottom: 0.25rem; }
-  .page-header p { }
+  .page-header h1 { font-size: 2rem; margin-bottom: 0.25rem; color: var(--music-text, #000); }
+  .page-header p { color: var(--music-text-sec, #6b7280); }
   .artist-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -35,9 +46,10 @@ import musicData from "../../data/music.json";
     text-align: center;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid;
+    border: 1px solid var(--music-border, #e5e7eb);
     padding: 1rem;
     transition: transform 0.2s;
+    background: var(--music-bg, #fff);
   }
   .artist-card:hover { transform: translateY(-4px); }
   .artist-card img {
@@ -46,35 +58,22 @@ import musicData from "../../data/music.json";
     object-fit: cover;
     border-radius: 50%;
   }
-  .artist-card h3 { margin-top: 0.75rem; font-size: 1rem; }
-  .artist-card p { font-size: 0.8rem; }
+  .artist-card h3 { margin-top: 0.75rem; font-size: 1rem; color: var(--music-text, #000); }
+  .artist-card p { font-size: 0.8rem; color: var(--music-text-sec, #6b7280); }
 </style>
 
 <script>
   function applyTheme() {
     const isDark = document.documentElement.classList.contains('dark');
-    const htmlBg = getComputedStyle(document.documentElement).backgroundColor;
+    const bg = isDark ? '#1a1a2e' : '#ffffff';
     const text = isDark ? '#ffffff' : '#000000';
     const textSec = isDark ? '#9ca3af' : '#6b7280';
     const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
-    
-    const title = document.getElementById('index-title');
-    if (title) title.style.color = text;
-    
-    const subtitle = document.getElementById('index-subtitle');
-    if (subtitle) subtitle.style.color = textSec;
-    
-    document.querySelectorAll('.artist-card').forEach(card => {
-      card.style.backgroundColor = htmlBg;
-      card.style.borderColor = border;
-      const name = card.querySelector('.artist-name');
-      const bio = card.querySelector('.artist-bio');
-      if (name) name.style.color = text;
-      if (bio) bio.style.color = textSec;
-    });
+    document.documentElement.style.setProperty('--music-bg', bg);
+    document.documentElement.style.setProperty('--music-text', text);
+    document.documentElement.style.setProperty('--music-text-sec', textSec);
+    document.documentElement.style.setProperty('--music-border', border);
   }
-  
-  setTimeout(applyTheme, 50);
   const observer = new MutationObserver(() => applyTheme());
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 </script>
