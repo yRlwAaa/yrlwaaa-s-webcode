@@ -56,35 +56,39 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
     border-radius: 16px;
     border: 1px solid;
     margin-bottom: 2rem;
+    transition: all 0.3s;
   }
   .album-cover { width: 200px; height: 200px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
   .album-meta { display: flex; flex-direction: column; justify-content: center; }
-  .album-meta .type { font-size: 0.75rem; letter-spacing: 1px; }
-  .album-meta h1 { font-size: 2rem; margin: 0.25rem 0; }
-  .album-meta .artist-name a { text-decoration: none; }
-  .album-meta .details { font-size: 0.9rem; }
+  .album-meta .type { font-size: 0.75rem; letter-spacing: 1px; transition: color 0.3s; }
+  .album-meta h1 { font-size: 2rem; margin: 0.25rem 0; transition: color 0.3s; }
+  .album-meta .artist-name a { text-decoration: none; transition: color 0.3s; }
+  .album-meta .details { font-size: 0.9rem; transition: color 0.3s; }
   .track-count {
     margin-top: 0.5rem; font-size: 0.8rem;
     padding: 0.25rem 0.75rem; border-radius: 20px;
     display: inline-block;
+    transition: all 0.3s;
   }
   .track-list { 
     border-radius: 12px; 
     border: 1px solid;
     overflow: hidden; 
+    transition: all 0.3s;
   }
   .track-item {
     display: flex; 
     align-items: center; 
     padding: 0.75rem 1rem;
     border-bottom: 1px solid;
+    transition: all 0.3s;
   }
   .track-item:last-child { border-bottom: none; }
-  .track-item:hover { background: var(--bg-hover); }
-  .track-number { width: 40px; font-size: 0.85rem; }
+  .track-item:hover { background: rgba(255,255,255,0.05); }
+  .track-number { width: 40px; font-size: 0.85rem; transition: color 0.3s; }
   .track-info { flex: 1; display: flex; justify-content: space-between; align-items: center; }
-  .track-title { font-size: 0.95rem; }
-  .track-duration { font-size: 0.8rem; }
+  .track-title { font-size: 0.95rem; transition: color 0.3s; }
+  .track-duration { font-size: 0.8rem; transition: color 0.3s; }
   .download-btn {
     padding: 0.25rem 0.75rem; 
     font-size: 0.8rem;
@@ -93,6 +97,7 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
     text-decoration: none; 
     margin-left: 1rem; 
     white-space: nowrap;
+    transition: background 0.3s;
   }
   .download-btn:hover { opacity: 0.8; }
   
@@ -108,25 +113,30 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
 <script>
   function applyTheme() {
     const isDark = document.documentElement.classList.contains('dark');
-    const bg = isDark ? '#1a1a2e' : '#ffffff';
+    
+    // 读取 html 的实际背景色
+    const htmlBg = getComputedStyle(document.documentElement).backgroundColor;
+    
     const text = isDark ? '#ffffff' : '#000000';
     const textSec = isDark ? '#9ca3af' : '#6b7280';
-    const border = isDark ? '#2d2d44' : '#e5e7eb';
-    const hover = isDark ? '#2d2d44' : '#f3f4f6';
+    const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
     const primary = '#3b82f6';
+    const hover = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
     
+    // 背景和边框
     const header = document.querySelector('.album-header');
     if (header) {
-      header.style.backgroundColor = bg;
+      header.style.backgroundColor = htmlBg;
       header.style.borderColor = border;
     }
     
     const trackList = document.querySelector('.track-list');
     if (trackList) {
-      trackList.style.backgroundColor = bg;
+      trackList.style.backgroundColor = htmlBg;
       trackList.style.borderColor = border;
     }
     
+    // 文字颜色
     const title = document.getElementById('album-title');
     if (title) title.style.color = text;
     
@@ -157,7 +167,7 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
       if (btn) btn.style.backgroundColor = primary;
       
       item.style.borderColor = border;
-      item.style.backgroundColor = bg;
+      item.style.backgroundColor = 'transparent';
     });
   }
   

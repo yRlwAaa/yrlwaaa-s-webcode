@@ -53,10 +53,10 @@ import musicData from "../../data/music.json";
 <script>
   function applyTheme() {
     const isDark = document.documentElement.classList.contains('dark');
-    const bg = isDark ? '#1a1a2e' : '#ffffff';
+    const htmlBg = getComputedStyle(document.documentElement).backgroundColor;
     const text = isDark ? '#ffffff' : '#000000';
     const textSec = isDark ? '#9ca3af' : '#6b7280';
-    const border = isDark ? '#2d2d44' : '#e5e7eb';
+    const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
     
     const title = document.getElementById('index-title');
     if (title) title.style.color = text;
@@ -65,7 +65,7 @@ import musicData from "../../data/music.json";
     if (subtitle) subtitle.style.color = textSec;
     
     document.querySelectorAll('.artist-card').forEach(card => {
-      card.style.backgroundColor = bg;
+      card.style.backgroundColor = htmlBg;
       card.style.borderColor = border;
       const name = card.querySelector('.artist-name');
       const bio = card.querySelector('.artist-bio');

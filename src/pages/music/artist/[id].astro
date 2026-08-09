@@ -74,15 +74,15 @@ const albums = musicData.albums.filter(a => a.artistId === id);
 <script>
   function applyTheme() {
     const isDark = document.documentElement.classList.contains('dark');
-    const bg = isDark ? '#1a1a2e' : '#ffffff';
+    const htmlBg = getComputedStyle(document.documentElement).backgroundColor;
     const text = isDark ? '#ffffff' : '#000000';
     const textSec = isDark ? '#9ca3af' : '#6b7280';
-    const border = isDark ? '#2d2d44' : '#e5e7eb';
-    const hover = isDark ? '#2d2d44' : '#f3f4f6';
+    const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+    const hover = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
     
     const header = document.querySelector('.artist-header');
     if (header) {
-      header.style.backgroundColor = bg;
+      header.style.backgroundColor = htmlBg;
       header.style.borderColor = border;
     }
     
@@ -99,7 +99,7 @@ const albums = musicData.albums.filter(a => a.artistId === id);
     }
     
     document.querySelectorAll('.album-card').forEach(card => {
-      card.style.backgroundColor = bg;
+      card.style.backgroundColor = htmlBg;
       card.style.borderColor = border;
       const title = card.querySelector('.album-title');
       const meta = card.querySelector('.album-meta');
