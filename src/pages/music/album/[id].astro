@@ -41,7 +41,7 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
               <span class="track-title">{track.title}</span>
               <span class="track-duration">{track.duration || "--"}</span>
             </div>
-            <a href={downloadUrl} download={filename} class="download-btn">⬇️ 下载</a>
+            <a href={downloadUrl} download={filename} class="download-btn">下载</a>
           </div>
         );
       })}
