@@ -14,7 +14,7 @@
       "artistId": "sana",
       "cover": "/music/albums/hush.jpg",
       "year": 2017,
-      "genre": "流行",
+      "genre": "流行，日本",
       "tracks": [
         {
           "id": "ginger-snaps",
@@ -84,7 +84,7 @@
       "artistId": "sana",
       "cover": "/music/albums/solitude.jpg",
       "year": 2026,
-      "genre": "流行",
+      "genre": "流行,日本",
       "tracks": [
         {
           "id": "odori",
