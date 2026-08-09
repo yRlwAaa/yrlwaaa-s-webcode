@@ -1,14 +1,18 @@
+// functions/music/_path.js
+
 export async function onRequest(context) {
-  const path = context.params.path;
+  // 获取请求路径
+  const url = new URL(context.request.url);
+  const path = url.pathname.replace('/music/', '');
   
-  // R2 存储桶的地址
+  // 你的账号 ID
   const accountId = '975ca95c89248f0b5305055e36bec32c';
   const bucketName = 'music-storage';
   
   // 从 R2 获取文件
   const r2Url = `https://${accountId}.r2.cloudflarestorage.com/${bucketName}/audio/${path}`;
   
-  // 需要添加 Cloudflare 认证
+  // 需要认证
   const response = await fetch(r2Url, {
     headers: {
       'Authorization': `Bearer ${context.env.R2_TOKEN}`
