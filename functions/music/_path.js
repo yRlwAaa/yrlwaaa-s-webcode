@@ -5,19 +5,11 @@ export async function onRequest(context) {
   const url = new URL(context.request.url);
   const path = url.pathname.replace('/music/', '');
   
-  // 你的账号 ID
-  const accountId = '975ca95c89248f0b5305055e36bec32c';
-  const bucketName = 'music-storage';
+  // 直接用公开 R2 URL
+  const r2Url = `https://pub-d77dbb19357f4d6fb7e0269c8aef4ed7.r2.dev/${path}`;
   
   // 从 R2 获取文件
-  const r2Url = `https://${accountId}.r2.cloudflarestorage.com/${bucketName}/audio/${path}`;
-  
-  // 需要认证
-  const response = await fetch(r2Url, {
-    headers: {
-      'Authorization': `Bearer ${context.env.R2_TOKEN}`
-    }
-  });
+  const response = await fetch(r2Url);
   
   if (!response.ok) {
     return new Response('文件不存在', { status: 404 });
