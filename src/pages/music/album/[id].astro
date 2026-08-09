@@ -29,16 +29,22 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
     </div>
 
     <div class="track-list">
-      {album?.tracks.map((track, index) => (
-        <div class="track-item">
-          <span class="track-number">{String(index + 1).padStart(2, '0')}</span>
-          <div class="track-info">
-            <span class="track-title">{track.title}</span>
-            <span class="track-duration">{track.duration || "--"}</span>
+      {album?.tracks.map((track, index) => {
+        // 通过 Cloudflare Worker 代理下载
+        const downloadUrl = `/music/${track.file}`;
+        const filename = track.file.split('/').pop();
+        
+        return (
+          <div class="track-item">
+            <span class="track-number">{String(index + 1).padStart(2, '0')}</span>
+            <div class="track-info">
+              <span class="track-title">{track.title}</span>
+              <span class="track-duration">{track.duration || "--"}</span>
+            </div>
+            <a href={downloadUrl} download={filename} class="download-btn">⬇️ 下载</a>
           </div>
-          <a href={track.file} download class="download-btn">⬇️ 下载</a>
-        </div>
-      ))}
+        );
+      })}
     </div>
   </div>
 </MainGridLayout>
