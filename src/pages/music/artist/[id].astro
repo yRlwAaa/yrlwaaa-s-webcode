@@ -15,22 +15,22 @@ const albums = musicData.albums.filter(a => a.artistId === id);
 
 <MainGridLayout title={artist?.name || "歌手"}>
   <div id="artist-detail">
-    <div class="artist-header">
+    <div class="artist-header" id="artist-header">
       <img src={artist?.image} alt={artist?.name} class="artist-avatar" />
       <div>
-        <h1>{artist?.name}</h1>
-        <p>{artist?.bio || ""}</p>
-        <span class="album-count">{albums.length} 张专辑</span>
+        <h1 id="artist-name">{artist?.name}</h1>
+        <p id="artist-bio">{artist?.bio || ""}</p>
+        <span class="album-count" id="album-count">{albums.length} 张专辑</span>
       </div>
     </div>
 
-    <div class="album-grid">
+    <div class="album-grid" id="album-grid">
       {albums.map((album) => (
-        <a href={`/music/album/${album.id}`} class="album-card">
+        <a href={`/music/album/${album.id}`} class="album-card" id={`album-card-${album.id}`}>
           <img src={album.cover} alt={album.title} />
           <div class="album-info">
-            <h3>{album.title}</h3>
-            <p>{album.year} · {album.tracks.length} 首</p>
+            <h3 id={`album-title-${album.id}`}>{album.title}</h3>
+            <p id={`album-meta-${album.id}`}>{album.year} · {album.tracks.length} 首</p>
           </div>
         </a>
       ))}
@@ -41,16 +41,15 @@ const albums = musicData.albums.filter(a => a.artistId === id);
 <style>
   .artist-header {
     display: flex; align-items: center; gap: 2rem;
-    padding: 1.5rem; background: var(--card-bg, #fff);
-    border-radius: 16px; border: 1px solid var(--border-color, #e5e7eb);
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid;
     margin-bottom: 2rem;
   }
   .artist-avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; }
-  .artist-header h1 { font-size: 2rem; color: var(--text-color, #000); }
-  .artist-header p { color: var(--text-secondary, #6b7280); }
+  .artist-header h1 { font-size: 2rem; }
   .album-count {
     display: inline-block; margin-top: 0.5rem; font-size: 0.8rem;
-    color: var(--text-secondary, #6b7280); background: var(--bg-hover, #f3f4f6);
     padding: 0.25rem 0.75rem; border-radius: 20px;
   }
   .album-grid {
@@ -61,37 +60,54 @@ const albums = musicData.albums.filter(a => a.artistId === id);
   .album-card {
     text-decoration: none;
     border-radius: 12px; overflow: hidden;
-    border: 1px solid var(--border-color, #e5e7eb);
-    transition: transform 0.2s; background: var(--card-bg, #fff);
+    border: 1px solid;
+    transition: transform 0.2s;
   }
   .album-card:hover { transform: translateY(-4px); }
   .album-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
   .album-info { padding: 0.75rem; }
-  .album-info h3 { font-size: 0.95rem; color: var(--text-color, #000); }
-  .album-info p { font-size: 0.8rem; color: var(--text-secondary, #6b7280); }
+  .album-info h3 { font-size: 0.95rem; }
+  .album-info p { font-size: 0.8rem; }
   @media (max-width: 640px) { .artist-header { flex-direction: column; text-align: center; } }
 </style>
 
 <script>
   function applyTheme() {
-    const root = document.documentElement;
-    const styles = getComputedStyle(root);
-    const bg = styles.getPropertyValue('--card-bg').trim() || '#ffffff';
-    const text = styles.getPropertyValue('--text-color').trim() || '#000000';
-    const textSec = styles.getPropertyValue('--text-secondary').trim() || '#6b7280';
-    const border = styles.getPropertyValue('--border-color').trim() || '#e5e7eb';
-    const hover = styles.getPropertyValue('--bg-hover').trim() || '#f3f4f6';
+    const isDark = document.documentElement.classList.contains('dark');
+    const bg = isDark ? '#1a1a2e' : '#ffffff';
+    const text = isDark ? '#ffffff' : '#000000';
+    const textSec = isDark ? '#9ca3af' : '#6b7280';
+    const border = isDark ? '#2d2d44' : '#e5e7eb';
+    const hover = isDark ? '#2d2d44' : '#f3f4f6';
     
-    const detail = document.getElementById('artist-detail');
-    if (detail) {
-      detail.style.setProperty('--card-bg', bg);
-      detail.style.setProperty('--text-color', text);
-      detail.style.setProperty('--text-secondary', textSec);
-      detail.style.setProperty('--border-color', border);
-      detail.style.setProperty('--bg-hover', hover);
+    const header = document.getElementById('artist-header');
+    if (header) {
+      header.style.backgroundColor = bg;
+      header.style.borderColor = border;
     }
+    
+    const name = document.getElementById('artist-name');
+    if (name) name.style.color = text;
+    
+    const bio = document.getElementById('artist-bio');
+    if (bio) bio.style.color = textSec;
+    
+    const count = document.getElementById('album-count');
+    if (count) {
+      count.style.color = textSec;
+      count.style.backgroundColor = hover;
+    }
+    
+    document.querySelectorAll('.album-card').forEach(card => {
+      card.style.backgroundColor = bg;
+      card.style.borderColor = border;
+      const title = card.querySelector('h3');
+      const meta = card.querySelector('p');
+      if (title) title.style.color = text;
+      if (meta) meta.style.color = textSec;
+    });
   }
   setTimeout(applyTheme, 100);
-  const observer = new MutationObserver(() => setTimeout(applyTheme, 100));
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style', 'data-theme'] });
+  const observer = new MutationObserver(() => setTimeout(applyTheme, 50));
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 </script>

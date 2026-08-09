@@ -6,15 +6,15 @@ import musicData from "../../data/music.json";
 <MainGridLayout title="音乐">
   <div id="music-app">
     <div class="page-header">
-      <h1>音乐</h1>
-      <p>{musicData.artists.length} 位歌手</p>
+      <h1 id="index-title">音乐</h1>
+      <p id="index-subtitle">{musicData.artists.length} 位歌手</p>
     </div>
-    <div class="artist-grid">
+    <div class="artist-grid" id="artist-grid">
       {musicData.artists.map(artist => (
-        <a href={`/music/artist/${artist.id}`} class="artist-card">
+        <a href={`/music/artist/${artist.id}`} class="artist-card" id={`artist-card-${artist.id}`}>
           <img src={artist.image} alt={artist.name} />
-          <h3>{artist.name}</h3>
-          <p>{artist.bio || ''}</p>
+          <h3 id={`artist-name-${artist.id}`}>{artist.name}</h3>
+          <p id={`artist-bio-${artist.id}`}>{artist.bio || ''}</p>
         </a>
       ))}
     </div>
@@ -23,8 +23,8 @@ import musicData from "../../data/music.json";
 
 <style>
   .page-header { margin-bottom: 2rem; }
-  .page-header h1 { font-size: 2rem; margin-bottom: 0.25rem; color: var(--text-color, #000); }
-  .page-header p { color: var(--text-secondary, #6b7280); }
+  .page-header h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+  .page-header p { }
   .artist-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -32,14 +32,12 @@ import musicData from "../../data/music.json";
   }
   .artist-card {
     text-decoration: none;
-    color: var(--text-color, #000);
     text-align: center;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid var(--border-color, #e5e7eb);
+    border: 1px solid;
     padding: 1rem;
     transition: transform 0.2s;
-    background: var(--card-bg, #fff);
   }
   .artist-card:hover { transform: translateY(-4px); }
   .artist-card img {
@@ -48,28 +46,35 @@ import musicData from "../../data/music.json";
     object-fit: cover;
     border-radius: 50%;
   }
-  .artist-card h3 { margin-top: 0.75rem; font-size: 1rem; color: var(--text-color, #000); }
-  .artist-card p { font-size: 0.8rem; color: var(--text-secondary, #6b7280); }
+  .artist-card h3 { margin-top: 0.75rem; font-size: 1rem; }
+  .artist-card p { font-size: 0.8rem; }
 </style>
 
 <script>
   function applyTheme() {
-    const root = document.documentElement;
-    const styles = getComputedStyle(root);
-    const bg = styles.getPropertyValue('--card-bg').trim() || '#ffffff';
-    const text = styles.getPropertyValue('--text-color').trim() || '#000000';
-    const textSec = styles.getPropertyValue('--text-secondary').trim() || '#6b7280';
-    const border = styles.getPropertyValue('--border-color').trim() || '#e5e7eb';
+    const isDark = document.documentElement.classList.contains('dark');
+    const bg = isDark ? '#1a1a2e' : '#ffffff';
+    const text = isDark ? '#ffffff' : '#000000';
+    const textSec = isDark ? '#9ca3af' : '#6b7280';
+    const border = isDark ? '#2d2d44' : '#e5e7eb';
+    const hover = isDark ? '#2d2d44' : '#f3f4f6';
     
-    const app = document.getElementById('music-app');
-    if (app) {
-      app.style.setProperty('--card-bg', bg);
-      app.style.setProperty('--text-color', text);
-      app.style.setProperty('--text-secondary', textSec);
-      app.style.setProperty('--border-color', border);
-    }
+    const title = document.getElementById('index-title');
+    if (title) title.style.color = text;
+    
+    const subtitle = document.getElementById('index-subtitle');
+    if (subtitle) subtitle.style.color = textSec;
+    
+    document.querySelectorAll('.artist-card').forEach(card => {
+      card.style.backgroundColor = bg;
+      card.style.borderColor = border;
+      const name = card.querySelector('h3');
+      const bio = card.querySelector('p');
+      if (name) name.style.color = text;
+      if (bio) bio.style.color = textSec;
+    });
   }
   setTimeout(applyTheme, 100);
-  const observer = new MutationObserver(() => setTimeout(applyTheme, 100));
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style', 'data-theme'] });
+  const observer = new MutationObserver(() => setTimeout(applyTheme, 50));
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 </script>
