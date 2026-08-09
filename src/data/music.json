@@ -5,6 +5,12 @@
       "name": "鎖那",
       "image": "/music/artists/sana.jpg",
       "bio": "白月光"
+    },
+    {
+      "id": "kano",
+      "name": "鹿乃",
+      "image": "/music/artists/kano.jpg",
+      "bio": "白月光"
     }
   ],
   "albums": [
@@ -14,7 +20,7 @@
       "artistId": "sana",
       "cover": "/music/albums/hush.jpg",
       "year": 2017,
-      "genre": "流行，日本",
+      "genre": "流行,日本",
       "tracks": [
         {
           "id": "ginger-snaps",
@@ -121,6 +127,64 @@
           "title": "ひとりぽっち",
           "duration": "4:14",
           "file": "/music/audio/solitude/06 ひとりぽっち.flac"
+        }
+      ]
+    },
+    {
+      "id": "good-hello",
+      "title": "グッドハロー",
+      "artistId": "kano",
+      "cover": "/music/albums/good-hello.jpg",
+      "year": 2014,
+      "genre": "流行,日本",
+      "tracks": [
+        {
+          "id": "decide",
+          "title": "decide",
+          "duration": "5:54",
+          "file": "/music/audio/good-hello/鹿乃 - decide.flac"
+        },
+        {
+          "id": "good-night-everyone",
+          "title": "グッドナイトエヴリワン",
+          "duration": "5:49",
+          "file": "/music/audio/good-hello/鹿乃 - グッドナイトエヴリワン.flac"
+        },
+        {
+          "id": "kujira-no-yume",
+          "title": "クジラのゆめのゆくえ",
+          "duration": "4:01",
+          "file": "/music/audio/good-hello/鹿乃 - クジラのゆめのゆくえ.flac"
+        },
+        {
+          "id": "uchiki-na-daring-love",
+          "title": "内気にDaring Love",
+          "duration": "3:58",
+          "file": "/music/audio/good-hello/鹿乃 - 内気にDaring Love.flac"
+        },
+        {
+          "id": "hero-ga-konai",
+          "title": "ヒーローが来ない",
+          "duration": "4:14",
+          "file": "/music/audio/good-hello/鹿乃 - ヒーローが来ない.flac"
+        },
+        {
+          "id": "bow-wow-march",
+          "title": "バウワウマーチ",
+          "duration": "3:06",
+          "file": "/music/audio/good-hello/鹿乃 - バウワウマーチ.flac"
+        },
+        {
+          "id": "senro-de-arukou",
+          "title": "線路で歩こう",
+          "duration": "3:50",
+          "file": "/music/audio/good-hello/鹿乃 - 線路で歩こう.flac"
+        },
+        {
+          "id": "sanctuary",
+          "title": "サンクチュアリ",
+          "duration": "3:59",
+          "file": "/music/audio/good-hello/鹿乃 - サンクチュアリ.flac"
         }
       ]
     }
