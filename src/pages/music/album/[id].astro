@@ -14,33 +14,33 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
 ---
 
 <MainGridLayout title={album?.title || "专辑"}>
-  <div id="album-detail" style="color: var(--color-text, #000);">
-    <div class="album-header" style="background: var(--color-bg, #fff); border-color: var(--color-border, #e5e7eb);">
+  <div id="album-detail">
+    <div class="album-header" id="album-header">
       <img src={album?.cover} alt={album?.title} class="album-cover" />
       <div class="album-meta">
-        <span class="type" style="color: var(--color-text-secondary, #6b7280);">专辑</span>
-        <h1 style="color: var(--color-text, #000);">{album?.title}</h1>
+        <span class="type" id="type-text">专辑</span>
+        <h1 id="title-text">{album?.title}</h1>
         <p class="artist-name">
-          <a href={`/music/artist/${artist?.id}`} style="color: var(--color-primary, #3b82f6);">{artist?.name || "未知"}</a>
+          <a href={`/music/artist/${artist?.id}`} id="artist-link">{artist?.name || "未知"}</a>
         </p>
-        <p class="details" style="color: var(--color-text-secondary, #6b7280);">{album?.year} · {album?.genre || "未知"}</p>
-        <span class="track-count" style="color: var(--color-text-secondary, #6b7280); background: var(--color-bg-hover, #f3f4f6);">{album?.tracks.length} 首歌曲</span>
+        <p class="details" id="details-text">{album?.year} · {album?.genre || "未知"}</p>
+        <span class="track-count" id="track-count">{album?.tracks.length} 首歌曲</span>
       </div>
     </div>
 
-    <div class="track-list" style="background: var(--color-bg, #fff); border-color: var(--color-border, #e5e7eb);">
+    <div class="track-list" id="track-list">
       {album?.tracks.map((track, index) => {
         const downloadUrl = `/music/${track.file}`;
         const filename = track.file.split('/').pop();
         
         return (
-          <div class="track-item" style="border-color: var(--color-border, #e5e7eb);">
-            <span class="track-number" style="color: var(--color-text-secondary, #6b7280);">{String(index + 1).padStart(2, '0')}</span>
+          <div class="track-item" id="track-item">
+            <span class="track-number" id="track-number">{String(index + 1).padStart(2, '0')}</span>
             <div class="track-info">
-              <span class="track-title" style="color: var(--color-text, #000);">{track.title}</span>
-              <span class="track-duration" style="color: var(--color-text-secondary, #6b7280);">{track.duration || "--"}</span>
+              <span class="track-title" id="track-title">{track.title}</span>
+              <span class="track-duration" id="track-duration">{track.duration || "--"}</span>
             </div>
-            <a href={downloadUrl} download={filename} class="download-btn" style="background: var(--color-primary, #3b82f6);">下载</a>
+            <a href={downloadUrl} download={filename} class="download-btn" id="download-btn">下载</a>
           </div>
         );
       })}
@@ -110,36 +110,115 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
 </style>
 
 <script>
-  function applyTheme() {
+  function applyThemeColors() {
+    // 获取根元素的实际计算样式
     const root = document.documentElement;
     const styles = getComputedStyle(root);
     
-    // 读取主题实际颜色
-    const text = styles.getPropertyValue('--color-text').trim() || '#000000';
-    const textSecondary = styles.getPropertyValue('--color-text-secondary').trim() || '#6b7280';
-    const bg = styles.getPropertyValue('--color-bg').trim() || '#ffffff';
-    const border = styles.getPropertyValue('--color-border').trim() || '#e5e7eb';
-    const bgHover = styles.getPropertyValue('--color-bg-hover').trim() || '#f3f4f6';
-    const primary = styles.getPropertyValue('--color-primary').trim() || styles.getPropertyValue('--primary').trim() || '#3b82f6';
+    // 读取主题实际颜色 - 用你主题的真实变量名
+    const bgColor = styles.getPropertyValue('--bg-primary').trim() || 
+                   styles.getPropertyValue('--color-bg').trim() || 
+                   styles.getPropertyValue('--background').trim() || 
+                   '#ffffff';
     
-    // 应用到专辑页
+    const textColor = styles.getPropertyValue('--text-primary').trim() || 
+                     styles.getPropertyValue('--color-text').trim() || 
+                     styles.getPropertyValue('--foreground').trim() || 
+                     '#000000';
+    
+    const textSecondary = styles.getPropertyValue('--text-secondary').trim() || 
+                         styles.getPropertyValue('--color-text-secondary').trim() || 
+                         '#6b7280';
+    
+    const borderColor = styles.getPropertyValue('--border-color').trim() || 
+                       styles.getPropertyValue('--color-border').trim() || 
+                       '#e5e7eb';
+    
+    const primaryColor = styles.getPropertyValue('--primary').trim() || 
+                        styles.getPropertyValue('--color-primary').trim() || 
+                        '#3b82f6';
+    
+    const bgHover = styles.getPropertyValue('--bg-hover').trim() || 
+                   styles.getPropertyValue('--color-bg-hover').trim() || 
+                   '#f3f4f6';
+    
+    // 直接设置所有元素
     const detail = document.getElementById('album-detail');
-    if (detail) {
-      detail.style.setProperty('--color-text', text);
-      detail.style.setProperty('--color-text-secondary', textSecondary);
-      detail.style.setProperty('--color-bg', bg);
-      detail.style.setProperty('--color-border', border);
-      detail.style.setProperty('--color-bg-hover', bgHover);
-      detail.style.setProperty('--color-primary', primary);
+    if (!detail) return;
+    
+    // 设置背景
+    const header = document.getElementById('album-header');
+    if (header) {
+      header.style.backgroundColor = bgColor;
+      header.style.borderColor = borderColor;
     }
+    
+    const trackList = document.getElementById('track-list');
+    if (trackList) {
+      trackList.style.backgroundColor = bgColor;
+      trackList.style.borderColor = borderColor;
+    }
+    
+    // 设置文字颜色
+    const titleText = document.getElementById('title-text');
+    if (titleText) titleText.style.color = textColor;
+    
+    const typeText = document.getElementById('type-text');
+    if (typeText) typeText.style.color = textSecondary;
+    
+    const detailsText = document.getElementById('details-text');
+    if (detailsText) detailsText.style.color = textSecondary;
+    
+    const trackCount = document.getElementById('track-count');
+    if (trackCount) {
+      trackCount.style.color = textSecondary;
+      trackCount.style.backgroundColor = bgHover;
+    }
+    
+    const artistLink = document.getElementById('artist-link');
+    if (artistLink) artistLink.style.color = primaryColor;
+    
+    // 设置每个 track 的颜色
+    document.querySelectorAll('.track-item').forEach((item, index) => {
+      const number = item.querySelector('.track-number');
+      const title = item.querySelector('.track-title');
+      const duration = item.querySelector('.track-duration');
+      const btn = item.querySelector('.download-btn');
+      
+      if (number) number.style.color = textSecondary;
+      if (title) title.style.color = textColor;
+      if (duration) duration.style.color = textSecondary;
+      if (btn) btn.style.backgroundColor = primaryColor;
+      
+      item.style.borderColor = borderColor;
+      item.style.backgroundColor = bgColor;
+    });
   }
   
   // 初始执行
-  setTimeout(applyTheme, 100);
+  setTimeout(applyThemeColors, 200);
   
   // 监听主题变化
   const observer = new MutationObserver(() => {
-    applyTheme();
+    setTimeout(applyThemeColors, 100);
   });
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
+  observer.observe(document.documentElement, { 
+    attributes: true, 
+    attributeFilter: ['class', 'style', 'data-theme'] 
+  });
+  
+  // 监听主题色滑块变化
+  document.addEventListener('themeChanged', () => {
+    setTimeout(applyThemeColors, 100);
+  });
+  document.addEventListener('colorSchemeChange', () => {
+    setTimeout(applyThemeColors, 100);
+  });
+  
+  // 监听 localStorage 变化
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'theme' || e.key === 'themeColor') {
+      setTimeout(applyThemeColors, 100);
+    }
+  });
 </script>
