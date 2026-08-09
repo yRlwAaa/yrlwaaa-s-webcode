@@ -1,0 +1,65 @@
+---
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+---
+
+<MainGridLayout title="🎵 音乐">
+  <div id="music-app">
+    <div class="page-header">
+      <h1>🎵 音乐</h1>
+      <p id="artist-count">加载中...</p>
+    </div>
+    <div id="artist-grid" class="artist-grid"></div>
+  </div>
+</MainGridLayout>
+
+<script>
+  async function loadMusic() {
+    try {
+      const res = await fetch('/data/music.json');
+      const data = await res.json();
+      
+      document.getElementById('artist-count').textContent = data.artists.length + ' 位歌手';
+      
+      document.getElementById('artist-grid').innerHTML = data.artists.map(artist => `
+        <a href="/music/artist/${artist.id}" class="artist-card">
+          <img src="${artist.image}" alt="${artist.name}" />
+          <h3>${artist.name}</h3>
+          <p>${artist.bio || ''}</p>
+        </a>
+      `).join('');
+    } catch (err) {
+      console.error('加载失败:', err);
+    }
+  }
+  loadMusic();
+</script>
+
+<style>
+  .page-header { margin-bottom: 2rem; }
+  .page-header h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+  .artist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+  }
+  .artist-card {
+    text-decoration: none;
+    color: inherit;
+    text-align: center;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--line-divider);
+    padding: 1rem;
+    transition: transform 0.2s;
+    background: var(--card-bg);
+  }
+  .artist-card:hover { transform: translateY(-4px); }
+  .artist-card img {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+  .artist-card h3 { margin-top: 0.75rem; font-size: 1rem; }
+  .artist-card p { font-size: 0.8rem; color: var(--text-secondary); }
+</style>

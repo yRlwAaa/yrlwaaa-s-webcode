@@ -1,0 +1,89 @@
+---
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+---
+
+<MainGridLayout title="专辑">
+  <div id="album-detail">
+    <div class="album-header"></div>
+    <div class="track-list"></div>
+  </div>
+</MainGridLayout>
+
+<script>
+  async function loadAlbum() {
+    const id = window.location.pathname.split('/').filter(Boolean).pop();
+    try {
+      const res = await fetch('/data/music.json');
+      const data = await res.json();
+      const album = data.albums.find(a => a.id === id);
+      if (!album) { window.location.href = '/music'; return; }
+      const artist = data.artists.find(a => a.id === album.artistId);
+      
+      document.querySelector('.album-header').innerHTML = `
+        <img src="${album.cover}" class="album-cover" />
+        <div class="album-meta">
+          <span class="type">专辑</span>
+          <h1>${album.title}</h1>
+          <p class="artist-name"><a href="/music/artist/${artist?.id}">${artist?.name || '未知'}</a></p>
+          <p class="details">${album.year} · ${album.genre || '未知'}</p>
+          <span class="track-count">${album.tracks.length} 首</span>
+        </div>
+      `;
+      
+      document.querySelector('.track-list').innerHTML = album.tracks.map((track, i) => `
+        <div class="track-item">
+          <span class="track-number">${String(i + 1).padStart(2, '0')}</span>
+          <div class="track-info">
+            <span class="track-title">${track.title}</span>
+            <span class="track-duration">${track.duration || '--'}</span>
+          </div>
+          <a href="${track.file}" download class="download-btn">⬇️ 下载</a>
+        </div>
+      `).join('');
+    } catch (err) { console.error(err); }
+  }
+  loadAlbum();
+</script>
+
+<style>
+  .album-header {
+    display: flex; gap: 2rem; padding: 1.5rem;
+    background: var(--card-bg); border-radius: 16px;
+    border: 1px solid var(--line-divider); margin-bottom: 2rem;
+  }
+  .album-cover { width: 200px; height: 200px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
+  .album-meta { display: flex; flex-direction: column; justify-content: center; }
+  .album-meta .type { font-size: 0.75rem; color: var(--text-secondary); letter-spacing: 1px; }
+  .album-meta h1 { font-size: 2rem; margin: 0.25rem 0; }
+  .album-meta .artist-name a { color: var(--primary); text-decoration: none; }
+  .album-meta .details { color: var(--text-secondary); font-size: 0.9rem; }
+  .track-count {
+    margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-secondary);
+    background: var(--hover-bg); padding: 0.25rem 0.75rem; border-radius: 20px;
+    display: inline-block;
+  }
+  .track-list { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--line-divider); overflow: hidden; }
+  .track-item {
+    display: flex; align-items: center; padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--line-divider);
+  }
+  .track-item:last-child { border-bottom: none; }
+  .track-item:hover { background: var(--hover-bg); }
+  .track-number { width: 40px; font-size: 0.85rem; color: var(--text-secondary); }
+  .track-info { flex: 1; display: flex; justify-content: space-between; align-items: center; }
+  .track-title { font-size: 0.95rem; }
+  .track-duration { font-size: 0.8rem; color: var(--text-secondary); }
+  .download-btn {
+    padding: 0.25rem 0.75rem; font-size: 0.8rem;
+    background: var(--primary); color: #fff; border-radius: 6px;
+    text-decoration: none; margin-left: 1rem; white-space: nowrap;
+  }
+  .download-btn:hover { opacity: 0.8; }
+  @media (max-width: 640px) {
+    .album-header { flex-direction: column; align-items: center; text-align: center; }
+    .album-cover { width: 160px; height: 160px; }
+    .track-item { flex-wrap: wrap; gap: 0.5rem; }
+    .track-info { flex: 1 1 100%; order: 2; }
+    .download-btn { margin-left: 0; order: 3; width: 100%; text-align: center; }
+  }
+</style>

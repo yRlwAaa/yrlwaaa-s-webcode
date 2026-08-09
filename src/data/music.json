@@ -1,0 +1,83 @@
+{
+  "artists": [
+    {
+      "id": "鎖那",
+      "name": "鎖那",
+      "image": "/images/music/artists/sana.jpg",
+      "bio": "白月光"
+    },
+    
+  ],
+  "albums": [
+    {
+      "id": "hush-a-by-little-girl",
+      "title": "hush a by little girl",
+      "artistId": "鎖那",
+      "cover": "/images/music/albums/hush.jpg",
+      "year": 2017,
+      "genre": "流行",
+      "tracks": [
+        {
+          "id": "ginger-snaps",
+          "title": "ginger snaps",
+          "duration": "2:53",
+          "file": "/music/audio/hush-a-by-little-girl/ginger snaps - 鎖那.flac"
+        },
+        {
+          "id": "ookami-to-shoujo",
+          "title": "オオカミと少女",
+          "duration": "3:57",
+          "file": "/music/audio/hush-a-by-little-girl/オオカミと少女 (狼与少女) - 鎖那.flac"
+        },
+        {
+          "id": "sayonara-teddy-bear",
+          "title": "さよなら、テディベア",
+          "duration": "4:28",
+          "file": "/music/audio/hush-a-by-little-girl/さよなら、テディベア (再见，泰迪熊) - 鎖那.flac"
+        },
+        {
+          "id": "shuterun",
+          "title": "シュテルン",
+          "duration": "3:15",
+          "file": "/music/audio/hush-a-by-little-girl/シュテルン (Stern) - 鎖那.flac"
+        },
+        {
+          "id": "nigera-no-hanataba",
+          "title": "ニゲラの花束",
+          "duration": "4:20",
+          "file": "/music/audio/hush-a-by-little-girl/ニゲラの花束 (黑种草的花束) - 鎖那.flac"
+        },
+        {
+          "id": "hinekure",
+          "title": "ひねくれ",
+          "duration": "4:12",
+          "file": "/music/audio/hush-a-by-little-girl/ひねくれ (乖僻) - 鎖那.flac"
+        },
+        {
+          "id": "houseki",
+          "title": "宝石",
+          "duration": "3:45",
+          "file": "/music/audio/hush-a-by-little-girl/宝石 - 鎖那.flac"
+        },
+        {
+          "id": "kanojo-wa-tabi-ni-deru",
+          "title": "彼女は旅に出る",
+          "duration": "3:40",
+          "file": "/music/audio/hush-a-by-little-girl/彼女は旅に出る (她踏上了旅程) - 鎖那.flac"
+        },
+        {
+          "id": "kagikko",
+          "title": "鍵っ子",
+          "duration": "3:59",
+          "file": "/music/audio/hush-a-by-little-girl/鍵っ子 (挂着钥匙的孩子) - 鎖那.flac"
+        },
+        {
+          "id": "usotsuki-emiri",
+          "title": "嘘つきエミリ",
+          "duration": "3:54",
+          "file": "/music/audio/hush-a-by-little-girl/嘘つきエミリー (骗子艾米丽) - 鎖那.flac"
+        }
+      ]
+    }
+  ]
+}
