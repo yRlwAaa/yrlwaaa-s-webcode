@@ -85,7 +85,9 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
     background: transparent;
   }
   .track-item:last-child { border-bottom: none; }
-  .track-item:hover { background: var(--music-hover, #f3f4f6); }
+  .track-item:hover { 
+    background: transparent !important;
+  }
   .track-number { width: 40px; font-size: 0.85rem; color: var(--music-text-sec, #6b7280); }
   .track-info { flex: 1; display: flex; justify-content: space-between; align-items: center; }
   .track-title { font-size: 0.95rem; color: var(--music-text, #000); }
