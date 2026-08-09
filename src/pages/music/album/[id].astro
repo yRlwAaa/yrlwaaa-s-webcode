@@ -1,55 +1,57 @@
 ---
 import MainGridLayout from "@layouts/MainGridLayout.astro";
+import musicData from "../../data/music.json";
+
+export async function getStaticPaths() {
+  return musicData.albums.map((album) => ({
+    params: { id: album.id }
+  }));
+}
+
+const { id } = Astro.params;
+const album = musicData.albums.find(a => a.id === id);
+const artist = musicData.artists.find(a => a.id === album?.artistId);
 ---
 
-<MainGridLayout title="专辑">
+<MainGridLayout title={album?.title || "专辑"}>
   <div id="album-detail">
-    <div class="album-header"></div>
-    <div class="track-list"></div>
+    <div class="album-header">
+      <img src={album?.cover} alt={album?.title} class="album-cover" />
+      <div class="album-meta">
+        <span class="type">专辑</span>
+        <h1>{album?.title}</h1>
+        <p class="artist-name">
+          <a href={`/music/artist/${artist?.id}`}>{artist?.name || "未知"}</a>
+        </p>
+        <p class="details">{album?.year} · {album?.genre || "未知"}</p>
+        <span class="track-count">{album?.tracks.length} 首歌曲</span>
+      </div>
+    </div>
+
+    <div class="track-list">
+      {album?.tracks.map((track, index) => (
+        <div class="track-item">
+          <span class="track-number">{String(index + 1).padStart(2, '0')}</span>
+          <div class="track-info">
+            <span class="track-title">{track.title}</span>
+            <span class="track-duration">{track.duration || "--"}</span>
+          </div>
+          <a href={track.file} download class="download-btn">⬇️ 下载</a>
+        </div>
+      ))}
+    </div>
   </div>
 </MainGridLayout>
 
-<script>
-  async function loadAlbum() {
-    const id = window.location.pathname.split('/').filter(Boolean).pop();
-    try {
-      const res = await fetch('/data/music.json');
-      const data = await res.json();
-      const album = data.albums.find(a => a.id === id);
-      if (!album) { window.location.href = '/music'; return; }
-      const artist = data.artists.find(a => a.id === album.artistId);
-      
-      document.querySelector('.album-header').innerHTML = `
-        <img src="${album.cover}" class="album-cover" />
-        <div class="album-meta">
-          <span class="type">专辑</span>
-          <h1>${album.title}</h1>
-          <p class="artist-name"><a href="/music/artist/${artist?.id}">${artist?.name || '未知'}</a></p>
-          <p class="details">${album.year} · ${album.genre || '未知'}</p>
-          <span class="track-count">${album.tracks.length} 首</span>
-        </div>
-      `;
-      
-      document.querySelector('.track-list').innerHTML = album.tracks.map((track, i) => `
-        <div class="track-item">
-          <span class="track-number">${String(i + 1).padStart(2, '0')}</span>
-          <div class="track-info">
-            <span class="track-title">${track.title}</span>
-            <span class="track-duration">${track.duration || '--'}</span>
-          </div>
-          <a href="${track.file}" download class="download-btn">⬇️ 下载</a>
-        </div>
-      `).join('');
-    } catch (err) { console.error(err); }
-  }
-  loadAlbum();
-</script>
-
 <style>
   .album-header {
-    display: flex; gap: 2rem; padding: 1.5rem;
-    background: var(--card-bg); border-radius: 16px;
-    border: 1px solid var(--line-divider); margin-bottom: 2rem;
+    display: flex;
+    gap: 2rem;
+    padding: 1.5rem;
+    background: var(--card-bg);
+    border-radius: 16px;
+    border: 1px solid var(--line-divider);
+    margin-bottom: 2rem;
   }
   .album-cover { width: 200px; height: 200px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
   .album-meta { display: flex; flex-direction: column; justify-content: center; }

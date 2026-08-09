@@ -1,46 +1,42 @@
 ---
 import MainGridLayout from "@layouts/MainGridLayout.astro";
+import musicData from "../../data/music.json";
+
+export async function getStaticPaths() {
+  return musicData.artists.map((artist) => ({
+    params: { id: artist.id }
+  }));
+}
+
+const { id } = Astro.params;
+const artist = musicData.artists.find(a => a.id === id);
+const albums = musicData.albums.filter(a => a.artistId === id);
 ---
 
-<MainGridLayout title="歌手">
+<MainGridLayout title={artist?.name || "歌手"}>
   <div id="artist-detail">
-    <div class="artist-header"></div>
-    <div class="album-grid"></div>
-  </div>
-</MainGridLayout>
+    <div class="artist-header">
+      <img src={artist?.image} alt={artist?.name} class="artist-avatar" />
+      <div>
+        <h1>{artist?.name}</h1>
+        <p>{artist?.bio || ""}</p>
+        <span class="album-count">{albums.length} 张专辑</span>
+      </div>
+    </div>
 
-<script>
-  async function loadArtist() {
-    const id = window.location.pathname.split('/').filter(Boolean).pop();
-    try {
-      const res = await fetch('/data/music.json');
-      const data = await res.json();
-      const artist = data.artists.find(a => a.id === id);
-      if (!artist) { window.location.href = '/music'; return; }
-      const albums = data.albums.filter(a => a.artistId === id);
-      
-      document.querySelector('.artist-header').innerHTML = `
-        <img src="${artist.image}" class="artist-avatar" />
-        <div>
-          <h1>${artist.name}</h1>
-          <p>${artist.bio || ''}</p>
-          <span class="album-count">${albums.length} 张专辑</span>
-        </div>
-      `;
-      
-      document.querySelector('.album-grid').innerHTML = albums.map(album => `
-        <a href="/music/album/${album.id}" class="album-card">
-          <img src="${album.cover}" alt="${album.title}" />
+    <div class="album-grid">
+      {albums.map((album) => (
+        <a href={`/music/album/${album.id}`} class="album-card">
+          <img src={album.cover} alt={album.title} />
           <div class="album-info">
-            <h3>${album.title}</h3>
-            <p>${album.year} · ${album.tracks.length} 首</p>
+            <h3>{album.title}</h3>
+            <p>{album.year} · {album.tracks.length} 首</p>
           </div>
         </a>
-      `).join('');
-    } catch (err) { console.error(err); }
-  }
-  loadArtist();
-</script>
+      ))}
+    </div>
+  </div>
+</MainGridLayout>
 
 <style>
   .artist-header {
