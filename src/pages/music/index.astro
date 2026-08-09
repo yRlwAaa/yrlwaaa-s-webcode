@@ -9,12 +9,12 @@ import musicData from "../../data/music.json";
       <h1 id="index-title">音乐</h1>
       <p id="index-subtitle">{musicData.artists.length} 位歌手</p>
     </div>
-    <div class="artist-grid" id="artist-grid">
+    <div class="artist-grid">
       {musicData.artists.map(artist => (
-        <a href={`/music/artist/${artist.id}`} class="artist-card" id={`artist-card-${artist.id}`}>
+        <a href={`/music/artist/${artist.id}`} class="artist-card">
           <img src={artist.image} alt={artist.name} />
-          <h3 id={`artist-name-${artist.id}`}>{artist.name}</h3>
-          <p id={`artist-bio-${artist.id}`}>{artist.bio || ''}</p>
+          <h3 class="artist-name">{artist.name}</h3>
+          <p class="artist-bio">{artist.bio || ''}</p>
         </a>
       ))}
     </div>
@@ -57,7 +57,6 @@ import musicData from "../../data/music.json";
     const text = isDark ? '#ffffff' : '#000000';
     const textSec = isDark ? '#9ca3af' : '#6b7280';
     const border = isDark ? '#2d2d44' : '#e5e7eb';
-    const hover = isDark ? '#2d2d44' : '#f3f4f6';
     
     const title = document.getElementById('index-title');
     if (title) title.style.color = text;
@@ -68,13 +67,14 @@ import musicData from "../../data/music.json";
     document.querySelectorAll('.artist-card').forEach(card => {
       card.style.backgroundColor = bg;
       card.style.borderColor = border;
-      const name = card.querySelector('h3');
-      const bio = card.querySelector('p');
+      const name = card.querySelector('.artist-name');
+      const bio = card.querySelector('.artist-bio');
       if (name) name.style.color = text;
       if (bio) bio.style.color = textSec;
     });
   }
-  setTimeout(applyTheme, 100);
-  const observer = new MutationObserver(() => setTimeout(applyTheme, 50));
+  
+  setTimeout(applyTheme, 50);
+  const observer = new MutationObserver(() => applyTheme());
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 </script>
