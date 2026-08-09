@@ -77,6 +77,52 @@
           "file": "/music/audio/hush-a-by-little-girl/嘘つきエミリー (骗子艾米丽) - 鎖那.flac"
         }
       ]
+    },
+    {
+      "id": "solitude",
+      "title": "solitude",
+      "artistId": "sana",
+      "cover": "/music/albums/solitude.jpg",
+      "year": 2026,
+      "genre": "流行",
+      "tracks": [
+        {
+          "id": "odori",
+          "title": "踊りたがっている",
+          "duration": "3:12",
+          "file": "/music/audio/solitude/01 踊りたがっている.flac"
+        },
+        {
+          "id": "kimi-no-jinkaku",
+          "title": "君の人格、最悪であれ",
+          "duration": "3:45",
+          "file": "/music/audio/solitude/02 君の人格、最悪であれ.flac"
+        },
+        {
+          "id": "senkou",
+          "title": "選り好み",
+          "duration": "4:17",
+          "file": "/music/audio/solitude/03 選り好み.flac"
+        },
+        {
+          "id": "yuuyake-kaze",
+          "title": "夕焼けと風邪薬",
+          "duration": "3:14",
+          "file": "/music/audio/solitude/04 夕焼けと風邪薬.flac"
+        },
+        {
+          "id": "aonatsu-mushi",
+          "title": "青夏塗りの蝶々",
+          "duration": "2:22",
+          "file": "/music/audio/solitude/05 青夏塗りの蝶々.flac"
+        },
+        {
+          "id": "to",
+          "title": "ひとりぽっち",
+          "duration": "4:14",
+          "file": "/music/audio/solitude/06 ひとりぽっち.flac"
+        }
+      ]
     }
   ]
 }
