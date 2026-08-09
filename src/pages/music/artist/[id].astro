@@ -1,0 +1,76 @@
+---
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+---
+
+<MainGridLayout title="歌手">
+  <div id="artist-detail">
+    <div class="artist-header"></div>
+    <div class="album-grid"></div>
+  </div>
+</MainGridLayout>
+
+<script>
+  async function loadArtist() {
+    const id = window.location.pathname.split('/').filter(Boolean).pop();
+    try {
+      const res = await fetch('/data/music.json');
+      const data = await res.json();
+      const artist = data.artists.find(a => a.id === id);
+      if (!artist) { window.location.href = '/music'; return; }
+      const albums = data.albums.filter(a => a.artistId === id);
+      
+      document.querySelector('.artist-header').innerHTML = `
+        <img src="${artist.image}" class="artist-avatar" />
+        <div>
+          <h1>${artist.name}</h1>
+          <p>${artist.bio || ''}</p>
+          <span class="album-count">${albums.length} 张专辑</span>
+        </div>
+      `;
+      
+      document.querySelector('.album-grid').innerHTML = albums.map(album => `
+        <a href="/music/album/${album.id}" class="album-card">
+          <img src="${album.cover}" alt="${album.title}" />
+          <div class="album-info">
+            <h3>${album.title}</h3>
+            <p>${album.year} · ${album.tracks.length} 首</p>
+          </div>
+        </a>
+      `).join('');
+    } catch (err) { console.error(err); }
+  }
+  loadArtist();
+</script>
+
+<style>
+  .artist-header {
+    display: flex; align-items: center; gap: 2rem;
+    padding: 1.5rem; background: var(--card-bg);
+    border-radius: 16px; border: 1px solid var(--line-divider);
+    margin-bottom: 2rem;
+  }
+  .artist-avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; }
+  .artist-header h1 { font-size: 2rem; }
+  .album-count {
+    display: inline-block; margin-top: 0.5rem; font-size: 0.8rem;
+    color: var(--text-secondary); background: var(--hover-bg);
+    padding: 0.25rem 0.75rem; border-radius: 20px;
+  }
+  .album-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+  }
+  .album-card {
+    text-decoration: none; color: inherit;
+    border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--line-divider);
+    transition: transform 0.2s; background: var(--card-bg);
+  }
+  .album-card:hover { transform: translateY(-4px); }
+  .album-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+  .album-info { padding: 0.75rem; }
+  .album-info h3 { font-size: 0.95rem; }
+  .album-info p { font-size: 0.8rem; color: var(--text-secondary); }
+  @media (max-width: 640px) { .artist-header { flex-direction: column; text-align: center; } }
+</style>

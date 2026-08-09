@@ -1,18 +1,17 @@
 {
   "artists": [
     {
-      "id": "鎖那",
+      "id": "sana",
       "name": "鎖那",
       "image": "/images/music/artists/sana.jpg",
       "bio": "白月光"
-    },
-    
+    }
   ],
   "albums": [
     {
       "id": "hush-a-by-little-girl",
       "title": "hush a by little girl",
-      "artistId": "鎖那",
+      "artistId": "sana",
       "cover": "/images/music/albums/hush.jpg",
       "year": 2017,
       "genre": "流行",
