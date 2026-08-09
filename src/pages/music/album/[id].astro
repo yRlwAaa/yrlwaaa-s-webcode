@@ -53,36 +53,36 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
     display: flex;
     gap: 2rem;
     padding: 1.5rem;
-    background: var(--card-bg);
+    background: var(--c-bg);
     border-radius: 16px;
-    border: 1px solid var(--line-divider);
+    border: 1px solid var(--c-border);
     margin-bottom: 2rem;
   }
   .album-cover { width: 200px; height: 200px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
   .album-meta { display: flex; flex-direction: column; justify-content: center; }
-  .album-meta .type { font-size: 0.75rem; color: var(--text-secondary); letter-spacing: 1px; }
-  .album-meta h1 { font-size: 2rem; margin: 0.25rem 0; color: var(--text-primary); }
-  .album-meta .artist-name a { color: var(--primary); text-decoration: none; }
-  .album-meta .details { color: var(--text-secondary); font-size: 0.9rem; }
+  .album-meta .type { font-size: 0.75rem; color: var(--c-text-secondary); letter-spacing: 1px; }
+  .album-meta h1 { font-size: 2rem; margin: 0.25rem 0; color: var(--c-text); }
+  .album-meta .artist-name a { color: var(--c-primary); text-decoration: none; }
+  .album-meta .details { color: var(--c-text-secondary); font-size: 0.9rem; }
   .track-count {
-    margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-secondary);
-    background: var(--hover-bg); padding: 0.25rem 0.75rem; border-radius: 20px;
+    margin-top: 0.5rem; font-size: 0.8rem; color: var(--c-text-secondary);
+    background: var(--c-bg-hover); padding: 0.25rem 0.75rem; border-radius: 20px;
     display: inline-block;
   }
-  .track-list { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--line-divider); overflow: hidden; }
+  .track-list { background: var(--c-bg); border-radius: 12px; border: 1px solid var(--c-border); overflow: hidden; }
   .track-item {
     display: flex; align-items: center; padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--line-divider);
+    border-bottom: 1px solid var(--c-border);
   }
   .track-item:last-child { border-bottom: none; }
-  .track-item:hover { background: var(--hover-bg); }
-  .track-number { width: 40px; font-size: 0.85rem; color: var(--text-secondary); }
+  .track-item:hover { background: var(--c-bg-hover); }
+  .track-number { width: 40px; font-size: 0.85rem; color: var(--c-text-secondary); }
   .track-info { flex: 1; display: flex; justify-content: space-between; align-items: center; }
-  .track-title { font-size: 0.95rem; color: var(--text-primary); }
-  .track-duration { font-size: 0.8rem; color: var(--text-secondary); }
+  .track-title { font-size: 0.95rem; color: var(--c-text); }
+  .track-duration { font-size: 0.8rem; color: var(--c-text-secondary); }
   .download-btn {
     padding: 0.25rem 0.75rem; font-size: 0.8rem;
-    background: var(--primary); color: #fff; border-radius: 6px;
+    background: var(--c-primary); color: #fff; border-radius: 6px;
     text-decoration: none; margin-left: 1rem; white-space: nowrap;
   }
   .download-btn:hover { opacity: 0.8; }

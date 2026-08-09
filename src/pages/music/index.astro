@@ -23,8 +23,8 @@ import musicData from "../../data/music.json";
 
 <style>
   .page-header { margin-bottom: 2rem; }
-  .page-header h1 { font-size: 2rem; margin-bottom: 0.25rem; color: #fff; }
-  .page-header p { color: #aaa; }
+  .page-header h1 { font-size: 2rem; margin-bottom: 0.25rem; color: var(--c-text); }
+  .page-header p { color: var(--c-text-secondary); }
   .artist-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -32,13 +32,14 @@ import musicData from "../../data/music.json";
   }
   .artist-card {
     text-decoration: none;
+    color: var(--c-text);
     text-align: center;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid var(--line-divider);
+    border: 1px solid var(--c-border);
     padding: 1rem;
     transition: transform 0.2s;
-    background: var(--card-bg);
+    background: var(--c-bg);
   }
   .artist-card:hover { transform: translateY(-4px); }
   .artist-card img {
@@ -47,6 +48,6 @@ import musicData from "../../data/music.json";
     object-fit: cover;
     border-radius: 50%;
   }
-  .artist-card h3 { margin-top: 0.75rem; font-size: 1rem; color: #fff; }
-  .artist-card p { font-size: 0.8rem; color: #aaa; }
+  .artist-card h3 { margin-top: 0.75rem; font-size: 1rem; color: var(--c-text); }
+  .artist-card p { font-size: 0.8rem; color: var(--c-text-secondary); }
 </style>
