@@ -49,78 +49,52 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
 </MainGridLayout>
 
 <style>
-  /* 白天模式 */
   .album-header {
     display: flex;
     gap: 2rem;
     padding: 1.5rem;
-    background: #ffffff;
+    background: var(--color-bg, #ffffff);
     border-radius: 16px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--color-border, #e5e7eb);
     margin-bottom: 2rem;
     transition: all 0.3s;
   }
   .album-cover { width: 200px; height: 200px; object-fit: cover; border-radius: 12px; flex-shrink: 0; }
   .album-meta { display: flex; flex-direction: column; justify-content: center; }
-  .album-meta .type { font-size: 0.75rem; color: #6b7280; letter-spacing: 1px; transition: color 0.3s; }
-  .album-meta h1 { font-size: 2rem; margin: 0.25rem 0; color: #000000; transition: color 0.3s; }
-  .album-meta .artist-name a { color: #3b82f6; text-decoration: none; transition: color 0.3s; }
-  .album-meta .details { color: #6b7280; font-size: 0.9rem; transition: color 0.3s; }
+  .album-meta .type { font-size: 0.75rem; color: var(--color-text-secondary, #6b7280); letter-spacing: 1px; transition: color 0.3s; }
+  .album-meta h1 { font-size: 2rem; margin: 0.25rem 0; color: var(--color-text, #000000); transition: color 0.3s; }
+  .album-meta .artist-name a { color: var(--color-primary, #3b82f6); text-decoration: none; transition: color 0.3s; }
+  .album-meta .details { color: var(--color-text-secondary, #6b7280); font-size: 0.9rem; transition: color 0.3s; }
   .track-count {
-    margin-top: 0.5rem; font-size: 0.8rem; color: #6b7280;
-    background: #f3f4f6; padding: 0.25rem 0.75rem; border-radius: 20px;
+    margin-top: 0.5rem; font-size: 0.8rem; color: var(--color-text-secondary, #6b7280);
+    background: var(--color-bg-hover, #f3f4f6); padding: 0.25rem 0.75rem; border-radius: 20px;
     display: inline-block; transition: all 0.3s;
   }
   .track-list { 
-    background: #ffffff; 
+    background: var(--color-bg, #ffffff); 
     border-radius: 12px; 
-    border: 1px solid #e5e7eb; 
+    border: 1px solid var(--color-border, #e5e7eb); 
     overflow: hidden; 
     transition: all 0.3s;
   }
   .track-item {
     display: flex; align-items: center; padding: 0.75rem 1rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
     transition: all 0.3s;
   }
   .track-item:last-child { border-bottom: none; }
-  .track-item:hover { background: #f3f4f6; }
-  .track-number { width: 40px; font-size: 0.85rem; color: #6b7280; transition: color 0.3s; }
+  .track-item:hover { background: var(--color-bg-hover, #f3f4f6); }
+  .track-number { width: 40px; font-size: 0.85rem; color: var(--color-text-secondary, #6b7280); transition: color 0.3s; }
   .track-info { flex: 1; display: flex; justify-content: space-between; align-items: center; }
-  .track-title { font-size: 0.95rem; color: #000000; transition: color 0.3s; }
-  .track-duration { font-size: 0.8rem; color: #6b7280; transition: color 0.3s; }
+  .track-title { font-size: 0.95rem; color: var(--color-text, #000000); transition: color 0.3s; }
+  .track-duration { font-size: 0.8rem; color: var(--color-text-secondary, #6b7280); transition: color 0.3s; }
   .download-btn {
     padding: 0.25rem 0.75rem; font-size: 0.8rem;
-    background: #3b82f6; color: #ffffff; border-radius: 6px;
+    background: var(--color-primary, #3b82f6); color: #ffffff; border-radius: 6px;
     text-decoration: none; margin-left: 1rem; white-space: nowrap;
     transition: all 0.3s;
   }
   .download-btn:hover { opacity: 0.8; }
-  
-  /* 黑夜模式 - 用 .dark 类控制 */
-  .dark .album-header {
-    background: #1a1a2e;
-    border-color: #2d2d44;
-  }
-  .dark .album-meta .type { color: #9ca3af; }
-  .dark .album-meta h1 { color: #ffffff; }
-  .dark .album-meta .details { color: #9ca3af; }
-  .dark .track-count {
-    color: #9ca3af;
-    background: #2d2d44;
-  }
-  .dark .track-list {
-    background: #1a1a2e;
-    border-color: #2d2d44;
-  }
-  .dark .track-item {
-    border-color: #2d2d44;
-  }
-  .dark .track-item:hover { background: #2d2d44; }
-  .dark .track-number { color: #9ca3af; }
-  .dark .track-title { color: #ffffff; }
-  .dark .track-duration { color: #9ca3af; }
-  .dark .download-btn { background: #3b82f6; }
   
   @media (max-width: 640px) {
     .album-header { flex-direction: column; align-items: center; text-align: center; }
@@ -132,25 +106,40 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
 </style>
 
 <script>
-  // 页面加载后检查主题
   function applyTheme() {
-    const isDark = document.documentElement.classList.contains('dark');
+    const root = document.documentElement;
+    const styles = getComputedStyle(root);
+    
+    // 读取主题定义的变量
+    const bg = styles.getPropertyValue('--color-bg').trim() || styles.getPropertyValue('--bg-primary').trim() || '#ffffff';
+    const text = styles.getPropertyValue('--color-text').trim() || styles.getPropertyValue('--text-primary').trim() || '#000000';
+    const textSecondary = styles.getPropertyValue('--color-text-secondary').trim() || styles.getPropertyValue('--text-secondary').trim() || '#6b7280';
+    const border = styles.getPropertyValue('--color-border').trim() || styles.getPropertyValue('--border-color').trim() || '#e5e7eb';
+    const bgHover = styles.getPropertyValue('--color-bg-hover').trim() || styles.getPropertyValue('--bg-hover').trim() || '#f3f4f6';
+    const primary = styles.getPropertyValue('--color-primary').trim() || styles.getPropertyValue('--primary-color').trim() || '#3b82f6';
+    
+    // 应用到专辑页
     const detail = document.getElementById('album-detail');
     if (detail) {
-      if (isDark) {
-        detail.classList.add('dark');
-      } else {
-        detail.classList.remove('dark');
-      }
+      detail.style.setProperty('--color-bg', bg);
+      detail.style.setProperty('--color-text', text);
+      detail.style.setProperty('--color-text-secondary', textSecondary);
+      detail.style.setProperty('--color-border', border);
+      detail.style.setProperty('--color-bg-hover', bgHover);
+      detail.style.setProperty('--color-primary', primary);
     }
   }
   
   // 初始执行
-  setTimeout(applyTheme, 50);
+  setTimeout(applyTheme, 100);
   
   // 监听主题变化
   const observer = new MutationObserver(() => {
     applyTheme();
   });
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
+  
+  // 监听主题色滑块变化（如果有自定义事件）
+  document.addEventListener('themeChanged', applyTheme);
+  document.addEventListener('colorSchemeChange', applyTheme);
 </script>
