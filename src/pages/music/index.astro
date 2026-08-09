@@ -1,38 +1,25 @@
 ---
 import MainGridLayout from "@layouts/MainGridLayout.astro";
+import musicData from "../../data/music.json";
 ---
 
 <MainGridLayout title="🎵 音乐">
   <div id="music-app">
     <div class="page-header">
       <h1>🎵 音乐</h1>
-      <p id="artist-count">加载中...</p>
+      <p>{musicData.artists.length} 位歌手</p>
     </div>
-    <div id="artist-grid" class="artist-grid"></div>
+    <div class="artist-grid">
+      {musicData.artists.map(artist => (
+        <a href={`/music/artist/${artist.id}`} class="artist-card">
+          <img src={artist.image} alt={artist.name} />
+          <h3>{artist.name}</h3>
+          <p>{artist.bio || ''}</p>
+        </a>
+      ))}
+    </div>
   </div>
 </MainGridLayout>
-
-<script>
-  async function loadMusic() {
-    try {
-      const res = await fetch('/data/music.json');
-      const data = await res.json();
-      
-      document.getElementById('artist-count').textContent = data.artists.length + ' 位歌手';
-      
-      document.getElementById('artist-grid').innerHTML = data.artists.map(artist => `
-        <a href="/music/artist/${artist.id}" class="artist-card">
-          <img src="${artist.image}" alt="${artist.name}" />
-          <h3>${artist.name}</h3>
-          <p>${artist.bio || ''}</p>
-        </a>
-      `).join('');
-    } catch (err) {
-      console.error('加载失败:', err);
-    }
-  }
-  loadMusic();
-</script>
 
 <style>
   .page-header { margin-bottom: 2rem; }
