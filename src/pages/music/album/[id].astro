@@ -30,8 +30,8 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
 
     <div class="track-list">
       {album?.tracks.map((track, index) => {
-        // ⭐ 改这里
-        const downloadUrl = track.file;
+        const R2_URL = 'https://pub-d77dbb19357f4d6fb7e0269c8aef4ed7.r2.dev';
+        const downloadUrl = `${R2_URL}${track.file}`;
         const filename = track.file.split('/').pop();
         
         return (
