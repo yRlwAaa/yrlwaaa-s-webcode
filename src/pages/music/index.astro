@@ -51,20 +51,13 @@ import musicData from "../../data/music.json";
 </style>
 
 <script>
-  function getHue() {
-    const hue = localStorage.getItem('hue');
-    if (hue !== null) return parseInt(hue);
-    return 50;
-  }
-
   function applyTheme() {
     const isDark = document.documentElement.classList.contains('dark');
-    const hue = getHue();
-    const bg = `oklch(0.23 0.015 ${hue})`;
+    const cardBg = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim() || '#1a1a2e';
     const text = isDark ? '#ffffff' : '#000000';
     const textSec = isDark ? '#9ca3af' : '#6b7280';
     const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
-    document.documentElement.style.setProperty('--music-bg', bg);
+    document.documentElement.style.setProperty('--music-bg', cardBg);
     document.documentElement.style.setProperty('--music-text', text);
     document.documentElement.style.setProperty('--music-text-sec', textSec);
     document.documentElement.style.setProperty('--music-border', border);
@@ -72,7 +65,4 @@ import musicData from "../../data/music.json";
   setTimeout(applyTheme, 0);
   const observer = new MutationObserver(() => applyTheme());
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'hue') applyTheme();
-  });
 </script>

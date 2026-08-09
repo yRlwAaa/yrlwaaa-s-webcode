@@ -77,21 +77,14 @@ const albums = musicData.albums.filter(a => a.artistId === id);
 </style>
 
 <script>
-  function getHue() {
-    const hue = localStorage.getItem('hue');
-    if (hue !== null) return parseInt(hue);
-    return 50;
-  }
-
   function applyTheme() {
     const isDark = document.documentElement.classList.contains('dark');
-    const hue = getHue();
-    const bg = `oklch(0.23 0.015 ${hue})`;
+    const cardBg = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim() || '#1a1a2e';
     const text = isDark ? '#ffffff' : '#000000';
     const textSec = isDark ? '#9ca3af' : '#6b7280';
     const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
     const hover = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-    document.documentElement.style.setProperty('--music-bg', bg);
+    document.documentElement.style.setProperty('--music-bg', cardBg);
     document.documentElement.style.setProperty('--music-text', text);
     document.documentElement.style.setProperty('--music-text-sec', textSec);
     document.documentElement.style.setProperty('--music-border', border);
@@ -100,7 +93,4 @@ const albums = musicData.albums.filter(a => a.artistId === id);
   setTimeout(applyTheme, 0);
   const observer = new MutationObserver(() => applyTheme());
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'hue') applyTheme();
-  });
 </script>
