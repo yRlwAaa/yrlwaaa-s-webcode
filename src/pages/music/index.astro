@@ -23,8 +23,8 @@ import musicData from "../../data/music.json";
 
 <style>
   .page-header { margin-bottom: 2rem; }
-  .page-header h1 { font-size: 2rem; margin-bottom: 0.25rem; color: var(--c-text); }
-  .page-header p { color: var(--c-text-secondary); }
+  .page-header h1 { font-size: 2rem; margin-bottom: 0.25rem; color: var(--text-color, #000); }
+  .page-header p { color: var(--text-secondary, #6b7280); }
   .artist-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -32,14 +32,14 @@ import musicData from "../../data/music.json";
   }
   .artist-card {
     text-decoration: none;
-    color: var(--c-text);
+    color: var(--text-color, #000);
     text-align: center;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid var(--c-border);
+    border: 1px solid var(--border-color, #e5e7eb);
     padding: 1rem;
     transition: transform 0.2s;
-    background: var(--c-bg);
+    background: var(--card-bg, #fff);
   }
   .artist-card:hover { transform: translateY(-4px); }
   .artist-card img {
@@ -48,6 +48,28 @@ import musicData from "../../data/music.json";
     object-fit: cover;
     border-radius: 50%;
   }
-  .artist-card h3 { margin-top: 0.75rem; font-size: 1rem; color: var(--c-text); }
-  .artist-card p { font-size: 0.8rem; color: var(--c-text-secondary); }
+  .artist-card h3 { margin-top: 0.75rem; font-size: 1rem; color: var(--text-color, #000); }
+  .artist-card p { font-size: 0.8rem; color: var(--text-secondary, #6b7280); }
 </style>
+
+<script>
+  function applyTheme() {
+    const root = document.documentElement;
+    const styles = getComputedStyle(root);
+    const bg = styles.getPropertyValue('--card-bg').trim() || '#ffffff';
+    const text = styles.getPropertyValue('--text-color').trim() || '#000000';
+    const textSec = styles.getPropertyValue('--text-secondary').trim() || '#6b7280';
+    const border = styles.getPropertyValue('--border-color').trim() || '#e5e7eb';
+    
+    const app = document.getElementById('music-app');
+    if (app) {
+      app.style.setProperty('--card-bg', bg);
+      app.style.setProperty('--text-color', text);
+      app.style.setProperty('--text-secondary', textSec);
+      app.style.setProperty('--border-color', border);
+    }
+  }
+  setTimeout(applyTheme, 100);
+  const observer = new MutationObserver(() => setTimeout(applyTheme, 100));
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style', 'data-theme'] });
+</script>
