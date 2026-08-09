@@ -275,6 +275,11 @@ export const navBarConfig: NavBarConfig = {
 					icon: "material-symbols:photo-library",
 				},
 				{
+					name: "Music",
+					url: "/music/",
+					icon: "material-symbols:music-note",
+				},
+				{
 					name: "Devices",
 					url: "/devices/",
 					icon: "material-symbols:devices",
