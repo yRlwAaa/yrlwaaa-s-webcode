@@ -54,6 +54,20 @@ const diaryData: DiaryItem[] = [
 			"2026.8.9 设立了音乐模块",
 		date:"2026-08-09T16:00:00Z",
 		images: ["/images/diary/2026-8-9/1.png","/images/diary/2026-8-9/2.png"],
+	},
+	{
+		id: 7,
+		content:
+			"2026.8.12 至冬更新！",
+		date:"2026-08-12T16:00:00Z",
+		images: ["/images/diary/2026-8-12/1.png","/images/diary/2026-8-12/2.png","/images/diary/2026-8-12/3.png","/images/diary/2026-8-12/4.png","/images/diary/2026-8-12/5.png","/images/diary/2026-8-12/6.png","/images/diary/2026-8-12/7.png","/images/diary/2026-8-12/8.png","/images/diary/2026-8-12/9.png","/images/diary/2026-8-12/10.png","/images/diary/2026-8-12/11.png","/images/diary/2026-8-12/12.png","/images/diary/2026-8-12/13.png","/images/diary/2026-8-12/14.png","/images/diary/2026-8-12/15.png","/images/diary/2026-8-12/16.png"],
+	},
+	{
+		id: 8,
+		content:
+			"2026.8.14 看《奥德赛》",
+		date:"2026-08-14T21:00:00Z",
+		images: ["/images/diary/2026-8-14/1.png","/images/diary/2026-8-14/2.png","/images/diary/2026-8-14/3.png","/images/diary/2026-8-14/4.png"],
 	}
 ];
 

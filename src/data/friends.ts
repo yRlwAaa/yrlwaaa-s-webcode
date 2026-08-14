@@ -76,6 +76,14 @@ export const friendsData: FriendItem[] = [
 		siteurl: "https://developer.mozilla.org",
 		tags: ["Docs", "Reference"],
 	},
+	{
+		id: 9,
+		title: "代价位十辆大铲车の宝藏之地",
+		imgurl: "https://www.xbmon.top/",
+		desc: "星儿的网站",
+		siteurl: "https://www.xbmon.top/",
+		tags: ["Share"],
+	},
 ];
 
 // 获取所有友情链接数据
