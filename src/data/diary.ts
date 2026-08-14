@@ -67,7 +67,7 @@ const diaryData: DiaryItem[] = [
 		content:
 			"2026.8.14 看《奥德赛》",
 		date:"2026-08-14T21:00:00Z",
-		images: ["/images/diary/2026-8-14/1.png","/images/diary/2026-8-14/2.png","/images/diary/2026-8-14/3.png","/images/diary/2026-8-14/4.png"],
+		images: ["/images/diary/2026-8-14/1.jpg","/images/diary/2026-8-14/2.jpg","/images/diary/2026-8-14/3.jpg","/images/diary/2026-8-14/4.jpg"],
 	}
 ];
 
