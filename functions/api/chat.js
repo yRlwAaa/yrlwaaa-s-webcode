@@ -21,7 +21,6 @@ export async function onRequest(context) {
       })
     });
 
-    // 读取流并提取文本内容
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let fullText = '';
@@ -34,32 +33,34 @@ export async function onRequest(context) {
       const lines = chunk.split('\n');
       
       for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const jsonStr = line.replace('data: ', '').trim();
-          if (jsonStr === '[DONE]') continue;
-          try {
-            const json = JSON.parse(jsonStr);
-            const content = json.choices?.[0]?.delta?.content || '';
-            if (content) {
-              fullText += content;
-            }
-          } catch (e) {
-            // 忽略解析错误
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith('data: ')) continue;
+        
+        const jsonStr = trimmed.replace('data: ', '').trim();
+        if (jsonStr === '[DONE]') continue;
+        
+        try {
+          const json = JSON.parse(jsonStr);
+          const content = json.choices?.[0]?.delta?.content || '';
+          if (content) {
+            fullText += content;
           }
+        } catch (e) {
+          // 忽略
         }
       }
     }
 
-    return new Response(fullText, {
+    return new Response(fullText || '没有获取到回复', {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
         'Cache-Control': 'no-cache'
       }
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: '请求失败' }), { 
+    return new Response('请求失败，请稍后再试', { 
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
     });
   }
 }
