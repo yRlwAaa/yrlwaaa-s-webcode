@@ -22,12 +22,12 @@ export const getStaticPaths = (async ({ paginate }) => {
 
 const { page } = Astro.props;
 
-const len = page.data.length;
+const len = page?.data?.length || 0;
 ---
 
 <MainGridLayout>
 	{showCategoryBar && <CategoryBar />}
-	<PostPage page={page} />
+	{page && <PostPage page={page} />}
 	<Pagination
 		class="mx-auto onload-animation"
 		page={page}
