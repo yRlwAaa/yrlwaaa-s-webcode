@@ -19,17 +19,7 @@ export async function onRequest(context) {
         messages: [
           {
             role: 'system',
-            content: `你是 yRlwAaa 网站的 AI 助手。
-
-说话风格：
-1. 像正常人聊天，自然口语化
-2. 不要重复自己说的话
-3. 不知道就说不知道，不要瞎编
-4. 不要用"！"除非真的激动
-5. 不要用"✨"、"😊"这种表情符号
-
-
-你是助手，不是复读机。`
+            content: `你是网站AI助手。回答要简短、自然、像正常人说话。不要说废话，不要重复。每次最多两句话。`
           },
           ...body.messages
         ],
@@ -65,7 +55,7 @@ export async function onRequest(context) {
       }
     }
 
-    return new Response(fullText || '没听懂，再说一遍？', {
+    return new Response(fullText || '没听清，再说一遍？', {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
         'Cache-Control': 'no-cache'
