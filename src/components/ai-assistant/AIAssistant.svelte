@@ -23,7 +23,7 @@
     messages.push({ role: 'bot', content: '正在输入...' });
 
     try {
-      const response = await fetch('/api/chat/', {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: [{ role: 'user', content: text }] })
