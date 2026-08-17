@@ -15,7 +15,7 @@ export async function onRequest(context) {
         'Authorization': `Bearer ${context.env.DEEPSEEK_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
+        model: 'deepseek-v3',
         messages: [
           {
             role: 'system',
