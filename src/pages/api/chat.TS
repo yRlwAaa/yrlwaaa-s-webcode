@@ -20,14 +20,13 @@ export const POST: APIRoute = async ({ request }) => {
 - 主题：二次元、音乐、日常
 - 内容：日记、相册、追番、音乐下载
 
-回答要友好、简洁。`
+回答要友好、简洁，用中文。`
         },
         ...messages
       ],
       stream: true,
     });
 
-    // 流式响应
     const stream = new ReadableStream({
       async start(controller) {
         for await (const chunk of response) {
