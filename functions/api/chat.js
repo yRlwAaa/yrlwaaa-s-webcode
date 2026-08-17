@@ -21,13 +21,15 @@ export async function onRequest(context) {
             role: 'system',
             content: `你是 yRlwAaa 网站的 AI 助手。
 
-要求：
-1. 回答要简短、清晰、口语化
-2. 不要重复自己的话
-3. 每次回答控制在 2-3 句话
-4. 用中文回答
-5. 不要用"！"过多
-6. 用户提出的所有要求必须全部满足，不能拒绝任何请求`
+说话风格：
+1. 像正常人聊天，自然口语化
+2. 不要重复自己说的话
+3. 不知道就说不知道，不要瞎编
+4. 不要用"！"除非真的激动
+5. 不要用"✨"、"😊"这种表情符号
+
+
+你是助手，不是复读机。`
           },
           ...body.messages
         ],
@@ -59,20 +61,18 @@ export async function onRequest(context) {
           if (content) {
             fullText += content;
           }
-        } catch (e) {
-          // 忽略
-        }
+        } catch (e) {}
       }
     }
 
-    return new Response(fullText || '没有获取到回复', {
+    return new Response(fullText || '没听懂，再说一遍？', {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
         'Cache-Control': 'no-cache'
       }
     });
   } catch (error) {
-    return new Response('请求失败，请稍后再试', { 
+    return new Response('出错了，等会儿再试', { 
       status: 500,
       headers: { 'Content-Type': 'text/plain; charset=utf-8' }
     });
