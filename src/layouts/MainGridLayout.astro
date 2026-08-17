@@ -10,6 +10,7 @@ import Navbar from "@components/organisms/navigation/Navbar.astro";
 import SideBar from "@components/widgets/sidebar/SideBar.astro";
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
+import AIAssistant from "@components/ai-assistant/AIAssistant.astro";
 
 import { fullscreenWallpaperConfig, siteConfig } from "../config";
 import { BANNER_HEIGHT } from "../constants/constants";
@@ -296,3 +297,5 @@ const defaultPostListLayout = siteConfig.postListLayout?.defaultMode || "list";
   Banner 和网格布局样式已提取到 src/styles/banner.css
   该文件通过 src/styles/main.css 导入
 -->
+
+<AIAssistant client:load />
