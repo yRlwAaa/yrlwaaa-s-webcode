@@ -82,7 +82,7 @@
     padding: 14px 18px;
     background: var(--card-bg, rgba(255,255,255,0.05));
     border-bottom: 1px solid var(--border-color, rgba(255,255,255,0.06));
-    color: var(--text-color, #fff);
+    color: #ffffff;
     font-weight: 600;
     display: flex;
     justify-content: space-between;
@@ -91,12 +91,12 @@
   .ai-chat-header button {
     background: none;
     border: none;
-    color: var(--text-secondary, #888);
+    color: #999;
     font-size: 18px;
     cursor: pointer;
   }
   .ai-chat-header button:hover {
-    color: var(--text-color, #fff);
+    color: #fff;
   }
 
   .ai-messages {
@@ -105,6 +105,8 @@
     overflow-y: auto;
     max-height: 350px;
     min-height: 200px;
+    display: flex;
+    flex-direction: column;
   }
   .ai-msg {
     margin-bottom: 10px;
@@ -116,8 +118,8 @@
     line-height: 1.6;
   }
   .ai-msg-bot {
-    background: var(--bg-hover, rgba(255,255,255,0.05));
-    color: var(--text-color, #fff);
+    background: rgba(255,255,255,0.08);
+    color: #ffffff;
     align-self: flex-start;
   }
   .ai-msg-user {
@@ -131,26 +133,29 @@
     display: flex;
     padding: 12px;
     gap: 8px;
-    border-top: 1px solid var(--border-color, rgba(255,255,255,0.06));
+    border-top: 1px solid rgba(255,255,255,0.08);
   }
   .ai-input-area input {
     flex: 1;
     padding: 10px 14px;
     border-radius: 8px;
-    border: 1px solid var(--border-color, rgba(255,255,255,0.1));
-    background: var(--bg-input, rgba(255,255,255,0.05));
-    color: var(--text-color, #ffffff);
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06);
+    color: #ffffff;
     outline: none;
   }
   .ai-input-area input::placeholder {
-    color: var(--text-secondary, #888);
+    color: #888;
+  }
+  .ai-input-area input:focus {
+    border-color: var(--primary, #667eea);
   }
   .ai-input-area button {
     padding: 10px 20px;
     border-radius: 8px;
     border: none;
     background: var(--primary, #667eea);
-    color: white;
+    color: #ffffff;
     font-weight: 600;
     cursor: pointer;
   }
@@ -158,7 +163,7 @@
     opacity: 0.9;
   }
   .ai-typing {
-    color: var(--text-secondary, #888);
+    color: #888;
     font-size: 13px;
     padding: 8px 14px;
   }
