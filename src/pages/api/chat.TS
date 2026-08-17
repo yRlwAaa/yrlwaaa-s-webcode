@@ -20,7 +20,7 @@ export const POST: APIRoute = async ({ request }) => {
 - 主题：二次元、音乐、日常
 - 内容：日记、相册、追番、音乐下载
 
-回答要友好、简洁，用中文。`
+回答要友好、简洁。`
         },
         ...messages
       ],
