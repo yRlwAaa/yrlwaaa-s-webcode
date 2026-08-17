@@ -2,13 +2,17 @@ import type { APIRoute } from "astro";
 import OpenAI from "openai";
 
 const client = new OpenAI({
-  apiKey: import.meta.env.DEEPSEEK_API_KEY,
+  apiKey: "sk-5c93e170487045369f4a82e0fb6188cb",
   baseURL: "https://api.deepseek.com",
 });
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { messages } = await request.json();
+    // 直接用 json() 方法
+    const body = await request.json();
+    console.log("解析成功:", body);
+    
+    const { messages } = body;
 
     const response = await client.chat.completions.create({
       model: "deepseek-chat",
@@ -45,7 +49,8 @@ export const POST: APIRoute = async ({ request }) => {
       },
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: "请求失败" }), {
+    console.error("API Error:", error);
+    return new Response(JSON.stringify({ error: "请求失败", detail: String(error) }), {
       status: 500,
     });
   }
