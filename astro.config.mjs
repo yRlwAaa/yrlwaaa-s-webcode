@@ -37,7 +37,7 @@ export default defineConfig({
 	base: "/",
 	trailingSlash: "always",
 
-	output: "server",
+	output: "static",
 
 	integrations: [
 		oddmisc({
