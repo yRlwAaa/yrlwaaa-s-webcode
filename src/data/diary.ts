@@ -75,6 +75,13 @@ const diaryData: DiaryItem[] = [
 			"2026.8.15  至冬满探！",
 		date:"2026-08-15T17:02:00Z",
 		images: ["/images/diary/2026-8-15/1.png"],
+	},
+	{
+		id: 10,
+		content:
+			"2026.8.17  在驿头",
+		date:"2026-08-17T19:53:32Z",
+		images: ["/images/diary/2026-8-17/1.jpg","/images/diary/2026-8-17/2.jpg","/images/diary/2026-8-17/3.jpg","/images/diary/2026-8-17/4.jpg"],
 	}
 ];
 
