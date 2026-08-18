@@ -13,10 +13,9 @@ function json(data, status = 200) {
 }
 
 function isOverviewQuestion(q) {
-  return /(全部|每章|每篇|所有文章|所有内容|全部章节|全站|都概括|每章内容|每篇内容|概括一下|介绍.*网站|网站.*介绍|全部文章|列.*所有|全部内容)/.test(q);
+  return /(全部|每章|每篇|所有文章|所有内容|全部章节|全站|都概括|每章内容|每篇内容|概括一下|介绍.*网站|网站.*介绍|全部文章|列.*所有|全部内容|有什么|有哪些|收.?入了什么|都是什么)/.test(q);
 }
 
-// ===== 硅基流动 embedding =====
 async function embedQuery(env, text) {
   if (!env.EMBEDDING_API_KEY) throw new Error('EMBEDDING_API_KEY 未配置');
   const res = await fetch(EMBEDDING_API, {
@@ -67,53 +66,57 @@ export async function onRequestPost(context) {
       await env.DB.prepare('UPDATE sessions SET updated_at = ? WHERE id = ?').bind(now, sessionId).run();
     }
 
-    // 拉索引
+    // ---- 拉取站点索引 + 站点指南 ----
     let index = [];
+    let guide = { sections: [] };
     try {
-      const indexUrl = new URL('/site-index.json', request.url).toString();
-      const res = await fetch(indexUrl, { headers: { 'Cache-Control': 'max-age=3600' } });
+      const idxUrl = new URL('/site-index.json', request.url).toString();
+      const res = await fetch(idxUrl, { headers: { 'Cache-Control': 'max-age=3600' } });
       if (res.ok) index = await res.json();
     } catch (e) {}
+    try {
+      const gUrl = new URL('/site-guide.json', request.url).toString();
+      const res = await fetch(gUrl, { headers: { 'Cache-Control': 'max-age=3600' } });
+      if (res.ok) guide = await res.json();
+    } catch (e) {}
+    if (!Array.isArray(guide.sections)) guide.sections = [];
 
     const inventory = buildInventory(index);
+    const guideText = buildGuideText(guide);
 
-    // ===== 决定喂哪些内容 =====
+    // ---- 决定喂哪些内容 ----
     let context;
     if (isOverviewQuestion(message) && index.length) {
-      // 全站问题：所有文章都喂（每篇截 ALL_CONTEXT）
       context = buildContext(index, ALL_CONTEXT);
     } else {
-      // 单篇问题：先语义检索（向量相似度），失败则关键词降级
       let hits = null;
       try {
         const qv = await embedQuery(env, message);
         hits = semanticSearch(index, qv, TOP_N);
       } catch (e) {}
-      if (!hits || !hits.length) {
-        hits = searchSite(index, message, TOP_N);
-      }
+      if (!hits || !hits.length) hits = searchSite(index, message, TOP_N);
       context = buildContext(hits.length ? hits : index.slice(0, TOP_N), MAX_CONTEXT);
     }
 
     const siteOverview = index.length
-      ? `这是 yRlwAaa 的个人网站（yrlwa.top）。共收录 ${index.length} 篇文章。`
+      ? `这是 yRlwAaa 的个人网站（yrlwa.top）。网站除文章外，还有相册、音乐、追番、词典、友链等多个板块，详见【全站板块】。`
       : '（暂未获取到站点索引）';
 
     const system =
-      '你是 yRlwAaa 网站的 AI 助手，负责回答访客关于网站内容的任何问题，以及总结、解析网站文章。\n' +
+      '你是 yRlwAaa 网站的 AI 助手，负责回答访客关于网站内容和板块的任何问题。\n' +
       '规则：\n' +
-      '1. 依据下方【全站清单】和【文章资料】回答；清单保证你知道全站所有内容。\n' +
-      '2. 具体文章内容以【文章资料】中的正文为准，正文没有的就诚实说没有，不要编造情节或数据。\n' +
-      '3. 给访客链接时，必须原样使用清单/资料中的链接字段（形如 /posts/xxx/），绝对禁止编造或省略前缀；资料里没有的链接就不给。\n' +
-      '4. 文章里的图片请根据资料中的图片说明（alt）向访客介绍。\n' +
+      '1. 依据【全站板块】介绍网站的各个页面（相册、音乐、词典、追番、友链等），不要因为不是文章就说不存在。\n' +
+      '2. 具体文章内容以【文章资料】中的正文为准，正文没有的就诚实说没有。\n' +
+      '3. 给访客链接时，必须原样使用【全站板块】或【文章资料】中的链接字段，绝对禁止编造；资料里没有的链接就不给。\n' +
+      '4. 关于相册/音乐/追番/词典等板块的具体内容，如果资料里没有详细数据，就引导访客访问对应页面查看。\n' +
       `【网站概况】${siteOverview}\n` +
-      `【全站清单】\n${inventory}`;
+      `【全站板块】\n${guideText}\n` +
+      `【全站文章清单】\n${inventory}`;
 
     const userPrompt = context
       ? `【文章资料】\n${context}\n\n【用户问题】\n${message}`
       : message;
 
-    // ===== DeepSeek 流式 =====
     const upstream = await fetch(DEEPSEEK_API, {
       method: 'POST',
       headers: {
@@ -189,6 +192,21 @@ export async function onRequestPost(context) {
   }
 }
 
+// ===== 站点指南文本 =====
+function buildGuideText(guide) {
+  const lines = [];
+  if (guide.siteName) lines.push(`站点名称：${guide.siteName}`);
+  if (guide.domain) lines.push(`域名：https://${guide.domain}`);
+  for (const s of guide.sections || []) {
+    lines.push(`- ${s.name}｜链接：${s.url}｜说明：${s.desc || '（无说明）'}`);
+  }
+  if (guide.links && typeof guide.links === 'object') {
+    const ext = Object.entries(guide.links).map(([k, v]) => `${k}: ${v}`).join('；');
+    if (ext) lines.push(`外部链接：${ext}`);
+  }
+  return lines.length ? lines.join('\n') : '（暂无站点指南）';
+}
+
 // ===== 全站清单 =====
 function buildInventory(index) {
   if (!index.length) return '（空）';
@@ -197,7 +215,6 @@ function buildInventory(index) {
   ).join('\n');
 }
 
-// ===== 语义检索 =====
 function semanticSearch(index, qv, limit) {
   const scored = index
     .filter(it => Array.isArray(it.embedding) && it.embedding.length)
@@ -207,7 +224,6 @@ function semanticSearch(index, qv, limit) {
   return scored.slice(0, limit).map(x => x.it);
 }
 
-// ===== 关键词检索（降级用） =====
 function splitWords(q) {
   return q.toLowerCase().split(/[\s,，。.!?！？、;；:：“”"'"（）()【】\[\]{}<>《》~·]+/).filter(w => w.length >= 2);
 }
@@ -258,7 +274,6 @@ function searchSite(index, query, limit = 5) {
   return [];
 }
 
-// ===== 拼装资料 =====
 function buildContext(items, maxLen) {
   if (!items.length) return '';
   return items.map((it, i) => {

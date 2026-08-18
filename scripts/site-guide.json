@@ -1,0 +1,24 @@
+{
+  "siteName": "yRlwAaa - 私の小さな部屋へようこそ",
+  "domain": "yrlwa.top",
+  "sections": [
+    { "name": "主页", "url": "/", "desc": "网站首页，展示公告、分类、站点统计、音乐播放器等" },
+    { "name": "归档", "url": "/archive/", "desc": "所有文章的归档列表" },
+    { "name": "追番", "url": "/anime/", "desc": "我的追番列表（数据来自 Bilibili）" },
+    { "name": "日记", "url": "/diary/", "desc": "日记" },
+    { "name": "相册", "url": "/albums/", "desc": "照片相册，存放生活或收藏的图片" },
+    { "name": "音乐", "url": "/music/", "desc": "音乐播放器与歌单，收录大量歌曲" },
+    { "name": "我的设备", "url": "/devices/", "desc": "我使用的设备列表" },
+    { "name": "关于", "url": "/about/", "desc": "关于我（yRlwAaa）" },
+    { "name": "友链", "url": "/friends/", "desc": "友情链接" },
+    { "name": "项目展示", "url": "/projects/", "desc": "我的项目展示" },
+    { "name": "技能展示", "url": "/skills/", "desc": "我的技能展示" },
+    { "name": "时间线", "url": "/timeline/", "desc": "时间线" },
+    { "name": "词典", "url": "/dictionary/", "desc": "英语词典工具页" }
+  ],
+  "links": {
+    "Bilibili": "https://space.bilibili.com/381710006",
+    "GitHub": "https://github.com/yRlwAaa",
+    "Twitch": "https://www.twitch.tv/yrlwa"
+  }
+}

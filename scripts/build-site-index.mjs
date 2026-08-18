@@ -4,11 +4,9 @@ import { join, extname } from 'node:path';
 const IGNORE_DIRS = new Set(['node_modules', '.git', 'dist', 'public', 'functions', 'scripts', '.astro']);
 const IGNORE_FILES = /^(readme|package|pnpm-lock|yarn\.lock|\.)/i;
 
-// ===== 硅基流动 embedding 配置 =====
 const EMBEDDING_API_KEY = process.env.EMBEDDING_API_KEY || '';
 const EMBEDDING_API = 'https://api.siliconflow.cn/v1/embeddings';
 const EMBEDDING_MODEL = 'BAAI/bge-m3';
-// bge 检索要求：文档和查询用相同的前缀，效果才最好
 const QUERY_PREFIX = '为这个句子生成表示以用于检索相关文章：';
 
 function walk(dir, out = []) {
@@ -77,8 +75,28 @@ async function embedOne(text) {
   return data.data[0].embedding;
 }
 
-// ===== 主流程 =====
+// ===== 读取并复制站点指南 =====
+function copySiteGuide() {
+  const src = 'scripts/site-guide.json';
+  const dst = 'public/site-guide.json';
+  let guide = { sections: [] };
+  if (existsSync(src)) {
+    try { guide = JSON.parse(readFileSync(src, 'utf8')); } catch (e) {
+      console.warn('[site-guide] 解析失败，使用默认：' + e.message);
+    }
+  }
+  if (!Array.isArray(guide.sections)) guide.sections = [];
+  if (!existsSync('public')) mkdirSync('public', { recursive: true });
+  writeFileSync(dst, JSON.stringify(guide, null, 2));
+  console.log(`[site-guide] 已生成站点指南，共 ${guide.sections.length} 个板块 -> public/site-guide.json`);
+  return guide;
+}
+
 async function main() {
+  // 站点指南（独立输出）
+  const guide = copySiteGuide();
+
+  // 文章索引
   const files = walk('.');
   const items = [];
   const seen = new Set();
@@ -116,7 +134,6 @@ async function main() {
     });
   }
 
-  // ===== 生成语义向量 =====
   if (EMBEDDING_API_KEY) {
     let ok = 0;
     for (const it of items) {
@@ -125,15 +142,14 @@ async function main() {
         it.embedding = await embedOne(doc);
         ok++;
       } catch (e) {
-        console.warn(`  [embedding] ${it.title} 失败，降级为纯文本: ${e.message}`);
+        console.warn(`  [embedding] ${it.title} 失败: ${e.message}`);
       }
     }
     console.log(`[embedding] 成功为 ${ok}/${items.length} 篇文章生成向量`);
   } else {
-    console.warn('[embedding] 未设置 EMBEDDING_API_KEY，跳过向量生成（将使用关键词检索）');
+    console.warn('[embedding] 未设置 EMBEDDING_API_KEY，跳过向量（将用关键词检索）');
   }
 
-  // ===== 写文件 =====
   if (!existsSync('public')) mkdirSync('public', { recursive: true });
   writeFileSync('public/site-index.json', JSON.stringify(items, null, 2));
 
@@ -142,6 +158,7 @@ async function main() {
     const dim = it.embedding ? `向量${it.embedding.length}维` : '无向量';
     console.log(`  - ${it.title} | ${it.url} | ${it.content.length}字 | ${dim} | 摘要:${it.summary.slice(0, 30)}`);
   }
+  console.log(`[site-guide] 板块：${guide.sections.map(s => s.name).join('、')}`);
   if (items.length === 0) console.warn('[site-index] 警告：没找到任何文章');
 }
 
