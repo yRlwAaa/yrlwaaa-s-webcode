@@ -648,21 +648,52 @@
 				return;
 			}
 
-			try {
-				const res = await fetch(
-					"https://ip-api.com/json/?fields=city,lat,lon",
-					{ signal: AbortSignal.timeout(5000) },
-				);
-				const data = await res.json();
-				if (data.city && data.lat && data.lon) {
-					await fetchWeather(data.lat, data.lon, data.city);
-					return;
+			// 多个 IP 定位源（均支持 HTTPS），逐个尝试，任一个成功即可
+			const sources: {
+				url: string;
+				parse: (d: any) => { city: string; lat: number; lon: number } | null;
+			}[] = [
+				{
+					url: "https://ipwho.is/",
+					parse: (d: any) =>
+						d && d.success && d.city && d.latitude && d.longitude
+							? { city: d.city, lat: d.latitude, lon: d.longitude }
+							: null,
+				},
+				{
+					url: "https://ipapi.co/json/",
+					parse: (d: any) =>
+						d && d.city && d.latitude && d.longitude
+							? { city: d.city, lat: d.latitude, lon: d.longitude }
+							: null,
+				},
+				{
+					url: "https://ip-api.com/json/?fields=city,lat,lon",
+					parse: (d: any) =>
+						d && d.city && d.lat && d.lon
+							? { city: d.city, lat: d.lat, lon: d.lon }
+							: null,
+				},
+			];
+
+			for (const src of sources) {
+				try {
+					const res = await fetch(src.url, {
+						signal: AbortSignal.timeout(4000),
+					});
+					if (!res.ok) continue;
+					const data = await res.json();
+					const loc = src.parse(data);
+					if (loc && loc.city && loc.lat && loc.lon) {
+						await fetchWeather(loc.lat, loc.lon, loc.city);
+						return;
+					}
+				} catch (e) {
+					console.log("定位源失败:", src.url, e);
 				}
-			} catch (e) {
-				console.log("定位失败:", e);
 			}
 
-			// 默认上海
+			// 全部失败，默认上海
 			await fetchWeather(31.23, 121.47, "上海");
 		}
 

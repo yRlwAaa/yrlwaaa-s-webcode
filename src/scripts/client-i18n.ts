@@ -32,7 +32,7 @@ function getDict(lang: string): Record<string, string> | undefined {
 	return getTranslation(lang) as unknown as Record<string, string>;
 }
 
-/** 替换元素文本，保留图标等子元素 */
+/** 替换元素文本，保留图标等子元素及其位置 */
 function applyText(el: HTMLElement, text: string): void {
 	const textNodes: Text[] = [];
 	el.childNodes.forEach((node) => {
@@ -40,9 +40,17 @@ function applyText(el: HTMLElement, text: string): void {
 			textNodes.push(node as Text);
 		}
 	});
-	if (textNodes.length > 0) {
-		textNodes[0].textContent = text;
-		textNodes.slice(1).forEach((node) => node.remove());
+	// 替换第一个“非空白”文本节点，避免把换行缩进（图标前的空白）误当成目标
+	const target =
+		textNodes.find((n) => (n.textContent || "").trim() !== "") ||
+		textNodes[0];
+	if (target) {
+		target.textContent = text;
+		textNodes.forEach((n) => {
+			if (n !== target && (n.textContent || "").trim() !== "") {
+				n.remove();
+			}
+		});
 	} else {
 		el.textContent = text;
 	}
