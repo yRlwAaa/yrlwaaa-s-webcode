@@ -299,17 +299,17 @@
      面板背景/文字/边框用独立变量 --ai-*，默认深色玻璃拟态。
      ========================================================= */
 
-  /* ---------- 悬浮按钮（固定在右下角，不占布局） ---------- */
+  /* ---------- 悬浮按钮（作为按钮组成员，跟随主题色） ---------- */
   .ai-assistant-wrapper {
-    display: contents;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--fab-button-size, 3rem);
+    height: var(--fab-button-size, 3rem);
   }
   .ai-fab-btn {
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-    z-index: 9999;
-    width: var(--fab-button-size, 3.2rem);
-    height: var(--fab-button-size, 3.2rem);
+    width: var(--fab-button-size, 3rem);
+    height: var(--fab-button-size, 3rem);
     border-radius: 50%;
     background: var(--ai-bg-soft, rgba(255, 255, 255, 0.06));
     backdrop-filter: blur(14px);
@@ -322,13 +322,12 @@
     color: var(--primary, #8ab4ff);
     transition: all 0.25s ease;
     padding: 0;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
   }
   .ai-fab-btn:hover {
     background: rgba(255, 255, 255, 0.14);
     border-color: var(--primary, #8ab4ff);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
   }
 
   /* ---------- 聊天窗口 ---------- */
@@ -720,12 +719,6 @@
 
   /* ---------- 移动端：留出上下空间，卡片式，不全屏 ---------- */
   @media (max-width: 640px) {
-    .ai-fab-btn {
-      right: 14px;
-      bottom: 14px;
-      width: 3rem;
-      height: 3rem;
-    }
     .ai-chat {
       left: 10px;
       right: 10px;

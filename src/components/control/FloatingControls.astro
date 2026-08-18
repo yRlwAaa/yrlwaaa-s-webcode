@@ -16,6 +16,9 @@ const { headings = [] } = Astro.props;
 ---
 
 <div class="floating-controls-container">
+        <div class="floating-control-item" data-control-key="ai">
+                <AIAssistant client:load />
+        </div>
         {
                 musicPlayerConfig.enable &&
                         musicPlayerConfig.showFloatingPlayer &&
@@ -25,9 +28,6 @@ const { headings = [] } = Astro.props;
                                 </div>
                         )
         }
-        <div class="floating-control-item" data-control-key="ai">
-                <AIAssistant client:load />
-        </div>
         {
                 siteConfig.toc.enable && siteConfig.toc.floating && (
                         <div class="floating-control-item" data-control-key="toc">
