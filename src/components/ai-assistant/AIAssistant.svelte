@@ -728,8 +728,8 @@
     .ai-chat {
       left: 10px;
       right: 10px;
-      top: max(64px, env(safe-area-inset-top) + 56px);
-      bottom: max(64px, env(safe-area-inset-bottom) + 56px);
+      top: calc(env(safe-area-inset-top) + 64px);
+      bottom: calc(env(safe-area-inset-bottom) + 64px);
       width: auto;
       height: auto;
       border-radius: 18px;

@@ -83,6 +83,11 @@ const { headings = [] } = Astro.props;
                 overflow: visible;
         }
 
+        /* AI 聊天项：去掉 transform，避免影响 fixed 定位 */
+        .floating-control-item[data-control-key="ai"] {
+                transform: none !important;
+        }
+
         .floating-control-item.is-stacked {
                 margin-top: var(--fab-group-gap);
         }
