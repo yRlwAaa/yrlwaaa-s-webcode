@@ -644,6 +644,24 @@
 			}
 		}
 
+		// ===== 反查城市名（坐标 → 城市，免费无 key） =====
+		async function reverseGeocode(
+			lat: number,
+			lon: number,
+		): Promise<string | null> {
+			try {
+				const res = await fetchWithTimeout(
+					`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=zh`,
+					5000,
+				);
+				if (!res.ok) return null;
+				const d = await res.json();
+				return d.city || d.locality || d.principalSubdivision || null;
+			} catch {
+				return null;
+			}
+		}
+
 		// ===== 定位 =====
 		async function locate() {
 			setLoading("定位中...");
@@ -655,61 +673,44 @@
 				return;
 			}
 
-			// 多个 IP 定位源（均支持 HTTPS），并行尝试，任一个成功即用
-			const sources: {
-				url: string;
-				parse: (d: any) => { city: string; lat: number; lon: number } | null;
-			}[] = [
-				{
-					url: "https://ipwho.is/",
-					parse: (d: any) =>
-						d && d.success && d.city && d.latitude && d.longitude
-							? { city: d.city, lat: d.latitude, lon: d.longitude }
-							: null,
-				},
-				{
-					url: "https://ipapi.co/json/",
-					parse: (d: any) =>
-						d && d.city && d.latitude && d.longitude
-							? { city: d.city, lat: d.latitude, lon: d.longitude }
-							: null,
-				},
-				{
-					url: "https://ip-api.com/json/?fields=city,lat,lon",
-					parse: (d: any) =>
-						d && d.city && d.lat && d.lon
-							? { city: d.city, lat: d.lat, lon: d.lon }
-							: null,
-				},
-			];
+			// 3 秒兜底：无论定位结果如何，保证显示天气（默认上海），绝不卡在“定位中”
+			let settled = false;
+			const settleDefault = () => {
+				if (settled) return;
+				settled = true;
+				fetchWeather(31.23, 121.47, "上海");
+			};
+			const fallbackTimer = setTimeout(settleDefault, 3000);
 
-			const trySource = async (
-				src: (typeof sources)[number],
-			): Promise<{ city: string; lat: number; lon: number } | null> => {
-				try {
-					const res = await fetchWithTimeout(src.url, 3000);
-					if (!res.ok) return null;
-					const data = await res.json();
-					const loc = src.parse(data);
-					return loc && loc.city && loc.lat && loc.lon ? loc : null;
-				} catch {
-					return null;
-				}
+			const useCoords = (lat: number, lon: number) => {
+				if (settled) return;
+				settled = true;
+				clearTimeout(fallbackTimer);
+				fetchWeather(lat, lon, "当前位置").then(() => {
+					// 异步反查城市名并更新
+					reverseGeocode(lat, lon).then((city) => {
+						if (city) {
+							wCity.textContent = city;
+							searchInput.value = city;
+							saveLocation(lat, lon, city);
+						}
+					});
+				});
 			};
 
-			// 并行尝试，最快成功的胜出；3.2 秒内都没成功则回退
-			const loc = await Promise.race([
-				...sources.map(trySource),
-				new Promise<null>((resolve) =>
-					setTimeout(() => resolve(null), 3200),
-				),
-			]);
-
-			if (loc) {
-				await fetchWeather(loc.lat, loc.lon, loc.city);
+			// 浏览器原生定位（GPS/WiFi，大陆可用，无需第三方 IP API）
+			if ("geolocation" in navigator) {
+				navigator.geolocation.getCurrentPosition(
+					(pos) => useCoords(pos.coords.latitude, pos.coords.longitude),
+					() => {
+						// 用户拒绝或定位失败 → 立即默认城市
+						clearTimeout(fallbackTimer);
+						settleDefault();
+					},
+					{ timeout: 3000, maximumAge: 300000 },
+				);
 			} else {
-				// 定位失败，默认上海
-				await fetchWeather(31.23, 121.47, "上海");
+				settleDefault();
 			}
 		}
 
