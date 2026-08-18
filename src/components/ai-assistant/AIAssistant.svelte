@@ -7,11 +7,10 @@
   let messages = [];
   let input = '';
   let loading = false;
-  let sessions = [];
-  let showHistoryPanel = false;
   let msgBox;
   let inputEl;
 
+  // 每次刷新/打开都生成新会话 ID，不持久化 → 刷新即新会话，看不到历史
   let sessionId = crypto.randomUUID();
 
   // 把聊天窗口传送到 body，避免被悬浮组的 transform 影响 fixed 定位
@@ -21,12 +20,7 @@
   }
 
   onMount(() => {
-    const saved = localStorage.getItem('ai-session');
-    if (saved) {
-      sessionId = saved;
-    } else {
-      localStorage.setItem('ai-session', sessionId);
-    }
+    // 不做任何 localStorage 读取，保证刷新后是全新会话
   });
 
   function renderMd(text) {
@@ -47,59 +41,18 @@
     inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
   }
 
-  async function loadSessions() {
-    try {
-      const res = await fetch('/api/sessions');
-      sessions = await res.json();
-    } catch (e) {}
-  }
-
-  async function loadHistory(id) {
-    try {
-      const res = await fetch(`/api/sessions/${id}`);
-      const rows = await res.json();
-      messages = rows.map((r) => ({ role: r.role, content: r.content, html: renderMd(r.content) }));
-      scrollDown();
-    } catch (e) {}
-  }
-
   function toggle() {
     chatWindowVisible = !chatWindowVisible;
-    showHistoryPanel = false;
     if (chatWindowVisible) {
-      loadHistory(sessionId);
-      loadSessions();
+      // 打开时也不加载任何历史，空白新会话
+      messages = [];
     }
   }
 
   function newSession() {
     sessionId = crypto.randomUUID();
-    localStorage.setItem('ai-session', sessionId);
     messages = [];
-    showHistoryPanel = false;
     input = '';
-  }
-
-  async function openSession(id) {
-    sessionId = id;
-    localStorage.setItem('ai-session', id);
-    await loadHistory(id);
-    showHistoryPanel = false;
-  }
-
-  async function deleteSession(id) {
-    await fetch(`/api/sessions/${id}`, { method: 'DELETE' });
-    if (id === sessionId) {
-      sessionId = crypto.randomUUID();
-      localStorage.setItem('ai-session', sessionId);
-      messages = [];
-    }
-    await loadSessions();
-  }
-
-  function toggleHistoryPanel() {
-    showHistoryPanel = !showHistoryPanel;
-    if (showHistoryPanel) loadSessions();
   }
 
   async function sendMessage(prefill) {
@@ -202,31 +155,11 @@
         <button class="ai-icon-btn" on:click={newSession} title="新对话">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
         </button>
-        <button class="ai-icon-btn" on:click={toggleHistoryPanel} title="历史记录">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        </button>
         <button class="ai-icon-btn ai-close-btn" on:click={toggle} title="关闭">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
       </div>
     </div>
-
-    <!-- 历史会话面板 -->
-    {#if showHistoryPanel}
-      <div class="ai-history">
-        {#each sessions as s}
-          <div class="ai-history-item" class:active={s.id === sessionId}>
-            <span class="ai-history-title" on:click={() => openSession(s.id)}>{s.title || '（无标题）'}</span>
-            <button class="ai-history-del" on:click|stopPropagation={() => deleteSession(s.id)} title="删除会话">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-            </button>
-          </div>
-        {/each}
-        {#if sessions.length === 0}
-          <div class="ai-history-empty">暂无历史会话</div>
-        {/if}
-      </div>
-    {/if}
 
     <!-- 消息区 -->
     <div class="ai-messages" bind:this={msgBox}>
@@ -239,7 +172,7 @@
             </svg>
           </div>
           <div class="ai-welcome-title">你好，我是 yRlwAaa 的 AI 助手</div>
-          <div class="ai-welcome-sub">可以问我网站内容，也可以随时聊天</div>
+          <div class="ai-welcome-sub">可以问我网站里的任何内容</div>
           <div class="ai-welcome-chips">
             <button on:click={() => sendMessage('这个网站里有什么？')}>网站里有什么？</button>
             <button on:click={() => sendMessage('最近更新了哪些文章？')}>最近更新了哪些文章？</button>
@@ -437,63 +370,6 @@
   .ai-close-btn:hover {
     background: rgba(255, 90, 90, 0.15);
     color: #ff7b7b;
-  }
-
-  /* ---------- 历史面板 ---------- */
-  .ai-history {
-    position: absolute;
-    top: 65px;
-    left: 0;
-    right: 0;
-    max-height: 240px;
-    overflow-y: auto;
-    background: var(--ai-bg, rgba(22, 24, 34, 0.97));
-    border-bottom: 1px solid var(--ai-border, rgba(255, 255, 255, 0.08));
-    z-index: 10;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-  }
-  .ai-history-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--ai-border, rgba(255, 255, 255, 0.04));
-    color: var(--ai-text-dim, #d5d8df);
-    font-size: 13px;
-    transition: background 0.15s;
-  }
-  .ai-history-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-  }
-  .ai-history-item.active {
-    background: color-mix(in srgb, var(--primary, #5b7cfa) 15%, transparent);
-  }
-  .ai-history-title {
-    flex: 1;
-    cursor: pointer;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .ai-history-del {
-    background: none;
-    border: none;
-    color: #6c7380;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 6px;
-    display: flex;
-    transition: all 0.15s;
-  }
-  .ai-history-del:hover {
-    color: #ff7b7b;
-    background: rgba(255, 90, 90, 0.12);
-  }
-  .ai-history-empty {
-    padding: 20px 16px;
-    color: var(--ai-text-dim, #6c7380);
-    font-size: 13px;
-    text-align: center;
   }
 
   /* ---------- 消息区 ---------- */
