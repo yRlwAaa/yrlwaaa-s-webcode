@@ -14,6 +14,12 @@
 
   let sessionId = crypto.randomUUID();
 
+  // 把聊天窗口传送到 body，避免被悬浮组的 transform 影响 fixed 定位
+  function portal(node) {
+    document.body.appendChild(node);
+    return {};
+  }
+
   onMount(() => {
     const saved = localStorage.getItem('ai-session');
     if (saved) {
@@ -174,7 +180,7 @@
 </div>
 
 {#if chatWindowVisible}
-  <div class="ai-chat" role="dialog" aria-label="AI 助手">
+  <div class="ai-chat" use:portal role="dialog" aria-label="AI 助手">
     <!-- 头部 -->
     <div class="ai-chat-header">
       <div class="ai-chat-brand">
