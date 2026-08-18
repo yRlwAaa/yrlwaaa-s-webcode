@@ -1,4 +1,6 @@
 const DEEPSEEK_API = 'https://api.deepseek.com/chat/completions';
+const MAX_CONTEXT = 3000; // 每篇正文最多喂给 AI 的字数
+const TOP_N = 5;
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -17,12 +19,12 @@ export async function onRequestPost(context) {
 
     const now = Date.now();
 
-    // ---- 存用户消息 ----
+    // 存用户消息
     await env.DB.prepare(
       'INSERT INTO messages (session_id, user_id, role, content, created_at) VALUES (?, NULL, ?, ?, ?)'
     ).bind(sessionId, 'user', message, now).run();
 
-    // ---- 维护会话 ----
+    // 维护会话
     const session = await env.DB.prepare('SELECT id FROM sessions WHERE id = ?').bind(sessionId).first();
     if (!session) {
       await env.DB.prepare(
@@ -32,37 +34,39 @@ export async function onRequestPost(context) {
       await env.DB.prepare('UPDATE sessions SET updated_at = ? WHERE id = ?').bind(now, sessionId).run();
     }
 
-    // ---- 站点检索 ----
-    let siteContext = '';
-    let siteOverview = '';
+    // 拉取站点索引
+    let index = [];
     try {
       const indexUrl = new URL('/site-index.json', request.url).toString();
       const res = await fetch(indexUrl, { headers: { 'Cache-Control': 'max-age=3600' } });
-      if (res.ok) {
-        const index = await res.json();
-        siteOverview = `这是 yRlwAaa 的个人网站（yrlwa.top），共 ${index.length} 篇文章，主要栏目有：小说连载、博客教程、相册、音乐播放器、追番列表、友链、关于等。`;
-        let hits = searchSite(index, message, 5);
-        if (!hits.length) {
-          hits = index.slice(0, 5); // 没匹配到就兜底给最近几篇，至少能介绍网站
-        }
-        siteContext = buildContext(hits);
-      }
+      if (res.ok) index = await res.json();
     } catch (e) {}
 
-    const system =
-      '你是 yRlwAaa 网站的 AI 助手。你的任务：帮助用户了解网站内容、总结文章、查找信息，也可以正常聊天和知识问答。\n' +
-      '规则：\n' +
-      '1. 优先依据下方【网站资料】回答，不得编造网站里没有的内容。\n' +
-      '2. 如果用户问的是“网站里有什么 / 介绍网站”这类整体性问题，优先用网站概况 + 资料里的文章列表来介绍。\n' +
-      '3. 资料不足时诚实说明“网站上没有找到相关信息”，不要瞎编链接。\n' +
-      '4. 引用网站内容时尽量带上资料里的链接。\n' +
-      `【网站概况】${siteOverview || '（无）'}`;
+    // 1) 全站清单：所有文章的标题+链接+分类+摘要（AI 永远知道全站有什么）
+    const inventory = buildInventory(index);
+    // 2) 检索最相关的 TOP_N 篇，附全文
+    const hits = searchSite(index, message, TOP_N);
+    const context = buildContext(hits);
 
-    const userPrompt = siteContext
-      ? `【网站资料】\n${siteContext}\n\n【用户问题】\n${message}`
+    const siteOverview = index.length
+      ? `这是 yRlwAaa 的个人网站（yrlwa.top）。共收录 ${index.length} 篇文章。`
+      : '（暂未获取到站点索引）';
+
+    const system =
+      '你是 yRlwAaa 网站的 AI 助手，负责回答访客关于网站内容的任何问题，以及总结、解析网站文章。\n' +
+      '规则：\n' +
+      '1. 优先依据下方【全站清单】和【文章资料】回答；清单保证你知道全站有哪些内容。\n' +
+      '2. 具体文章内容以【文章资料】中的正文为准，正文没有的就诚实说没有，不要编造情节或数据。\n' +
+      '3. 给访客链接时，必须原样使用清单/资料中的链接字段（形如 /posts/xxx/），绝对禁止编造或省略前缀；资料里没有的链接就不给。\n' +
+      '4. 文章里的图片请根据资料中的图片说明（alt）向访客介绍。\n' +
+      `【网站概况】${siteOverview}\n` +
+      `【全站清单】\n${inventory}`;
+
+    const userPrompt = context
+      ? `【文章资料】\n${context}\n\n【用户问题】\n${message}`
       : message;
 
-    // ---- 调 DeepSeek（流式）----
+    // 调 DeepSeek 流式
     const upstream = await fetch(DEEPSEEK_API, {
       method: 'POST',
       headers: {
@@ -85,7 +89,6 @@ export async function onRequestPost(context) {
       return json({ error: 'AI 服务异常：' + errText }, 502);
     }
 
-    // ---- 转发流式数据，同时攒完整回复存库 ----
     const reader = upstream.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
@@ -116,7 +119,6 @@ export async function onRequestPost(context) {
           }
           controller.enqueue(enc.encode('data: [DONE]\n\n'));
           controller.close();
-
           try {
             await env.DB.prepare(
               'INSERT INTO messages (session_id, user_id, role, content, created_at) VALUES (?, NULL, ?, ?, ?)'
@@ -140,8 +142,15 @@ export async function onRequestPost(context) {
   }
 }
 
-// ==================== 中文检索（多层兜底） ====================
+// ===== 全站清单（所有文章，保证 AI 知道全站内容） =====
+function buildInventory(index) {
+  if (!index.length) return '（空）';
+  return index.map((it, i) =>
+    `${i + 1}. ${it.title}｜链接：${it.url}｜分类：${it.category || '无'}｜标签：${(it.tags || []).join('、') || '无'}｜摘要：${it.summary || '（无摘要）'}`
+  ).join('\n');
+}
 
+// ===== 中文检索（三层兜底） =====
 function splitWords(q) {
   return q.toLowerCase().split(/[\s,，。.!?！？、;；:：“”"'"（）()【】\[\]{}<>《》~·]+/).filter(w => w.length >= 2);
 }
@@ -149,9 +158,7 @@ function splitWords(q) {
 function bigrams(q) {
   const out = new Set();
   const clean = q.toLowerCase().replace(/[\s,，。.!?！？、;；:：“”"'"（）()【】\[\]{}<>《》~·]+/g, '');
-  for (let i = 0; i < clean.length - 1; i++) {
-    out.add(clean.slice(i, i + 2));
-  }
+  for (let i = 0; i < clean.length - 1; i++) out.add(clean.slice(i, i + 2));
   return [...out];
 }
 
@@ -161,7 +168,7 @@ function scoreItem(item, terms, weight) {
     (item.category || '') + ' ' +
     (Array.isArray(item.tags) ? item.tags.join(' ') : '') + ' ' +
     (item.summary || '') + ' ' +
-    (item.content || '').slice(0, 3000)
+    (item.content || '').slice(0, 4000)
   ).toLowerCase();
   let score = 0;
   for (const t of terms) {
@@ -175,40 +182,32 @@ function scoreItem(item, terms, weight) {
 function searchSite(index, query, limit = 5) {
   const q = (query || '').trim();
   if (!q || !index.length) return [];
-
-  // 方案1：整句直接匹配标题/摘要
   const whole = index.filter(it =>
     ((it.title || '') + ' ' + (it.summary || '')).toLowerCase().includes(q.toLowerCase())
   );
   if (whole.length) return whole.slice(0, limit);
-
-  // 方案2：拆词匹配（标题命中加权）
   const words = splitWords(q);
   if (words.length) {
-    const scored = index
-      .map(it => ({ it, s: scoreItem(it, words, 3) }))
-      .filter(x => x.s > 0)
-      .sort((a, b) => b.s - a.s);
+    const scored = index.map(it => ({ it, s: scoreItem(it, words, 3) }))
+      .filter(x => x.s > 0).sort((a, b) => b.s - a.s);
     if (scored.length) return scored.slice(0, limit).map(x => x.it);
   }
-
-  // 方案3：2字子串兜底（近似中文分词）
   const gs = bigrams(q);
   if (gs.length) {
-    const scored = index
-      .map(it => ({ it, s: scoreItem(it, gs, 1) }))
-      .filter(x => x.s > 0)
-      .sort((a, b) => b.s - a.s);
+    const scored = index.map(it => ({ it, s: scoreItem(it, gs, 1) }))
+      .filter(x => x.s > 0).sort((a, b) => b.s - a.s);
     if (scored.length) return scored.slice(0, limit).map(x => x.it);
   }
-
-  // 方案4：全都没匹配 → 空数组，调用方用最近文章兜底
   return [];
 }
 
 function buildContext(items) {
   if (!items.length) return '';
-  return items.map((it, i) =>
-    `【资料${i + 1}】\n标题：${it.title}\n链接：${it.url}\n分类：${it.category || '无'}\n标签：${(it.tags || []).join('、') || '无'}\n摘要：${it.summary || ''}\n正文：${(it.content || '').slice(0, 1500)}\n`
-  ).join('\n\n');
+  return items.map((it, i) => {
+    let imgNote = '';
+    if (Array.isArray(it.images) && it.images.length) {
+      imgNote = '\n文中图片：' + it.images.map(img => img.alt || img.src).join('；') + '\n';
+    }
+    return `【资料${i + 1}】\n标题：${it.title}\n链接：${it.url}\n分类：${it.category || '无'}\n标签：${(it.tags || []).join('、') || '无'}\n摘要：${it.summary || ''}${imgNote}\n正文：${(it.content || '').slice(0, MAX_CONTEXT)}\n`;
+  }).join('\n\n');
 }
