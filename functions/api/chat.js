@@ -1,12 +1,47 @@
 const DEEPSEEK_API = 'https://api.deepseek.com/chat/completions';
-const MAX_CONTEXT = 3000; // 每篇正文最多喂给 AI 的字数
+const EMBEDDING_API = 'https://api.siliconflow.cn/v1/embeddings';
+const QUERY_PREFIX = '为这个句子生成表示以用于检索相关文章：';
 const TOP_N = 5;
+const MAX_CONTEXT = 3000;
+const ALL_CONTEXT = 1200;
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
     headers: { 'Content-Type': 'application/json' },
   });
+}
+
+function isOverviewQuestion(q) {
+  return /(全部|每章|每篇|所有文章|所有内容|全部章节|全站|都概括|每章内容|每篇内容|概括一下|介绍.*网站|网站.*介绍|全部文章|列.*所有|全部内容)/.test(q);
+}
+
+// ===== 硅基流动 embedding =====
+async function embedQuery(env, text) {
+  if (!env.EMBEDDING_API_KEY) throw new Error('EMBEDDING_API_KEY 未配置');
+  const res = await fetch(EMBEDDING_API, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${env.EMBEDDING_API_KEY}`,
+    },
+    body: JSON.stringify({ model: 'BAAI/bge-m3', input: QUERY_PREFIX + text, encoding_format: 'float' }),
+  });
+  if (!res.ok) throw new Error('embedding HTTP ' + res.status);
+  const data = await res.json();
+  return data.data[0].embedding;
+}
+
+function cosine(a, b) {
+  let dot = 0, na = 0, nb = 0;
+  const len = Math.min(a.length, b.length);
+  for (let i = 0; i < len; i++) {
+    dot += a[i] * b[i];
+    na += a[i] * a[i];
+    nb += b[i] * b[i];
+  }
+  if (na === 0 || nb === 0) return 0;
+  return dot / (Math.sqrt(na) * Math.sqrt(nb));
 }
 
 export async function onRequestPost(context) {
@@ -19,12 +54,10 @@ export async function onRequestPost(context) {
 
     const now = Date.now();
 
-    // 存用户消息
     await env.DB.prepare(
       'INSERT INTO messages (session_id, user_id, role, content, created_at) VALUES (?, NULL, ?, ?, ?)'
     ).bind(sessionId, 'user', message, now).run();
 
-    // 维护会话
     const session = await env.DB.prepare('SELECT id FROM sessions WHERE id = ?').bind(sessionId).first();
     if (!session) {
       await env.DB.prepare(
@@ -34,7 +67,7 @@ export async function onRequestPost(context) {
       await env.DB.prepare('UPDATE sessions SET updated_at = ? WHERE id = ?').bind(now, sessionId).run();
     }
 
-    // 拉取站点索引
+    // 拉索引
     let index = [];
     try {
       const indexUrl = new URL('/site-index.json', request.url).toString();
@@ -42,11 +75,25 @@ export async function onRequestPost(context) {
       if (res.ok) index = await res.json();
     } catch (e) {}
 
-    // 1) 全站清单：所有文章的标题+链接+分类+摘要（AI 永远知道全站有什么）
     const inventory = buildInventory(index);
-    // 2) 检索最相关的 TOP_N 篇，附全文
-    const hits = searchSite(index, message, TOP_N);
-    const context = buildContext(hits);
+
+    // ===== 决定喂哪些内容 =====
+    let context;
+    if (isOverviewQuestion(message) && index.length) {
+      // 全站问题：所有文章都喂（每篇截 ALL_CONTEXT）
+      context = buildContext(index, ALL_CONTEXT);
+    } else {
+      // 单篇问题：先语义检索（向量相似度），失败则关键词降级
+      let hits = null;
+      try {
+        const qv = await embedQuery(env, message);
+        hits = semanticSearch(index, qv, TOP_N);
+      } catch (e) {}
+      if (!hits || !hits.length) {
+        hits = searchSite(index, message, TOP_N);
+      }
+      context = buildContext(hits.length ? hits : index.slice(0, TOP_N), MAX_CONTEXT);
+    }
 
     const siteOverview = index.length
       ? `这是 yRlwAaa 的个人网站（yrlwa.top）。共收录 ${index.length} 篇文章。`
@@ -55,7 +102,7 @@ export async function onRequestPost(context) {
     const system =
       '你是 yRlwAaa 网站的 AI 助手，负责回答访客关于网站内容的任何问题，以及总结、解析网站文章。\n' +
       '规则：\n' +
-      '1. 优先依据下方【全站清单】和【文章资料】回答；清单保证你知道全站有哪些内容。\n' +
+      '1. 依据下方【全站清单】和【文章资料】回答；清单保证你知道全站所有内容。\n' +
       '2. 具体文章内容以【文章资料】中的正文为准，正文没有的就诚实说没有，不要编造情节或数据。\n' +
       '3. 给访客链接时，必须原样使用清单/资料中的链接字段（形如 /posts/xxx/），绝对禁止编造或省略前缀；资料里没有的链接就不给。\n' +
       '4. 文章里的图片请根据资料中的图片说明（alt）向访客介绍。\n' +
@@ -66,7 +113,7 @@ export async function onRequestPost(context) {
       ? `【文章资料】\n${context}\n\n【用户问题】\n${message}`
       : message;
 
-    // 调 DeepSeek 流式
+    // ===== DeepSeek 流式 =====
     const upstream = await fetch(DEEPSEEK_API, {
       method: 'POST',
       headers: {
@@ -142,7 +189,7 @@ export async function onRequestPost(context) {
   }
 }
 
-// ===== 全站清单（所有文章，保证 AI 知道全站内容） =====
+// ===== 全站清单 =====
 function buildInventory(index) {
   if (!index.length) return '（空）';
   return index.map((it, i) =>
@@ -150,7 +197,17 @@ function buildInventory(index) {
   ).join('\n');
 }
 
-// ===== 中文检索（三层兜底） =====
+// ===== 语义检索 =====
+function semanticSearch(index, qv, limit) {
+  const scored = index
+    .filter(it => Array.isArray(it.embedding) && it.embedding.length)
+    .map(it => ({ it, s: cosine(qv, it.embedding) }))
+    .sort((a, b) => b.s - a.s);
+  if (!scored.length) return [];
+  return scored.slice(0, limit).map(x => x.it);
+}
+
+// ===== 关键词检索（降级用） =====
 function splitWords(q) {
   return q.toLowerCase().split(/[\s,，。.!?！？、;；:：“”"'"（）()【】\[\]{}<>《》~·]+/).filter(w => w.length >= 2);
 }
@@ -201,13 +258,14 @@ function searchSite(index, query, limit = 5) {
   return [];
 }
 
-function buildContext(items) {
+// ===== 拼装资料 =====
+function buildContext(items, maxLen) {
   if (!items.length) return '';
   return items.map((it, i) => {
     let imgNote = '';
     if (Array.isArray(it.images) && it.images.length) {
       imgNote = '\n文中图片：' + it.images.map(img => img.alt || img.src).join('；') + '\n';
     }
-    return `【资料${i + 1}】\n标题：${it.title}\n链接：${it.url}\n分类：${it.category || '无'}\n标签：${(it.tags || []).join('、') || '无'}\n摘要：${it.summary || ''}${imgNote}\n正文：${(it.content || '').slice(0, MAX_CONTEXT)}\n`;
+    return `【资料${i + 1}】\n标题：${it.title}\n链接：${it.url}\n分类：${it.category || '无'}\n标签：${(it.tags || []).join('、') || '无'}\n摘要：${it.summary || ''}${imgNote}\n正文：${(it.content || '').slice(0, maxLen)}\n`;
   }).join('\n\n');
 }
