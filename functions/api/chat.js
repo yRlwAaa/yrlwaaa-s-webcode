@@ -125,7 +125,7 @@ export async function onRequestPost(context) {
         'Authorization': `Bearer ${env.DEEPSEEK_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
+        model: 'deepseek-v4-flash',
         stream: true,
         temperature: 0.8,
         messages: [
