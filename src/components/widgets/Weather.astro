@@ -118,6 +118,16 @@
 		padding: 14px 16px;
 		border: 1px solid var(--line-divider);
 		overflow: hidden;
+		/* 文字色随明暗主题切换：白天深色、黑夜浅色 */
+		--w-text: oklch(0.3 0.02 var(--hue));
+		--w-title: oklch(0.45 0.06 var(--hue));
+		--w-meta: oklch(0.55 0.02 var(--hue));
+	}
+
+	:root.dark .weather-card {
+		--w-text: oklch(0.92 0.015 var(--hue));
+		--w-title: oklch(0.88 0.04 var(--hue));
+		--w-meta: oklch(0.72 0.02 var(--hue));
 	}
 
 	/* 加载态 */
@@ -127,7 +137,7 @@
 		align-items: center;
 		gap: 10px;
 		padding: 24px 0;
-		color: var(--content-meta);
+		color: var(--w-meta);
 	}
 	.w-loading-icon {
 		font-size: 30px;
@@ -159,7 +169,7 @@
 	.w-city {
 		font-size: 17px;
 		font-weight: 700;
-		color: var(--title-active);
+		color: var(--w-title);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -174,7 +184,7 @@
 		border: none;
 		border-radius: 8px;
 		background: transparent;
-		color: var(--content-meta);
+		color: var(--w-meta);
 		cursor: pointer;
 		transition: all 0.2s ease;
 	}
@@ -218,12 +228,12 @@
 		border-radius: 10px;
 		font-size: 13px;
 		background: var(--btn-regular-bg);
-		color: var(--deep-text);
+		color: var(--w-text);
 		outline: none;
 		transition: border-color 0.2s ease, box-shadow 0.2s ease;
 	}
 	.w-search-input::placeholder {
-		color: var(--content-meta);
+		color: var(--w-meta);
 	}
 	.w-search-input:focus {
 		border-color: var(--primary);
@@ -280,17 +290,17 @@
 	.w-result-name {
 		font-size: 13px;
 		font-weight: 600;
-		color: var(--deep-text);
+		color: var(--w-text);
 	}
 	.w-result-sub {
 		font-size: 11px;
-		color: var(--content-meta);
+		color: var(--w-meta);
 	}
 	.w-search-empty {
 		padding: 12px;
 		text-align: center;
 		font-size: 12px;
-		color: var(--content-meta);
+		color: var(--w-meta);
 	}
 
 	/* 当前天气 */
@@ -320,7 +330,7 @@
 	}
 	.w-cond {
 		font-size: 13px;
-		color: var(--content-meta);
+		color: var(--w-meta);
 		margin-top: 4px;
 	}
 	.w-hilo {
@@ -328,10 +338,10 @@
 		gap: 16px;
 		margin-top: 10px;
 		font-size: 12px;
-		color: var(--content-meta);
+		color: var(--w-meta);
 	}
 	.w-hilo b {
-		color: var(--deep-text);
+		color: var(--w-text);
 		font-weight: 600;
 	}
 	.w-meta {
@@ -339,7 +349,7 @@
 		gap: 16px;
 		margin-top: 8px;
 		font-size: 12px;
-		color: var(--content-meta);
+		color: var(--w-meta);
 	}
 	.w-meta-item {
 		display: inline-flex;
@@ -354,7 +364,7 @@
 	.w-forecast-title {
 		font-size: 12px;
 		font-weight: 600;
-		color: var(--content-meta);
+		color: var(--w-meta);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		margin-bottom: 8px;
@@ -377,7 +387,7 @@
 	.w-day-name {
 		font-size: 13px;
 		font-weight: 500;
-		color: var(--deep-text);
+		color: var(--w-text);
 	}
 	.w-day-icon {
 		font-size: 17px;
@@ -386,11 +396,11 @@
 	.w-day-low,
 	.w-day-high {
 		font-size: 12px;
-		color: var(--content-meta);
+		color: var(--w-meta);
 		text-align: center;
 	}
 	.w-day-high {
-		color: var(--deep-text);
+		color: var(--w-text);
 		font-weight: 600;
 	}
 	.w-day-track {
@@ -612,11 +622,15 @@
 		}
 
 		// 带超时的 fetch（用 AbortController，兼容性更好）
-		function fetchWithTimeout(url: string, ms: number): Promise<Response> {
+		function fetchWithTimeout(
+			url: string,
+			ms: number,
+			options: RequestInit = {},
+		): Promise<Response> {
 			const controller = new AbortController();
 			const timer = setTimeout(() => controller.abort(), ms);
-			return fetch(url, { signal: controller.signal }).finally(() =>
-				clearTimeout(timer),
+			return fetch(url, { ...options, signal: controller.signal }).finally(
+				() => clearTimeout(timer),
 			);
 		}
 
@@ -666,7 +680,7 @@
 
 		// ===== 定位 =====
 		async function locate() {
-			setLoading("定位中...");
+			setLoading("定位中，请允许浏览器定位权限");
 
 			// 优先使用用户上次搜索的地点
 			const saved = loadLocation();
@@ -675,14 +689,14 @@
 				return;
 			}
 
-			// 3 秒兜底：无论定位结果如何，保证显示天气（默认上海），绝不卡在“定位中”
+			// 5 秒兜底：无论定位结果如何，保证显示天气（默认上海），绝不卡在“定位中”
 			let settled = false;
 			const settleDefault = () => {
 				if (settled) return;
 				settled = true;
 				fetchWeather(31.23, 121.47, "上海");
 			};
-			const fallbackTimer = setTimeout(settleDefault, 3000);
+			const fallbackTimer = setTimeout(settleDefault, 5000);
 
 			const useCoords = (lat: number, lon: number) => {
 				if (settled) return;
@@ -709,7 +723,7 @@
 						clearTimeout(fallbackTimer);
 						settleDefault();
 					},
-					{ timeout: 3000, maximumAge: 300000 },
+					{ timeout: 8000, maximumAge: 300000 },
 				);
 			} else {
 				settleDefault();
@@ -730,46 +744,85 @@
 			if (!q) return;
 			searchResults.innerHTML =
 				'<div class="w-search-empty">搜索中...</div>';
+
+			type Result = { lat: number; lon: number; name: string; admin: string };
+			let results: Result[] = [];
+
+			// 1. Open-Meteo geocoding（快，但中文城市名覆盖不全）
 			try {
 				const res = await fetchWithTimeout(
 					`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=zh&format=json`,
-					6000,
+					5000,
 				);
-				const data = await res.json();
-				const results = data.results || [];
-				if (results.length === 0) {
-					searchResults.innerHTML =
-						'<div class="w-search-empty">未找到该城市</div>';
-					return;
+				if (res.ok) {
+					const data = await res.json();
+					results = (data.results || []).map((r: any) => ({
+						lat: r.latitude,
+						lon: r.longitude,
+						name: r.name,
+						admin: [r.admin1, r.country].filter(Boolean).join(" · "),
+					}));
 				}
-				searchResults.innerHTML = results
-					.map(
-						(r: any) => `
-						<button class="w-result" data-lat="${r.latitude}" data-lon="${r.longitude}" data-name="${escapeHtml(r.name)}" data-admin="${escapeHtml(r.admin1 || "")}" data-country="${escapeHtml(r.country || "")}">
-							<span class="w-result-name">${escapeHtml(r.name)}</span>
-							<span class="w-result-sub">${escapeHtml([r.admin1, r.country].filter(Boolean).join(" · "))}</span>
-						</button>`,
-					)
-					.join("");
-				// 绑定结果点击
-				searchResults
-					.querySelectorAll<HTMLElement>(".w-result")
-					.forEach((btn) => {
-						btn.addEventListener("click", () => {
-							const lat = parseFloat(btn.dataset.lat!);
-							const lon = parseFloat(btn.dataset.lon!);
-							const name = btn.dataset.name!;
-							const admin = btn.dataset.admin;
-							const city = admin ? `${name}, ${admin}` : name;
-							closeSearch();
-							fetchWeather(lat, lon, city);
-						});
-					});
-			} catch (err) {
-				console.error("❌ 搜索失败:", err);
-				searchResults.innerHTML =
-					'<div class="w-search-empty">搜索失败，请重试</div>';
+			} catch {
+				/* fallthrough to Nominatim */
 			}
+
+			// 2. Nominatim 兜底（OpenStreetMap，中文地名更全，如“温州”）
+			if (results.length === 0) {
+				try {
+					const res = await fetchWithTimeout(
+						`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&accept-language=zh`,
+						6000,
+						{ headers: { "User-Agent": "Mizuki-Blog/1.0" } },
+					);
+					if (res.ok) {
+						const data = await res.json();
+						results = (data || []).map((r: any) => {
+							const parts = (r.display_name || "")
+								.split(",")
+								.map((s: string) => s.trim());
+							return {
+								lat: parseFloat(r.lat),
+								lon: parseFloat(r.lon),
+								name: r.name || parts[0] || "",
+								admin: parts.slice(1, 3).join(" · "),
+							};
+						}).filter((r: Result) => r.name && !isNaN(r.lat) && !isNaN(r.lon));
+					}
+				} catch {
+					/* ignore */
+				}
+			}
+
+			if (results.length === 0) {
+				searchResults.innerHTML =
+					'<div class="w-search-empty">未找到该城市，试试英文名或拼音</div>';
+				return;
+			}
+
+			searchResults.innerHTML = results
+				.map(
+					(r) => `
+					<button class="w-result" data-lat="${r.lat}" data-lon="${r.lon}" data-name="${escapeHtml(r.name)}" data-admin="${escapeHtml(r.admin)}">
+						<span class="w-result-name">${escapeHtml(r.name)}</span>
+						<span class="w-result-sub">${escapeHtml(r.admin)}</span>
+					</button>`,
+				)
+				.join("");
+			// 绑定结果点击
+			searchResults
+				.querySelectorAll<HTMLElement>(".w-result")
+				.forEach((btn) => {
+					btn.addEventListener("click", () => {
+						const lat = parseFloat(btn.dataset.lat!);
+						const lon = parseFloat(btn.dataset.lon!);
+						const name = btn.dataset.name!;
+						const admin = btn.dataset.admin;
+						const city = admin ? `${name}, ${admin}` : name;
+						closeSearch();
+						fetchWeather(lat, lon, city);
+					});
+				});
 		}
 
 		function toggleSearch() {
