@@ -1,5 +1,3 @@
-import { getUserByToken } from '../_lib/auth.js';
-
 const DEEPSEEK_API = 'https://api.deepseek.com/chat/completions';
 
 function json(data, status = 200) {
@@ -12,36 +10,29 @@ function json(data, status = 200) {
 export async function onRequestPost(context) {
   const { request, env } = context;
   try {
-    // ---- 1. 登录校验 ----
-    const token = (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
-    const user = await getUserByToken(env.DB, token);
-    if (!user) return json({ error: '请先登录', code: 'LOGIN_REQUIRED' }, 401);
-
-    // ---- 2. 解析消息 ----
     const body = await request.json();
     const sessionId = String(body.sessionId || '');
     const message = String(body.message || '').trim();
     if (!message) return json({ error: '消息不能为空' }, 400);
 
-    // ---- 3. 存用户消息 + 维护会话 ----
     const now = Date.now();
-    await env.DB.prepare(
-      'INSERT INTO messages (session_id, user_id, role, content, created_at) VALUES (?, ?, ?, ?, ?)'
-    ).bind(sessionId, user.id, 'user', message, now).run();
 
-    const session = await env.DB.prepare('SELECT id FROM sessions WHERE id = ? AND user_id = ?')
-      .bind(sessionId, user.id).first();
+    // ---- 存用户消息（不区分用户，所有人对话都存）----
+    await env.DB.prepare(
+      'INSERT INTO messages (session_id, user_id, role, content, created_at) VALUES (?, NULL, ?, ?, ?)'
+    ).bind(sessionId, 'user', message, now).run();
+
+    // ---- 维护会话 ----
+    const session = await env.DB.prepare('SELECT id FROM sessions WHERE id = ?').bind(sessionId).first();
     if (!session) {
       await env.DB.prepare(
-        'INSERT INTO sessions (id, title, user_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?)'
-      ).bind(sessionId, message.slice(0, 30), user.id, now, now).run();
+        'INSERT INTO sessions (id, title, user_id, created_at, updated_at) VALUES (?, ?, NULL, ?, ?)'
+      ).bind(sessionId, message.slice(0, 30), now, now).run();
     } else {
       await env.DB.prepare('UPDATE sessions SET updated_at = ? WHERE id = ?').bind(now, sessionId).run();
     }
 
-    const isUnrestricted = user.role === 'admin' || user.role === 'vip';
-
-    // ---- 4. 站点检索（把网站资料喂给 AI）----
+    // ---- 站点检索（把网站资料喂给 AI）----
     let siteContext = '';
     try {
       const indexUrl = new URL('/site-index.json', request.url).toString();
@@ -53,25 +44,18 @@ export async function onRequestPost(context) {
       }
     } catch (e) {}
 
-    // ---- 5. 按权限组装 system prompt ----
-    let system;
-    if (isUnrestricted) {
-      system = '你是 yRlwAaa 网站的全能 AI 助手，也是主人的私人 AI。你可以回答任何问题：编程、写作、闲聊、知识问答、生活建议等，也可以基于网站内容回答。用中文，清晰友好。';
-    } else {
-      system =
-        '你是 yRlwAaa 网站的客服助手，只能帮助用户了解网站内容、总结文章、查找信息。\n' +
-        '规则：\n' +
-        '1. 只依据下面提供的【网站资料】回答，不得编造网站里没有的内容。\n' +
-        '2. 资料不足就说“网站上没有找到相关信息”，不要瞎编。\n' +
-        '3. 与网站无关的问题（写代码、八卦、新闻等）礼貌拒绝，并引导回网站内容。\n' +
-        '4. 引用内容时尽量带上对应链接。';
-    }
+    const system =
+      '你是 yRlwAaa 网站的 AI 助手。你可以帮助用户了解网站内容、总结文章、查找信息，也可以进行正常的聊天和知识问答。\n' +
+      '规则：\n' +
+      '1. 如果问题与网站内容相关，优先依据下方【网站资料】回答，不要编造网站里没有的内容。\n' +
+      '2. 如果【网站资料】没有相关信息，就诚实说明，不要瞎编。\n' +
+      '3. 引用网站内容时尽量带上对应的链接。';
 
     const userPrompt = siteContext
       ? `【网站资料】\n${siteContext}\n\n【用户问题】\n${message}`
       : message;
 
-    // ---- 6. 调 DeepSeek（流式）----
+    // ---- 调 DeepSeek（流式）----
     const upstream = await fetch(DEEPSEEK_API, {
       method: 'POST',
       headers: {
@@ -94,7 +78,7 @@ export async function onRequestPost(context) {
       return json({ error: 'AI 服务异常：' + errText }, 502);
     }
 
-    // ---- 7. 转发流式数据，同时攒下完整回复存库 ----
+    // ---- 转发流式数据，同时攒下完整回复存库 ----
     const reader = upstream.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
@@ -126,11 +110,10 @@ export async function onRequestPost(context) {
           controller.enqueue(enc.encode('data: [DONE]\n\n'));
           controller.close();
 
-          // 流结束后存 AI 回复
           try {
             await env.DB.prepare(
-              'INSERT INTO messages (session_id, user_id, role, content, created_at) VALUES (?, ?, ?, ?, ?)'
-            ).bind(sessionId, user.id, 'assistant', fullText, Date.now()).run();
+              'INSERT INTO messages (session_id, user_id, role, content, created_at) VALUES (?, NULL, ?, ?, ?)'
+            ).bind(sessionId, 'assistant', fullText, Date.now()).run();
           } catch (e) {}
         } catch (e) {
           controller.error(e);
@@ -150,7 +133,7 @@ export async function onRequestPost(context) {
   }
 }
 
-// 关键词检索
+// ---- 关键词检索 ----
 function searchSite(index, query, limit = 5) {
   const keywords = query.toLowerCase().split(/[\s,，。.!?！？、;；:：]+/).filter((k) => k.length >= 2);
   if (!keywords.length) return [];

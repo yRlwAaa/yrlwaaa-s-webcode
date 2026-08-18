@@ -12,42 +12,14 @@
   let msgBox;
   let inputEl;
 
-  // SSR 阶段先生成一个安全 ID（Node 环境没有 localStorage，但 crypto 可用）
   let sessionId = crypto.randomUUID();
 
-  // ---- 登录相关状态 ----
-  let authToken = '';
-  let currentUser = null;
-  let showLogin = false;
-  let loginEmail = '';
-  let loginPassword = '';
-  let loginNickname = '';
-  let loginMode = 'login'; // 'login' | 'register'
-  let authError = '';
-  let authLoading = false;
-
-  // 浏览器启动时才读写 localStorage，并恢复登录态
-  onMount(async () => {
+  onMount(() => {
     const saved = localStorage.getItem('ai-session');
     if (saved) {
       sessionId = saved;
     } else {
       localStorage.setItem('ai-session', sessionId);
-    }
-    authToken = localStorage.getItem('ai-token') || '';
-    if (authToken) {
-      try {
-        const res = await fetch('/api/auth/me', {
-          headers: { Authorization: 'Bearer ' + authToken },
-        });
-        const data = await res.json();
-        if (data.user) {
-          currentUser = data.user;
-        } else {
-          authToken = '';
-          localStorage.removeItem('ai-token');
-        }
-      } catch (e) {}
     }
   });
 
@@ -71,71 +43,24 @@
 
   async function loadSessions() {
     try {
-      const res = await fetch('/api/sessions', { headers: { Authorization: 'Bearer ' + authToken } });
+      const res = await fetch('/api/sessions');
       sessions = await res.json();
     } catch (e) {}
   }
 
   async function loadHistory(id) {
     try {
-      const res = await fetch(`/api/sessions/${id}`, { headers: { Authorization: 'Bearer ' + authToken } });
+      const res = await fetch(`/api/sessions/${id}`);
       const rows = await res.json();
       messages = rows.map((r) => ({ role: r.role, content: r.content, html: renderMd(r.content) }));
       scrollDown();
     } catch (e) {}
   }
 
-  // ---- 登录 / 注册 / 退出 ----
-  async function doLogin() {
-    authError = '';
-    authLoading = true;
-    try {
-      const path = loginMode === 'login' ? '/api/auth/login' : '/api/auth/register';
-      const body = loginMode === 'login'
-        ? { email: loginEmail, password: loginPassword }
-        : { email: loginEmail, password: loginPassword, nickname: loginNickname };
-      const res = await fetch(path, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        authError = data.error || '操作失败';
-        return;
-      }
-      authToken = data.token;
-      currentUser = data.user;
-      localStorage.setItem('ai-token', authToken);
-      showLogin = false;
-      if (chatWindowVisible) {
-        loadHistory(sessionId);
-        loadSessions();
-      }
-    } catch (e) {
-      authError = '网络错误，请重试';
-    } finally {
-      authLoading = false;
-    }
-  }
-
-  function logout() {
-    const t = authToken;
-    authToken = '';
-    currentUser = null;
-    localStorage.removeItem('ai-token');
-    try { fetch('/api/auth/logout', { method: 'POST', headers: { Authorization: 'Bearer ' + t } }); } catch (e) {}
-    showLogin = false;
-  }
-
   function toggle() {
     chatWindowVisible = !chatWindowVisible;
     showHistoryPanel = false;
     if (chatWindowVisible) {
-      if (!currentUser) {
-        showLogin = true;
-        return;
-      }
       loadHistory(sessionId);
       loadSessions();
     }
@@ -157,10 +82,7 @@
   }
 
   async function deleteSession(id) {
-    await fetch(`/api/sessions/${id}`, {
-      method: 'DELETE',
-      headers: { Authorization: 'Bearer ' + authToken },
-    });
+    await fetch(`/api/sessions/${id}`, { method: 'DELETE' });
     if (id === sessionId) {
       sessionId = crypto.randomUUID();
       localStorage.setItem('ai-session', sessionId);
@@ -189,18 +111,9 @@
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + authToken },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId, message: text }),
       });
-
-      if (res.status === 401) {
-        authToken = '';
-        currentUser = null;
-        localStorage.removeItem('ai-token');
-        messages = messages.slice(0, -2);
-        showLogin = true;
-        throw new Error('请先登录');
-      }
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -262,30 +175,6 @@
 
 {#if chatWindowVisible}
   <div class="ai-chat" role="dialog" aria-label="AI 助手">
-    <!-- 登录遮罩 -->
-    {#if !currentUser}
-      <div class="ai-login-overlay">
-        <div class="ai-login-box">
-          <div class="ai-login-title">{loginMode === 'login' ? '登录' : '注册'}</div>
-          <div class="ai-login-sub">登录后才能使用 AI 助手</div>
-          {#if loginMode === 'register'}
-            <input class="ai-login-input" type="text" placeholder="昵称（可选）" bind:value={loginNickname} />
-          {/if}
-          <input class="ai-login-input" type="email" placeholder="邮箱" bind:value={loginEmail} />
-          <input class="ai-login-input" type="password" placeholder="密码（至少 6 位）" bind:value={loginPassword} />
-          {#if authError}
-            <div class="ai-login-error">{authError}</div>
-          {/if}
-          <button class="ai-login-btn" on:click={doLogin} disabled={authLoading}>
-            {authLoading ? '处理中…' : (loginMode === 'login' ? '登 录' : '注 册')}
-          </button>
-          <div class="ai-login-switch" on:click={() => { loginMode = loginMode === 'login' ? 'register' : 'login'; authError = ''; }}>
-            {loginMode === 'login' ? '没有账号？去注册' : '已有账号？去登录'}
-          </div>
-        </div>
-      </div>
-    {/if}
-
     <!-- 头部 -->
     <div class="ai-chat-header">
       <div class="ai-chat-brand">
@@ -310,11 +199,6 @@
         <button class="ai-icon-btn" on:click={toggleHistoryPanel} title="历史记录">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
         </button>
-        {#if currentUser}
-          <button class="ai-icon-btn" on:click={logout} title="退出登录（{currentUser.nickname || currentUser.email}）">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-          </button>
-        {/if}
         <button class="ai-icon-btn ai-close-btn" on:click={toggle} title="关闭">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
@@ -410,21 +294,27 @@
 {/if}
 
 <style>
-  /* ---------- 悬浮按钮 ---------- */
+  /* =========================================================
+     主题色：强调色统一用 var(--primary)，跟随你网站的颜色滑块。
+     面板背景/文字/边框用独立变量 --ai-*，默认深色玻璃拟态。
+     ========================================================= */
+
+  /* ---------- 悬浮按钮（固定在右下角，不占布局） ---------- */
   .ai-assistant-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: contents;
   }
   .ai-fab-btn {
-    width: var(--fab-button-size, 3rem);
-    height: var(--fab-button-size, 3rem);
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 9999;
+    width: var(--fab-button-size, 3.2rem);
+    height: var(--fab-button-size, 3.2rem);
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--ai-bg-soft, rgba(255, 255, 255, 0.06));
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid var(--ai-border, rgba(255, 255, 255, 0.14));
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -432,6 +322,7 @@
     color: var(--primary, #8ab4ff);
     transition: all 0.25s ease;
     padding: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   }
   .ai-fab-btn:hover {
     background: rgba(255, 255, 255, 0.14);
@@ -447,10 +338,10 @@
     bottom: 24px;
     width: min(560px, calc(100vw - 48px));
     height: min(760px, calc(100dvh - 120px));
-    background: rgba(22, 24, 34, 0.92);
+    background: var(--ai-bg, rgba(22, 24, 34, 0.92));
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--ai-border, rgba(255, 255, 255, 0.1));
     border-radius: 18px;
     box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.2);
     z-index: 9998;
@@ -467,11 +358,11 @@
   /* ---------- 头部 ---------- */
   .ai-chat-header {
     padding: 14px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    border-bottom: 1px solid var(--ai-border, rgba(255, 255, 255, 0.07));
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--ai-bg-soft, rgba(255, 255, 255, 0.03));
     flex-shrink: 0;
   }
   .ai-chat-brand {
@@ -483,15 +374,15 @@
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    background: linear-gradient(135deg, #5b7cfa, #8a5cf6);
+    background: var(--primary, #5b7cfa);
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
-    box-shadow: 0 2px 10px rgba(91, 124, 250, 0.4);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   }
   .ai-brand-name {
-    color: #f0f0f2;
+    color: var(--ai-text, #f0f0f2);
     font-size: 14px;
     font-weight: 600;
     line-height: 1.2;
@@ -500,7 +391,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    color: #9aa0ad;
+    color: var(--ai-text-dim, #9aa0ad);
     font-size: 11px;
     margin-top: 2px;
   }
@@ -527,7 +418,7 @@
     border-radius: 8px;
     border: none;
     background: none;
-    color: #9aa0ad;
+    color: var(--ai-text-dim, #9aa0ad);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -536,7 +427,7 @@
   }
   .ai-icon-btn:hover {
     background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    color: var(--ai-text, #f0f0f2);
   }
   .ai-close-btn:hover {
     background: rgba(255, 90, 90, 0.15);
@@ -551,8 +442,8 @@
     right: 0;
     max-height: 240px;
     overflow-y: auto;
-    background: rgba(22, 24, 34, 0.97);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--ai-bg, rgba(22, 24, 34, 0.97));
+    border-bottom: 1px solid var(--ai-border, rgba(255, 255, 255, 0.08));
     z-index: 10;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
   }
@@ -561,8 +452,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    color: #d5d8df;
+    border-bottom: 1px solid var(--ai-border, rgba(255, 255, 255, 0.04));
+    color: var(--ai-text-dim, #d5d8df);
     font-size: 13px;
     transition: background 0.15s;
   }
@@ -570,7 +461,7 @@
     background: rgba(255, 255, 255, 0.05);
   }
   .ai-history-item.active {
-    background: rgba(91, 124, 250, 0.12);
+    background: color-mix(in srgb, var(--primary, #5b7cfa) 15%, transparent);
   }
   .ai-history-title {
     flex: 1;
@@ -595,7 +486,7 @@
   }
   .ai-history-empty {
     padding: 20px 16px;
-    color: #6c7380;
+    color: var(--ai-text-dim, #6c7380);
     font-size: 13px;
     text-align: center;
   }
@@ -629,7 +520,7 @@
     width: 26px;
     height: 26px;
     border-radius: 8px;
-    background: linear-gradient(135deg, #5b7cfa, #8a5cf6);
+    background: var(--primary, #5b7cfa);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -647,14 +538,14 @@
     white-space: pre-wrap;
   }
   .ai-bubble-user {
-    background: linear-gradient(135deg, #5b7cfa, #8a5cf6);
+    background: var(--primary, #5b7cfa);
     color: #fff;
     border-bottom-right-radius: 4px;
   }
   .ai-bubble-bot {
-    background: rgba(255, 255, 255, 0.07);
-    color: #e8eaef;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--ai-bubble-bg, rgba(255, 255, 255, 0.07));
+    color: var(--ai-text, #e8eaef);
+    border: 1px solid var(--ai-border, rgba(255, 255, 255, 0.06));
     border-bottom-left-radius: 4px;
   }
   .ai-typing-bubble {
@@ -666,7 +557,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #8a90a0;
+    background: var(--ai-text-dim, #8a90a0);
     animation: ai-dot-bounce 1.2s infinite;
   }
   .ai-dot:nth-child(2) { animation-delay: 0.15s; }
@@ -680,13 +571,13 @@
   .ai-bubble-bot :global(p) { margin: 0 0 8px; }
   .ai-bubble-bot :global(p:last-child) { margin: 0; }
   .ai-bubble-bot :global(a) {
-    color: #8ab4ff;
+    color: var(--primary, #8ab4ff);
     text-decoration: underline;
     text-underline-offset: 2px;
   }
   .ai-bubble-bot :global(pre) {
     background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--ai-border, rgba(255, 255, 255, 0.06));
     padding: 10px;
     border-radius: 8px;
     overflow-x: auto;
@@ -711,8 +602,8 @@
   .ai-bubble-bot :global(blockquote) {
     margin: 6px 0;
     padding-left: 12px;
-    border-left: 3px solid rgba(138, 180, 255, 0.5);
-    color: #b8bdc9;
+    border-left: 3px solid color-mix(in srgb, var(--primary, #8ab4ff) 50%, transparent);
+    color: var(--ai-text-dim, #b8bdc9);
   }
 
   /* ---------- 欢迎屏 ---------- */
@@ -730,21 +621,21 @@
     width: 64px;
     height: 64px;
     border-radius: 20px;
-    background: linear-gradient(135deg, #5b7cfa, #8a5cf6);
+    background: var(--primary, #5b7cfa);
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
     margin-bottom: 8px;
-    box-shadow: 0 8px 24px rgba(91, 124, 250, 0.35);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   }
   .ai-welcome-title {
-    color: #f0f0f2;
+    color: var(--ai-text, #f0f0f2);
     font-size: 16px;
     font-weight: 600;
   }
   .ai-welcome-sub {
-    color: #8a90a0;
+    color: var(--ai-text-dim, #8a90a0);
     font-size: 13px;
     margin-bottom: 16px;
   }
@@ -757,17 +648,17 @@
   .ai-welcome-chips button {
     padding: 8px 14px;
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.05);
-    color: #c8ccd6;
+    border: 1px solid var(--ai-border, rgba(255, 255, 255, 0.12));
+    background: var(--ai-bg-soft, rgba(255, 255, 255, 0.05));
+    color: var(--ai-text-dim, #c8ccd6);
     font-size: 12.5px;
     cursor: pointer;
     transition: all 0.2s;
   }
   .ai-welcome-chips button:hover {
     border-color: var(--primary, #8ab4ff);
-    color: #fff;
-    background: rgba(91, 124, 250, 0.12);
+    color: var(--ai-text, #fff);
+    background: color-mix(in srgb, var(--primary, #5b7cfa) 12%, transparent);
   }
 
   /* ---------- 输入区 ---------- */
@@ -776,17 +667,17 @@
     align-items: flex-end;
     gap: 8px;
     padding: 12px 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
-    background: rgba(255, 255, 255, 0.02);
+    border-top: 1px solid var(--ai-border, rgba(255, 255, 255, 0.07));
+    background: var(--ai-bg-soft, rgba(255, 255, 255, 0.02));
     flex-shrink: 0;
   }
   .ai-input-area textarea {
     flex: 1;
     padding: 11px 14px;
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.05);
-    color: #f0f0f2;
+    border: 1px solid var(--ai-border, rgba(255, 255, 255, 0.12));
+    background: var(--ai-bg-soft, rgba(255, 255, 255, 0.05));
+    color: var(--ai-text, #f0f0f2);
     font-size: 14px;
     line-height: 1.5;
     font-family: inherit;
@@ -797,17 +688,17 @@
   }
   .ai-input-area textarea:focus {
     border-color: var(--primary, #8ab4ff);
-    background: rgba(255, 255, 255, 0.07);
+    background: var(--ai-bg-soft, rgba(255, 255, 255, 0.07));
   }
   .ai-input-area textarea::placeholder {
-    color: #6c7380;
+    color: var(--ai-text-dim, #6c7380);
   }
   .ai-send-btn {
     width: 42px;
     height: 42px;
     border-radius: 12px;
     border: none;
-    background: linear-gradient(135deg, #5b7cfa, #8a5cf6);
+    background: var(--primary, #5b7cfa);
     color: #fff;
     cursor: pointer;
     display: flex;
@@ -815,11 +706,11 @@
     justify-content: center;
     flex-shrink: 0;
     transition: all 0.2s;
-    box-shadow: 0 4px 14px rgba(91, 124, 250, 0.35);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
   }
   .ai-send-btn:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(91, 124, 250, 0.45);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
   }
   .ai-send-btn:disabled {
     opacity: 0.4;
@@ -827,92 +718,23 @@
     box-shadow: none;
   }
 
-  /* ---------- 登录遮罩 ---------- */
-  .ai-login-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(14, 16, 24, 0.94);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-  .ai-login-box {
-    width: 320px;
-    max-width: calc(100% - 48px);
-    background: rgba(30, 33, 45, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 28px 24px;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
-  }
-  .ai-login-title {
-    color: #f0f0f2;
-    font-size: 18px;
-    font-weight: 700;
-    text-align: center;
-  }
-  .ai-login-sub {
-    color: #8a90a0;
-    font-size: 12.5px;
-    text-align: center;
-    margin: 6px 0 20px;
-  }
-  .ai-login-input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 11px 14px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.05);
-    color: #f0f0f2;
-    font-size: 14px;
-    outline: none;
-  }
-  .ai-login-input:focus {
-    border-color: var(--primary, #8ab4ff);
-  }
-  .ai-login-error {
-    color: #ff7b7b;
-    font-size: 12.5px;
-    margin: 6px 0;
-    text-align: center;
-  }
-  .ai-login-btn {
-    width: 100%;
-    padding: 12px;
-    margin-top: 6px;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #5b7cfa, #8a5cf6);
-    color: #fff;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .ai-login-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .ai-login-switch {
-    text-align: center;
-    margin-top: 14px;
-    color: #8ab4ff;
-    font-size: 13px;
-    cursor: pointer;
-  }
-
-  /* ---------- 移动端 ---------- */
+  /* ---------- 移动端：留出上下空间，卡片式，不全屏 ---------- */
   @media (max-width: 640px) {
+    .ai-fab-btn {
+      right: 14px;
+      bottom: 14px;
+      width: 3rem;
+      height: 3rem;
+    }
     .ai-chat {
-      right: 6px;
-      bottom: 6px;
-      width: calc(100vw - 12px);
-      height: calc(100dvh - 12px);
-      border-radius: 16px;
+      left: 10px;
+      right: 10px;
+      top: max(64px, env(safe-area-inset-top) + 56px);
+      bottom: max(64px, env(safe-area-inset-bottom) + 56px);
+      width: auto;
+      height: auto;
+      border-radius: 18px;
+      border: 1px solid var(--ai-border, rgba(255, 255, 255, 0.1));
     }
     .ai-bubble {
       max-width: 88%;
