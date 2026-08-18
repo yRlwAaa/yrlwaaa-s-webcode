@@ -17,7 +17,7 @@ export async function onRequestPost(context) {
 
     const now = Date.now();
 
-    // ---- 存用户消息（不区分用户，所有人对话都存）----
+    // ---- 存用户消息 ----
     await env.DB.prepare(
       'INSERT INTO messages (session_id, user_id, role, content, created_at) VALUES (?, NULL, ?, ?, ?)'
     ).bind(sessionId, 'user', message, now).run();
@@ -32,24 +32,31 @@ export async function onRequestPost(context) {
       await env.DB.prepare('UPDATE sessions SET updated_at = ? WHERE id = ?').bind(now, sessionId).run();
     }
 
-    // ---- 站点检索（把网站资料喂给 AI）----
+    // ---- 站点检索 ----
     let siteContext = '';
+    let siteOverview = '';
     try {
       const indexUrl = new URL('/site-index.json', request.url).toString();
       const res = await fetch(indexUrl, { headers: { 'Cache-Control': 'max-age=3600' } });
       if (res.ok) {
         const index = await res.json();
-        const hits = searchSite(index, message, 5);
+        siteOverview = `这是 yRlwAaa 的个人网站（yrlwa.top），共 ${index.length} 篇文章，主要栏目有：小说连载、博客教程、相册、音乐播放器、追番列表、友链、关于等。`;
+        let hits = searchSite(index, message, 5);
+        if (!hits.length) {
+          hits = index.slice(0, 5); // 没匹配到就兜底给最近几篇，至少能介绍网站
+        }
         siteContext = buildContext(hits);
       }
     } catch (e) {}
 
     const system =
-      '你是 yRlwAaa 网站的 AI 助手。你可以帮助用户了解网站内容、总结文章、查找信息，也可以进行正常的聊天和知识问答。\n' +
+      '你是 yRlwAaa 网站的 AI 助手。你的任务：帮助用户了解网站内容、总结文章、查找信息，也可以正常聊天和知识问答。\n' +
       '规则：\n' +
-      '1. 如果问题与网站内容相关，优先依据下方【网站资料】回答，不要编造网站里没有的内容。\n' +
-      '2. 如果【网站资料】没有相关信息，就诚实说明，不要瞎编。\n' +
-      '3. 引用网站内容时尽量带上对应的链接。';
+      '1. 优先依据下方【网站资料】回答，不得编造网站里没有的内容。\n' +
+      '2. 如果用户问的是“网站里有什么 / 介绍网站”这类整体性问题，优先用网站概况 + 资料里的文章列表来介绍。\n' +
+      '3. 资料不足时诚实说明“网站上没有找到相关信息”，不要瞎编链接。\n' +
+      '4. 引用网站内容时尽量带上资料里的链接。\n' +
+      `【网站概况】${siteOverview || '（无）'}`;
 
     const userPrompt = siteContext
       ? `【网站资料】\n${siteContext}\n\n【用户问题】\n${message}`
@@ -78,7 +85,7 @@ export async function onRequestPost(context) {
       return json({ error: 'AI 服务异常：' + errText }, 502);
     }
 
-    // ---- 转发流式数据，同时攒下完整回复存库 ----
+    // ---- 转发流式数据，同时攒完整回复存库 ----
     const reader = upstream.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
@@ -133,29 +140,70 @@ export async function onRequestPost(context) {
   }
 }
 
-// ---- 关键词检索 ----
-function searchSite(index, query, limit = 5) {
-  const keywords = query.toLowerCase().split(/[\s,，。.!?！？、;；:：]+/).filter((k) => k.length >= 2);
-  if (!keywords.length) return [];
-  const scored = [];
-  for (const item of index) {
-    const hay = (
-      (item.title || '') + ' ' +
-      (item.category || '') + ' ' +
-      (Array.isArray(item.tags) ? item.tags.join(' ') : '') + ' ' +
-      (item.summary || '') + ' ' +
-      (item.content || '').slice(0, 2000)
-    ).toLowerCase();
-    let score = 0;
-    for (const kw of keywords) {
-      let count = 0, pos = -1;
-      while ((pos = hay.indexOf(kw, pos + 1)) !== -1) count++;
-      if (count > 0) score += count * ((item.title || '').toLowerCase().includes(kw) ? 3 : 1);
-    }
-    if (score > 0) scored.push({ item, score });
+// ==================== 中文检索（多层兜底） ====================
+
+function splitWords(q) {
+  return q.toLowerCase().split(/[\s,，。.!?！？、;；:：“”"'"（）()【】\[\]{}<>《》~·]+/).filter(w => w.length >= 2);
+}
+
+function bigrams(q) {
+  const out = new Set();
+  const clean = q.toLowerCase().replace(/[\s,，。.!?！？、;；:：“”"'"（）()【】\[\]{}<>《》~·]+/g, '');
+  for (let i = 0; i < clean.length - 1; i++) {
+    out.add(clean.slice(i, i + 2));
   }
-  scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, limit).map((s) => s.item);
+  return [...out];
+}
+
+function scoreItem(item, terms, weight) {
+  const hay = (
+    (item.title || '') + ' ' +
+    (item.category || '') + ' ' +
+    (Array.isArray(item.tags) ? item.tags.join(' ') : '') + ' ' +
+    (item.summary || '') + ' ' +
+    (item.content || '').slice(0, 3000)
+  ).toLowerCase();
+  let score = 0;
+  for (const t of terms) {
+    let c = 0, pos = -1;
+    while ((pos = hay.indexOf(t, pos + 1)) !== -1) c++;
+    if (c > 0) score += c * weight;
+  }
+  return score;
+}
+
+function searchSite(index, query, limit = 5) {
+  const q = (query || '').trim();
+  if (!q || !index.length) return [];
+
+  // 方案1：整句直接匹配标题/摘要
+  const whole = index.filter(it =>
+    ((it.title || '') + ' ' + (it.summary || '')).toLowerCase().includes(q.toLowerCase())
+  );
+  if (whole.length) return whole.slice(0, limit);
+
+  // 方案2：拆词匹配（标题命中加权）
+  const words = splitWords(q);
+  if (words.length) {
+    const scored = index
+      .map(it => ({ it, s: scoreItem(it, words, 3) }))
+      .filter(x => x.s > 0)
+      .sort((a, b) => b.s - a.s);
+    if (scored.length) return scored.slice(0, limit).map(x => x.it);
+  }
+
+  // 方案3：2字子串兜底（近似中文分词）
+  const gs = bigrams(q);
+  if (gs.length) {
+    const scored = index
+      .map(it => ({ it, s: scoreItem(it, gs, 1) }))
+      .filter(x => x.s > 0)
+      .sort((a, b) => b.s - a.s);
+    if (scored.length) return scored.slice(0, limit).map(x => x.it);
+  }
+
+  // 方案4：全都没匹配 → 空数组，调用方用最近文章兜底
+  return [];
 }
 
 function buildContext(items) {
