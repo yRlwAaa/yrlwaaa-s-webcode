@@ -1,6 +1,7 @@
 <script>
   import { marked } from 'marked';
   import sanitizeHtml from 'sanitize-html';
+  import { onMount } from 'svelte';
 
   let chatWindowVisible = false;
   let messages = [];
@@ -11,11 +12,18 @@
   let msgBox;
   let inputEl;
 
-  let sessionId = localStorage.getItem('ai-session');
-  if (!sessionId) {
-    sessionId = crypto.randomUUID();
-    localStorage.setItem('ai-session', sessionId);
-  }
+  // SSR 阶段先生成一个安全 ID（Node 环境没有 localStorage，但 crypto 可用）
+  let sessionId = crypto.randomUUID();
+
+  // 浏览器启动时才读写 localStorage
+  onMount(() => {
+    const saved = localStorage.getItem('ai-session');
+    if (saved) {
+      sessionId = saved;
+    } else {
+      localStorage.setItem('ai-session', sessionId);
+    }
+  });
 
   function renderMd(text) {
     return sanitizeHtml(marked.parse(text || ''), {
