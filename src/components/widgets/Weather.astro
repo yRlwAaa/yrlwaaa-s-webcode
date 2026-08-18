@@ -609,14 +609,21 @@
 			return true;
 		}
 
+		// 带超时的 fetch（用 AbortController，兼容性更好）
+		function fetchWithTimeout(url: string, ms: number): Promise<Response> {
+			const controller = new AbortController();
+			const timer = setTimeout(() => controller.abort(), ms);
+			return fetch(url, { signal: controller.signal }).finally(() =>
+				clearTimeout(timer),
+			);
+		}
+
 		// ===== 获取天气 =====
 		async function fetchWeather(lat: number, lon: number, city: string) {
 			setLoading("获取中...");
 			try {
 				const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&hourly=relativehumidity_2m&timezone=auto&forecast_days=7`;
-				const res = await fetch(url, {
-					signal: AbortSignal.timeout(10000),
-				});
+				const res = await fetchWithTimeout(url, 8000);
 				if (!res.ok) throw new Error(`HTTP ${res.status}`);
 				const data = await res.json();
 				const ok = displayWeather(data, city);
@@ -648,7 +655,7 @@
 				return;
 			}
 
-			// 多个 IP 定位源（均支持 HTTPS），逐个尝试，任一个成功即可
+			// 多个 IP 定位源（均支持 HTTPS），并行尝试，任一个成功即用
 			const sources: {
 				url: string;
 				parse: (d: any) => { city: string; lat: number; lon: number } | null;
@@ -676,25 +683,34 @@
 				},
 			];
 
-			for (const src of sources) {
+			const trySource = async (
+				src: (typeof sources)[number],
+			): Promise<{ city: string; lat: number; lon: number } | null> => {
 				try {
-					const res = await fetch(src.url, {
-						signal: AbortSignal.timeout(4000),
-					});
-					if (!res.ok) continue;
+					const res = await fetchWithTimeout(src.url, 3000);
+					if (!res.ok) return null;
 					const data = await res.json();
 					const loc = src.parse(data);
-					if (loc && loc.city && loc.lat && loc.lon) {
-						await fetchWeather(loc.lat, loc.lon, loc.city);
-						return;
-					}
-				} catch (e) {
-					console.log("定位源失败:", src.url, e);
+					return loc && loc.city && loc.lat && loc.lon ? loc : null;
+				} catch {
+					return null;
 				}
-			}
+			};
 
-			// 全部失败，默认上海
-			await fetchWeather(31.23, 121.47, "上海");
+			// 并行尝试，最快成功的胜出；3.2 秒内都没成功则回退
+			const loc = await Promise.race([
+				...sources.map(trySource),
+				new Promise<null>((resolve) =>
+					setTimeout(() => resolve(null), 3200),
+				),
+			]);
+
+			if (loc) {
+				await fetchWeather(loc.lat, loc.lon, loc.city);
+			} else {
+				// 定位失败，默认上海
+				await fetchWeather(31.23, 121.47, "上海");
+			}
 		}
 
 		// ===== 搜索 =====
@@ -712,9 +728,9 @@
 			searchResults.innerHTML =
 				'<div class="w-search-empty">搜索中...</div>';
 			try {
-				const res = await fetch(
+				const res = await fetchWithTimeout(
 					`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=zh&format=json`,
-					{ signal: AbortSignal.timeout(8000) },
+					6000,
 				);
 				const data = await res.json();
 				const results = data.results || [];

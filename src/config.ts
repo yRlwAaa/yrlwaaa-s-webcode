@@ -502,7 +502,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 	components: {
 		left: ["profile", "weather", "announcement", "tags", "card-toc"],
 		right: ["site-stats", "calendar", "categories", "music-sidebar"],
-		drawer: ["profile", "announcement", "music-sidebar", "categories", "tags", "site-stats"],
+		drawer: ["profile", "announcement", "tags", "weather", "music-sidebar", "categories", "site-stats"],
 	},
 	defaultAnimation: {
 		enable: true,
