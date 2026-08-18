@@ -75,7 +75,49 @@ async function embedOne(text) {
   return data.data[0].embedding;
 }
 
-// ===== 读取并复制站点指南 =====
+// ===== 从 src/data/music.json 自动生成音乐板块描述 =====
+function buildMusicDesc() {
+  const p = 'src/data/music.json';
+  if (!existsSync(p)) return null;
+  try {
+    const data = JSON.parse(readFileSync(p, 'utf8'));
+    const artists = data.artists || [];
+    const albums = data.albums || [];
+    const nameOf = (id) => {
+      const a = artists.find(x => x.id === id);
+      return a ? a.name : id;
+    };
+    const albumLine = albums.map(al =>
+      `《${al.title}》by ${nameOf(al.artistId)}（${al.year}年，${al.genre || ''}，共${(al.tracks || []).length}首）`
+    ).join('；');
+    const artistLine = artists.length
+      ? '歌手：' + artists.map(a => a.name + (a.bio ? `（${a.bio}）` : '')).join('、')
+      : '';
+    return `音乐专辑页收录：${artistLine}。收录专辑：${albumLine}。完整试听请访问 /music/ 页面。`;
+  } catch (e) { return null; }
+}
+
+// ===== 从 src/data/bilibili-data.json 自动生成追番板块描述 =====
+function buildAnimeDesc() {
+  const p = 'src/data/bilibili-data.json';
+  if (!existsSync(p)) return null;
+  try {
+    const list = JSON.parse(readFileSync(p, 'utf8'));
+    if (!Array.isArray(list)) return null;
+    const total = list.length;
+    const statusCount = {};
+    for (const it of list) {
+      const s = it.status || 'unknown';
+      statusCount[s] = (statusCount[s] || 0) + 1;
+    }
+    const countLine = Object.entries(statusCount)
+      .map(([k, v]) => `${k}${v}`).join('、');
+    const sample = list.slice(0, 25).map(x => x.title).join('、');
+    return `追番页收录共 ${total} 部（${countLine}），代表作：${sample}${total > 25 ? '…等' : ''}。完整列表请访问 /anime/ 页面。`;
+  } catch (e) { return null; }
+}
+
+// ===== 组装站点指南（静态基础 + 动态音乐/追番） =====
 function copySiteGuide() {
   const src = 'scripts/site-guide.json';
   const dst = 'public/site-guide.json';
@@ -86,17 +128,27 @@ function copySiteGuide() {
     }
   }
   if (!Array.isArray(guide.sections)) guide.sections = [];
+
+  // 用动态数据覆盖音乐、追番板块的 desc
+  const musicDesc = buildMusicDesc();
+  const animeDesc = buildAnimeDesc();
+  for (const s of guide.sections) {
+    if (s.name === '音乐' && musicDesc) s.desc = musicDesc;
+    if (s.name === '追番' && animeDesc) s.desc = animeDesc;
+  }
+
   if (!existsSync('public')) mkdirSync('public', { recursive: true });
   writeFileSync(dst, JSON.stringify(guide, null, 2));
   console.log(`[site-guide] 已生成站点指南，共 ${guide.sections.length} 个板块 -> public/site-guide.json`);
+  if (musicDesc) console.log(`[site-guide] 音乐板块已自动更新（来源 src/data/music.json）`);
+  if (animeDesc) console.log(`[site-guide] 追番板块已自动更新（来源 src/data/bilibili-data.json）`);
   return guide;
 }
 
 async function main() {
-  // 站点指南（独立输出）
   const guide = copySiteGuide();
 
-  // 文章索引
+  // ---- 文章索引 ----
   const files = walk('.');
   const items = [];
   const seen = new Set();
@@ -134,6 +186,7 @@ async function main() {
     });
   }
 
+  // ---- 向量 ----
   if (EMBEDDING_API_KEY) {
     let ok = 0;
     for (const it of items) {
@@ -154,11 +207,12 @@ async function main() {
   writeFileSync('public/site-index.json', JSON.stringify(items, null, 2));
 
   console.log(`[site-index] 生成 ${items.length} 篇文章索引 -> public/site-index.json`);
-  for (const it of items.slice(0, 12)) {
+  for (const it of items.slice(0, 8)) {
     const dim = it.embedding ? `向量${it.embedding.length}维` : '无向量';
-    console.log(`  - ${it.title} | ${it.url} | ${it.content.length}字 | ${dim} | 摘要:${it.summary.slice(0, 30)}`);
+    console.log(`  - ${it.title} | ${it.url} | ${it.content.length}字 | ${dim}`);
   }
-  console.log(`[site-guide] 板块：${guide.sections.map(s => s.name).join('、')}`);
+  const music = buildMusicDesc();
+  if (music) console.log('[site-guide] 音乐示例: ' + music.slice(0, 120));
   if (items.length === 0) console.warn('[site-index] 警告：没找到任何文章');
 }
 
