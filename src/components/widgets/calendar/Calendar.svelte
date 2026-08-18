@@ -2,6 +2,10 @@
 	import Icon from "@iconify/svelte";
 	import { onMount } from "svelte";
 
+	import I18nKey from "../../../i18n/i18nKey";
+	import { getCurrentLang, i18n } from "../../../i18n/translation";
+	import { I18N_CHANGED_EVENT } from "../../../scripts/client-i18n";
+
 	let dateCheckInterval: ReturnType<typeof setInterval> | null = null;
 
 	function updateTodayDate() {
@@ -28,13 +32,51 @@
 		CalendarStats,
 	} from "./types/calendar";
 
-	interface Props {
-		monthNames: string[];
-		weekDays: string[];
-		yearSuffix: string;
+	// 语言相关的响应式状态：切换语言时重新生成
+	const monthKeys = [
+		I18nKey.calendarJanuary,
+		I18nKey.calendarFebruary,
+		I18nKey.calendarMarch,
+		I18nKey.calendarApril,
+		I18nKey.calendarMay,
+		I18nKey.calendarJune,
+		I18nKey.calendarJuly,
+		I18nKey.calendarAugust,
+		I18nKey.calendarSeptember,
+		I18nKey.calendarOctober,
+		I18nKey.calendarNovember,
+		I18nKey.calendarDecember,
+	];
+
+	const weekKeys = [
+		I18nKey.calendarMonday,
+		I18nKey.calendarTuesday,
+		I18nKey.calendarWednesday,
+		I18nKey.calendarThursday,
+		I18nKey.calendarFriday,
+		I18nKey.calendarSaturday,
+		I18nKey.calendarSunday,
+	];
+
+	function buildMonthNames(): string[] {
+		return monthKeys.map((key) => i18n(key));
+	}
+	function buildWeekDays(): string[] {
+		return weekKeys.map((key) => i18n(key));
+	}
+	function buildYearSuffix(): string {
+		return getCurrentLang().startsWith("zh") ? "年" : " ";
 	}
 
-	const { monthNames, weekDays, yearSuffix }: Props = $props();
+	let monthNames: string[] = $state(buildMonthNames());
+	let weekDays: string[] = $state(buildWeekDays());
+	let yearSuffix: string = $state(buildYearSuffix());
+
+	function refreshLanguage() {
+		monthNames = buildMonthNames();
+		weekDays = buildWeekDays();
+		yearSuffix = buildYearSuffix();
+	}
 
 	// State
 	let allPostsData: CalendarPost[] = $state([]);
@@ -211,6 +253,9 @@
 	onMount(() => {
 		fetchCalendarData();
 
+		// 语言切换时刷新月份/星期文本
+		document.addEventListener(I18N_CHANGED_EVENT, refreshLanguage);
+
 		// Check for date change every minute
 		dateCheckInterval = setInterval(() => {
 			const now = new Date();
@@ -224,6 +269,7 @@
 		}, 60000);
 
 		return () => {
+			document.removeEventListener(I18N_CHANGED_EVENT, refreshLanguage);
 			if (dateCheckInterval) {
 				clearInterval(dateCheckInterval);
 			}

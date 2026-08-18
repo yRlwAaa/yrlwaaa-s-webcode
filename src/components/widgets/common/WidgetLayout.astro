@@ -7,12 +7,13 @@ import { i18n } from "../../../i18n/translation";
 interface Props {
 	id: string;
 	name?: string;
+	nameKey?: string;
 	isCollapsed?: boolean;
 	collapsedHeight?: string;
 	class?: string;
 	style?: string;
 }
-const { id, name, isCollapsed, collapsedHeight, style } = Astro.props;
+const { id, name, nameKey, isCollapsed, collapsedHeight, style } = Astro.props;
 const className = Astro.props.class;
 ---
 
@@ -28,6 +29,7 @@ const className = Astro.props.class;
 				class="font-bold transition text-lg text-neutral-900 dark:text-neutral-100 relative ml-8 mt-4 mb-2 flex items-center
         before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)]
         before:absolute before:left-[-16px] before:top-[5.5px]"
+				data-i18n={nameKey}
 			>
 				{name}
 				<slot name="title-icon" />
@@ -52,7 +54,7 @@ const className = Astro.props.class;
 							name="material-symbols:more-horiz"
 							class="text-[1.75rem]"
 						/>{" "}
-						{i18n(I18nKey.more)}
+						<span data-i18n="more">{i18n(I18nKey.more)}</span>
 					</div>
 				</button>
 			</div>

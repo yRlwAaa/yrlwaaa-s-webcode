@@ -1,4 +1,4 @@
-﻿import type {
+import type {
 	AnnouncementConfig,
 	CommentConfig,
 	ExpressiveCodeConfig,
@@ -214,7 +214,7 @@ export const fullscreenWallpaperConfig: FullscreenWallpaperConfig = {
 			"/assets/mobile-banner/1.webp",
 			"/assets/mobile-banner/2.webp",
 			"/assets/mobile-banner/3.jpg",
-			"/assets/mobile-banner/4.webp",
+			"/assets/mobile-banner/4.jpg",
 		],
 	},
 	position: "center",

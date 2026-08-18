@@ -77,27 +77,32 @@ const stats = [
 	{
 		icon: "material-symbols:article-outline",
 		label: i18n(I18nKey.siteStatsPostCount),
+		i18nKey: I18nKey.siteStatsPostCount,
 		value: posts.length,
 	},
 	{
 		icon: "material-symbols:folder-outline",
 		label: i18n(I18nKey.siteStatsCategoryCount),
+		i18nKey: I18nKey.siteStatsCategoryCount,
 		value: categories.length,
 	},
 	{
 		icon: "material-symbols:label-outline",
 		label: i18n(I18nKey.siteStatsTagCount),
+		i18nKey: I18nKey.siteStatsTagCount,
 		value: tags.length,
 	},
 	{
 		icon: "material-symbols:text-ad-outline-rounded",
 		label: i18n(I18nKey.siteStatsTotalWords),
+		i18nKey: I18nKey.siteStatsTotalWords,
 		value: totalWords,
 		formatted: true,
 	},
 	{
 		icon: "material-symbols:calendar-clock-outline",
 		label: i18n(I18nKey.siteStatsRunningDays),
+		i18nKey: I18nKey.siteStatsRunningDays,
 		value: 0,
 		suffix: i18n(I18nKey.siteStatsDays).replace("{days}", ""),
 		dynamic: true,
@@ -106,6 +111,7 @@ const stats = [
 	{
 		icon: "material-symbols:ecg-heart-outline",
 		label: i18n(I18nKey.siteStatsLastUpdate),
+		i18nKey: I18nKey.siteStatsLastUpdate,
 		value: 0,
 		suffix: i18n(I18nKey.siteStatsDaysAgo).replace("{days}", ""),
 		dynamic: true,
@@ -130,6 +136,7 @@ const stats = [
 
 <WidgetLayout
 	name={i18n(I18nKey.siteStats)}
+	nameKey={I18nKey.siteStats}
 	id="site-stats"
 	class={className}
 	style={style}
@@ -142,7 +149,7 @@ const stats = [
 						<div class="text-[var(--primary)] text-xl shrink-0">
 							<Icon name={stat.icon} />
 						</div>
-						<span class="text-neutral-700 dark:text-neutral-300 font-medium text-sm break-words leading-tight">
+						<span class="text-neutral-700 dark:text-neutral-300 font-medium text-sm break-words leading-tight" data-i18n={stat.i18nKey}>
 							{stat.label}
 						</span>
 					</div>

@@ -3,7 +3,9 @@ import type { PageHeaderProps } from "./types";
 
 const {
 	title,
+	titleKey,
 	subtitle,
+	subtitleKey,
 	class: className = "",
 } = Astro.props as PageHeaderProps;
 ---
@@ -13,12 +15,13 @@ const {
 		class="text-4xl font-bold text-black/90 dark:text-white/90 mb-2 relative
 			before:w-1 before:h-8 before:rounded-md before:bg-[var(--primary)]
 			before:absolute before:top-1/2 before:-translate-y-1/2 before:-left-4"
+		data-i18n={titleKey}
 	>
 		{title}
 	</h1>
 	{
 		subtitle && (
-			<p class="text-lg text-black/60 dark:text-white/60">{subtitle}</p>
+			<p class="text-lg text-black/60 dark:text-white/60" data-i18n={subtitleKey}>{subtitle}</p>
 		)
 	}
 </div>

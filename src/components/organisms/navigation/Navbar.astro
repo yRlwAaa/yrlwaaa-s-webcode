@@ -111,15 +111,18 @@ const iconWebpSrc = hasIconPngFallback ? iconSrc.replace(/\.png$/i, ".webp") : i
                 <WallpaperSwitch client:only="svelte"></WallpaperSwitch>
             </div>
             <ThemeSwitch client:only="svelte"></ThemeSwitch>
-            {/* 语言切换下拉菜单 */}
-            <div class="relative group">
-                <button class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90">
+            {/* 语言切换下拉菜单：点击地球按钮弹出 */}
+            <div class="relative" id="lang-switcher">
+                <button id="lang-switch-btn" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" aria-label="Switch Language" aria-expanded="false">
                     <Icon name="material-symbols:language" class="text-[1.25rem]"></Icon>
                 </button>
-                <div class="absolute right-0 top-full mt-1 bg-[var(--card-bg)] border border-[var(--line-color)] rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 min-w-[100px]">
-                    <button data-lang="zh_CN" class="lang-option block w-full text-left px-4 py-2 hover:bg-[var(--btn-regular-bg)] text-sm">中文</button>
-                    <button data-lang="en" class="lang-option block w-full text-left px-4 py-2 hover:bg-[var(--btn-regular-bg)] text-sm">English</button>
-                    <button data-lang="ja" class="lang-option block w-full text-left px-4 py-2 hover:bg-[var(--btn-regular-bg)] text-sm">日本語</button>
+                <div id="lang-menu" class="lang-menu">
+                    <div class="lang-menu-content">
+                        <button data-lang="zh_CN" class="lang-option">中文</button>
+                        <button data-lang="zh_TW" class="lang-option">繁體中文</button>
+                        <button data-lang="en" class="lang-option">English</button>
+                        <button data-lang="ja" class="lang-option">日本語</button>
+                    </div>
                 </div>
             </div>
             <button aria-label="Menu" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 md:!hidden" id="nav-menu-switch">
@@ -264,15 +267,74 @@ if (document.readyState === 'loading') {
     initSemifullScrollDetection();
 }
 
-// 语言切换
-document.querySelectorAll('.lang-option').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const lang = btn.dataset.lang;
-        document.cookie = `lang=${lang}; path=/; max-age=31536000`;
-        localStorage.setItem('lang', lang);
-        window.location.reload();
-    });
-});
+// ===== 语言切换：点击地球按钮弹出菜单，点击语言项即时切换（不刷新页面） =====
+import {
+	getCurrentLang,
+	switchSiteLanguage,
+} from "@/scripts/client-i18n";
+
+function initLangSwitcher() {
+	const switcher = document.getElementById("lang-switcher");
+	const btn = document.getElementById("lang-switch-btn");
+	const menu = document.getElementById("lang-menu");
+	if (!switcher || !btn || !menu) return;
+
+	const isOpen = () => btn.getAttribute("aria-expanded") === "true";
+	const setOpen = (open: boolean) => {
+		btn.setAttribute("aria-expanded", String(open));
+	};
+
+	const highlightCurrent = () => {
+		const current = getCurrentLang();
+		menu.querySelectorAll<HTMLElement>(".lang-option").forEach((opt) => {
+			const active = opt.dataset.lang === current;
+			opt.classList.toggle("lang-active", active);
+			opt.setAttribute("aria-current", active ? "true" : "false");
+		});
+	};
+
+	btn.addEventListener("click", (e) => {
+		e.stopPropagation();
+		setOpen(!isOpen());
+		if (!isOpen()) highlightCurrent();
+	});
+
+	// 点击菜单项：切换语言
+	menu.querySelectorAll<HTMLElement>(".lang-option").forEach((opt) => {
+		opt.addEventListener("click", (e) => {
+			e.stopPropagation();
+			const lang = opt.dataset.lang;
+			if (!lang) return;
+			switchSiteLanguage(lang);
+			setOpen(false);
+			highlightCurrent();
+		});
+	});
+
+	// 点击菜单外部关闭
+	document.addEventListener("click", (e) => {
+		if (!switcher.contains(e.target as Node)) {
+			setOpen(false);
+		}
+	});
+
+	// Esc 关闭
+	document.addEventListener("keydown", (e) => {
+		if (e.key === "Escape") setOpen(false);
+	});
+
+	// 页面切换（Swup）后重新高亮当前语言
+	document.addEventListener("swup:contentReplaced", highlightCurrent);
+
+	// 初始高亮
+	highlightCurrent();
+}
+
+if (document.readyState === "loading") {
+	document.addEventListener("DOMContentLoaded", initLangSwitcher);
+} else {
+	initLangSwitcher();
+}
 </script>
 
 {import.meta.env.PROD && <script is:inline define:vars={{scriptUrl: url('/pagefind/pagefind.js')}}>
@@ -305,3 +367,28 @@ window.loadPagefind = async function() {
     }
 };
 </script>}
+
+<style>
+	@reference "tailwindcss";
+	@custom-variant dark (&:where(.dark, .dark *));
+
+	#lang-menu {
+		@apply absolute right-0 top-full mt-1 opacity-0 invisible pointer-events-none translate-y-[-8px] transition-all duration-200 ease-out z-50;
+	}
+
+	#lang-switch-btn[aria-expanded="true"] + #lang-menu {
+		@apply opacity-100 visible pointer-events-auto translate-y-0;
+	}
+
+	.lang-menu-content {
+		@apply bg-[var(--float-panel-bg)] rounded-[var(--radius-large)] shadow-xl dark:shadow-none border border-black/5 dark:border-white/10 p-2 min-w-[8.5rem];
+	}
+
+	.lang-option {
+		@apply flex items-center justify-between w-full text-left px-4 py-2 text-sm text-black/75 dark:text-white/75 hover:text-[var(--primary)] hover:bg-[var(--btn-plain-bg-hover)] transition-colors duration-150 font-medium rounded-lg cursor-pointer;
+	}
+
+	.lang-option.lang-active {
+		@apply text-[var(--primary)] bg-[var(--btn-plain-bg-hover)];
+	}
+</style>

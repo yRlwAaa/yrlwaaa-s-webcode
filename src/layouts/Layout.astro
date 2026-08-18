@@ -5,6 +5,11 @@ import Pio from "@components/features/pio/Pio.svelte"; // 使用 Svelte 版本�
 import { PageProgressBar } from "@components/control/PageProgressBar";
 import { pioConfig, profileConfig, siteConfig } from "@/config";
 import { sidebarLayoutConfig } from "@/config";
+import { en } from "../i18n/languages/en";
+import { ja } from "../i18n/languages/ja";
+import { zh_CN } from "../i18n/languages/zh_CN";
+import { zh_TW } from "../i18n/languages/zh_TW";
+import { initClientI18n } from "../scripts/client-i18n";
 const BANNER_HEIGHT = 35;
 const BANNER_HEIGHT_EXTEND = 30;
 const BANNER_HEIGHT_HOME = BANNER_HEIGHT + BANNER_HEIGHT_EXTEND;
@@ -202,6 +207,18 @@ if (siteConfig.font) {
 			title={profileConfig.name}
 			href={`${Astro.site}rss.xml`}
 		/>
+
+		<!-- 翻译字典注入：客户端语言切换使用 -->
+		<script
+			is:inline
+			define:vars={{
+				i18nDicts: { en, ja, zh_CN, zh_TW },
+				i18nDefault: siteConfig.lang,
+			}}
+		>
+			window.I18N_DICTS = i18nDicts;
+			window.I18N_DEFAULT = i18nDefault;
+		</script>
 	</head>
 	<body
 		class="min-h-screen"
@@ -232,6 +249,11 @@ if (siteConfig.font) {
 				server: "netease",
 				type: "playlist"
 			};
+		</script>
+
+		<script>
+			import { initClientI18n } from "../scripts/client-i18n";
+			initClientI18n();
 		</script>
 
 		<ConfigCarrier />

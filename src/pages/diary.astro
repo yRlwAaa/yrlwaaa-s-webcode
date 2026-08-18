@@ -63,11 +63,13 @@ const subtitle = i18n(I18nKey.diarySubtitle);
 						<div class="min-w-0">
 							<h1
 								class="text-2xl sm:text-3xl font-bold text-white mb-1 drop-shadow-sm truncate"
+								data-i18n="diary"
 							>
 								{title}
 							</h1>
 							<p
 								class="text-sm sm:text-base text-white/80 truncate"
+								data-i18n="diarySubtitle"
 							>
 								{subtitle}
 							</p>
@@ -80,6 +82,7 @@ const subtitle = i18n(I18nKey.diarySubtitle);
 							</span>
 							<span
 								class="block text-xs sm:text-sm text-white/70"
+								data-i18n="diaryCount"
 							>
 								{i18n(I18nKey.diaryCount)}
 							</span>
@@ -117,7 +120,7 @@ const subtitle = i18n(I18nKey.diarySubtitle);
 						name="material-symbols:edit-note"
 						class="text-6xl text-black/15 dark:text-white/15 mb-4"
 					/>
-					<p class="text-black/40 dark:text-white/40 text-lg">
+					<p class="text-black/40 dark:text-white/40 text-lg" data-i18n="diaryNoResults">
 						{i18n(I18nKey.diaryNoResults)}
 					</p>
 				</div>
@@ -129,7 +132,7 @@ const subtitle = i18n(I18nKey.diarySubtitle);
 								name="material-symbols:edit-note"
 								class="text-6xl text-black/15 dark:text-white/15 mb-4"
 							/>
-							<h3 class="text-lg font-medium text-black/90 dark:text-white/90 mb-2">
+							<h3 class="text-lg font-medium text-black/90 dark:text-white/90 mb-2" data-i18n="diaryNoResults">
 								{i18n(I18nKey.diaryNoResults)}
 							</h3>
 						</div>
@@ -138,6 +141,7 @@ const subtitle = i18n(I18nKey.diarySubtitle);
 
 				<div
 					class="text-center mt-8 text-black/50 dark:text-white/50 text-sm italic"
+					data-i18n="diaryTips"
 				>
 					{i18n(I18nKey.diaryTips)}
 				</div>

@@ -65,7 +65,7 @@ const processedLinks: ProcessedNavBarLink[] = (
 							data-mobile-dropdown-trigger
 							aria-expanded="false"
 						>
-							<div class="flex items-center transition text-black/75 dark:text-white/75 font-bold">
+							<div class="flex items-center transition text-black/75 dark:text-white/75 font-bold" data-i18n={navTitleMap[link.name]}>
 								{link.icon && (
 									<Icon
 										name={link.icon}
@@ -91,7 +91,7 @@ const processedLinks: ProcessedNavBarLink[] = (
                                    hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition"
 									target={child.external ? "_blank" : null}
 								>
-									<div class="flex items-center transition text-black/60 dark:text-white/60 font-medium">
+									<div class="flex items-center transition text-black/60 dark:text-white/60 font-medium" data-i18n={navTitleMap[child.name]}>
 										{child.icon && (
 											<Icon
 												name={child.icon}
@@ -118,7 +118,7 @@ const processedLinks: ProcessedNavBarLink[] = (
                 "
 						target={link.external ? "_blank" : null}
 					>
-						<div class="flex items-center transition text-black/75 dark:text-white/75 font-bold">
+						<div class="flex items-center transition text-black/75 dark:text-white/75 font-bold" data-i18n={navTitleMap[link.name]}>
 							{link.icon && (
 								<Icon
 									name={link.icon}

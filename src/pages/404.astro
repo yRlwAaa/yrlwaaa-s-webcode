@@ -23,6 +23,7 @@ import MainGridLayout from "../layouts/MainGridLayout.astro";
 			<!-- 404 大号数字 -->
 			<div
 				class="text-8xl md:text-9xl font-bold text-[var(--primary)] opacity-20 mb-4"
+				data-i18n="notFound"
 			>
 				{i18n(I18nKey.notFound)}
 			</div>
@@ -36,12 +37,12 @@ import MainGridLayout from "../layouts/MainGridLayout.astro";
 			</div>
 
 			<!-- 标题 -->
-			<h1 class="text-3xl md:text-4xl font-bold mb-4 text-90">
+			<h1 class="text-3xl md:text-4xl font-bold mb-4 text-90" data-i18n="notFoundTitle">
 				{i18n(I18nKey.notFoundTitle)}
 			</h1>
 
 			<!-- 描述 -->
-			<p class="text-lg text-75 mb-8 max-w-md">
+			<p class="text-lg text-75 mb-8 max-w-md" data-i18n="notFoundDescription">
 				{i18n(I18nKey.notFoundDescription)}
 			</p>
 
@@ -51,7 +52,7 @@ import MainGridLayout from "../layouts/MainGridLayout.astro";
 				class="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-[var(--radius-large)] hover:opacity-95 transition-colors transition-transform duration-200 font-medium"
 			>
 				<Icon name="material-symbols:home" class="text-xl" />
-				{i18n(I18nKey.backToHome)}
+				<span data-i18n="backToHome">{i18n(I18nKey.backToHome)}</span>
 			</a>
 
 			<!-- 装饰性元素 -->

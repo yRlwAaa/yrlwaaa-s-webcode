@@ -45,7 +45,9 @@ const allTags = Array.from(new Set(friendsList.flatMap((item) => item.tags)));
 		<div class="card-base z-10 px-9 py-6 relative w-full">
 			<PageHeader
 				title={i18n(I18nKey.friends)}
+				titleKey={I18nKey.friends}
 				subtitle={i18n(I18nKey.friendsSubtitle)}
+				subtitleKey={I18nKey.friendsSubtitle}
 			/>
 
 			<!-- 搜索和筛选栏 -->
@@ -57,6 +59,8 @@ const allTags = Array.from(new Set(friendsList.flatMap((item) => item.tags)));
 							type="text"
 							id="friend-search"
 							placeholder={i18n(I18nKey.friendsSearchPlaceholder)}
+							data-i18n-attr="placeholder"
+							data-i18n-key={I18nKey.friendsSearchPlaceholder}
 							class="w-full px-4 py-2 pl-10 rounded-lg bg-[var(--btn-regular-bg)]
 									text-black/90 dark:text-white/90
 									border border-black/10 dark:border-white/10
@@ -81,7 +85,7 @@ const allTags = Array.from(new Set(friendsList.flatMap((item) => item.tags)));
 
 				<!-- 标签筛选 -->
 				<div class="filter-container flex flex-wrap gap-2">
-					<button class="filter-tag active" data-tag="all">
+					<button class="filter-tag active" data-tag="all" data-i18n="friendsFilterAll">
 						{i18n(I18nKey.friendsFilterAll)}
 					</button>
 					{
@@ -117,7 +121,7 @@ const allTags = Array.from(new Set(friendsList.flatMap((item) => item.tags)));
 						d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 					></path>
 				</svg>
-				<p class="text-black/50 dark:text-white/50 text-lg">
+				<p class="text-black/50 dark:text-white/50 text-lg" data-i18n="friendsNoResults">
 					{i18n(I18nKey.friendsNoResults)}
 				</p>
 			</div>
@@ -128,7 +132,7 @@ const allTags = Array.from(new Set(friendsList.flatMap((item) => item.tags)));
 			</Markdown>
 
 			<!-- 隐藏元素用于传递 i18n 文本到全局脚本 -->
-			<div id="friends-copy-success-text" style="display: none;">
+			<div id="friends-copy-success-text" style="display: none;" data-i18n="friendsCopySuccess">
 				{i18n(I18nKey.friendsCopySuccess)}
 			</div>
 		</div>

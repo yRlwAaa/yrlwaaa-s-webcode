@@ -53,7 +53,7 @@ const subtitle = i18n(I18nKey.albumsSubtitle);
 		class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32"
 	>
 		<div class="card-base z-10 px-6 sm:px-9 py-6 relative w-full">
-			<PageHeader title={title} subtitle={subtitle} />
+			<PageHeader title={title} subtitle={subtitle} titleKey={I18nKey.albums} subtitleKey={I18nKey.albumsSubtitle} />
 
 			{
 				albumsData.length > 0 && allTags.length > 0 && (
@@ -72,7 +72,7 @@ const subtitle = i18n(I18nKey.albumsSubtitle);
 					name="material-symbols:search-off-rounded"
 					class="text-6xl text-black/15 dark:text-white/15 mb-4"
 				/>
-				<p class="text-black/40 dark:text-white/40 text-lg">
+				<p class="text-black/40 dark:text-white/40 text-lg" data-i18n="albumsNoResults">
 					{i18n(I18nKey.albumsNoResults)}
 				</p>
 			</div>
@@ -84,10 +84,10 @@ const subtitle = i18n(I18nKey.albumsSubtitle);
 							name="material-symbols:photo-library"
 							class="text-6xl text-black/15 dark:text-white/15 mb-4"
 						/>
-						<h3 class="text-lg font-medium text-black/90 dark:text-white/90 mb-2">
+						<h3 class="text-lg font-medium text-black/90 dark:text-white/90 mb-2" data-i18n="albumsEmpty">
 							{i18n(I18nKey.albumsEmpty)}
 						</h3>
-						<p class="text-black/60 dark:text-white/60">
+						<p class="text-black/60 dark:text-white/60" data-i18n="albumsEmptyDesc">
 							{i18n(I18nKey.albumsEmptyDesc)}
 						</p>
 					</div>

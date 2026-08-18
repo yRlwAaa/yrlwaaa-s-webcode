@@ -84,26 +84,36 @@
   (function() {
     console.log('🌤️ 天气组件启动');
 
-    const loading = document.getElementById('weather-loading');
-    const content = document.getElementById('weather-content');
+    const loading = document.getElementById('weather-loading')!;
+    const content = document.getElementById('weather-content')!;
 
-    const wCity = document.getElementById('w-city');
-    const wCond = document.getElementById('w-cond');
-    const wTemp = document.getElementById('w-temp');
-    const wHumidity = document.getElementById('w-humidity');
-    const wWind = document.getElementById('w-wind');
-    const wFeels = document.getElementById('w-feels');
-    const wCloud = document.getElementById('w-cloud');
-    const wSunrise = document.getElementById('w-sunrise');
-    const wSunset = document.getElementById('w-sunset');
-    const forecastEl = document.getElementById('w-forecast');
-    const toggleBtn = document.getElementById('w-toggle');
-    const detailsEl = document.getElementById('w-details');
-    const searchInput = document.getElementById('w-search');
-    const searchBtn = document.getElementById('w-search-btn');
+    const wCity = document.getElementById('w-city')!;
+    const wCond = document.getElementById('w-cond')!;
+    const wTemp = document.getElementById('w-temp')!;
+    const wHumidity = document.getElementById('w-humidity')!;
+    const wWind = document.getElementById('w-wind')!;
+    const wFeels = document.getElementById('w-feels')!;
+    const wCloud = document.getElementById('w-cloud')!;
+    const wSunrise = document.getElementById('w-sunrise')!;
+    const wSunset = document.getElementById('w-sunset')!;
+    const forecastEl = document.getElementById('w-forecast')!;
+    const toggleBtn = document.getElementById('w-toggle')!;
+    const detailsEl = document.getElementById('w-details')!;
+    const searchInput = document.getElementById('w-search') as HTMLInputElement;
+    const searchBtn = document.getElementById('w-search-btn')!;
+
+    // 模板元素缺失时直接跳过初始化，避免后续空引用崩溃
+    if (
+      !loading || !content ||
+      !wCity || !wCond || !wTemp || !wHumidity || !wWind || !wFeels || !wCloud ||
+      !wSunrise || !wSunset || !forecastEl || !toggleBtn || !detailsEl ||
+      !searchInput || !searchBtn
+    ) {
+      console.error('🌤️ 天气组件：缺少必需 DOM 元素，跳过初始化');
+      return;
+    }
 
     let detailsVisible = false;
-    let currentCity = '上海';
 
     // ===== 天气图标 =====
     const emojiMap = {
@@ -132,7 +142,7 @@
     };
 
     // ===== 显示天气 =====
-    function displayWeather(data, city) {
+    function displayWeather(data: any, city: string) {
       console.log('显示天气:', data);
       if (!data || !data.current_weather) {
         console.error('数据异常');
@@ -150,7 +160,7 @@
       }
       let feels = '--';
       if (data.hourly && data.hourly.apparent_temperature && data.hourly.apparent_temperature.length > 0) {
-        feels = Math.round(data.hourly.apparent_temperature[0]);
+        feels = String(Math.round(data.hourly.apparent_temperature[0]));
       }
       let cloud = '--';
       if (data.hourly && data.hourly.cloudcover && data.hourly.cloudcover.length > 0) {
@@ -161,7 +171,7 @@
       wTemp.textContent = `${temp}°C`;
       wCond.textContent = `${emojiMap[code] || '🌤️'} ${descMap[code] || '--'}`;
       wHumidity.textContent = humidity;
-      wWind.textContent = wind;
+      wWind.textContent = `${wind}`;
       wFeels.textContent = feels;
       wCloud.textContent = cloud;
 
@@ -198,7 +208,7 @@
     }
 
     // ===== 获取天气 =====
-    async function fetchWeather(lat, lon, city) {
+    async function fetchWeather(lat: number, lon: number, city: string) {
       console.log('🌤️ 获取天气:', city, lat, lon);
       loading.style.display = 'block';
       content.style.display = 'none';
@@ -213,7 +223,6 @@
 
         const ok = displayWeather(data, city);
         if (ok) {
-          currentCity = city;
           console.log('✅ 天气加载成功');
         } else {
           throw new Error('显示失败');
@@ -238,7 +247,7 @@
           const city = data.city;
           const lat = data.lat;
           const lon = data.lon;
-          document.getElementById('w-search').value = city;
+          searchInput.value = city;
           await fetchWeather(lat, lon, city);
           return;
         }
@@ -251,7 +260,7 @@
     }
 
     // ===== 搜索 =====
-    async function searchCity(query) {
+    async function searchCity(query: string) {
       if (!query.trim()) return;
       loading.style.display = 'block';
       content.style.display = 'none';

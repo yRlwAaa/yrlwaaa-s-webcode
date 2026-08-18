@@ -86,6 +86,17 @@ export interface SiteConfig {
 		logo?: string; // 网站Logo图片路径
 	};
 
+	// 页面翻译配置
+	translate?: {
+		enable: boolean; // 是否启用翻译
+		service?: string; // 翻译服务
+		defaultLanguage?: string; // 默认语言
+		toolbar?: {
+			enable?: boolean; // 是否显示翻译工具栏
+			position?: string; // 工具栏位置
+		};
+	};
+
 	// 页面自动缩放配置
 	pageScaling?: {
 		enable: boolean; // 是否开启自动缩放
@@ -377,6 +388,7 @@ export type WidgetComponentType =
 	| "site-stats" // 站点统计组件
 	| "visitor-stats" // 访客统计组件
 	| "calendar" // 日历组件
+	| "weather" // 天气组件
 	| "custom";
 
 export interface WidgetComponentConfig {

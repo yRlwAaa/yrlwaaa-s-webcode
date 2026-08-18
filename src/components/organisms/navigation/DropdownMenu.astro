@@ -52,7 +52,7 @@ const hasChildren = children.length > 0;
 							class="text-[1.1rem] lg:mr-2 flex-shrink-0"
 						/>
 					)}
-					<span class="truncate hidden lg:inline">
+					<span class="truncate hidden lg:inline" data-i18n={navTitleMap[link.name]}>
 						{getLocalizedName(link.name)}
 					</span>
 					<Icon
@@ -84,7 +84,7 @@ const hasChildren = children.length > 0;
 											class="text-[1rem] mr-2"
 										/>
 									)}
-									<span>{getLocalizedName(child.name)}</span>
+									<span data-i18n={navTitleMap[child.name]}>{getLocalizedName(child.name)}</span>
 								</div>
 								{child.external && (
 									<Icon
@@ -111,7 +111,7 @@ const hasChildren = children.length > 0;
 						class="text-[1.1rem] lg:mr-2 flex-shrink-0"
 					/>
 				)}
-				<span class="truncate hidden lg:inline">
+				<span class="truncate hidden lg:inline" data-i18n={navTitleMap[link.name]}>
 					{getLocalizedName(link.name)}
 				</span>
 				{link.external && (
