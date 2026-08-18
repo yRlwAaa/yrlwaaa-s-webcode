@@ -414,25 +414,27 @@
 </style>
 
 <script>
-	(function () {
+	// 天气组件会按移动端/平板/桌面渲染多份（id 重复），
+	// 必须遍历所有实例分别初始化，否则只有第一份（移动端）生效
+	document.querySelectorAll(".weather-card").forEach(function (card) {
 		console.log("🌤️ 天气组件启动");
 
-		const loading = document.getElementById("weather-loading")!;
-		const content = document.getElementById("weather-content")!;
-		const wCity = document.getElementById("w-city")!;
-		const wIcon = document.getElementById("w-icon")!;
-		const wTemp = document.getElementById("w-temp")!;
-		const wCond = document.getElementById("w-cond")!;
-		const wMax = document.getElementById("w-max")!;
-		const wMin = document.getElementById("w-min")!;
-		const wHumidity = document.getElementById("w-humidity")!;
-		const wWind = document.getElementById("w-wind")!;
-		const wForecast = document.getElementById("w-forecast")!;
-		const searchToggle = document.getElementById("w-search-toggle")!;
-		const searchPanel = document.getElementById("w-search-panel")!;
-		const searchInput = document.getElementById("w-search") as HTMLInputElement;
-		const searchBtn = document.getElementById("w-search-btn")!;
-		const searchResults = document.getElementById("w-search-results")!;
+		const loading = card.querySelector("#weather-loading") as HTMLElement;
+		const content = card.querySelector("#weather-content") as HTMLElement;
+		const wCity = card.querySelector("#w-city") as HTMLElement;
+		const wIcon = card.querySelector("#w-icon") as HTMLElement;
+		const wTemp = card.querySelector("#w-temp") as HTMLElement;
+		const wCond = card.querySelector("#w-cond") as HTMLElement;
+		const wMax = card.querySelector("#w-max") as HTMLElement;
+		const wMin = card.querySelector("#w-min") as HTMLElement;
+		const wHumidity = card.querySelector("#w-humidity") as HTMLElement;
+		const wWind = card.querySelector("#w-wind") as HTMLElement;
+		const wForecast = card.querySelector("#w-forecast") as HTMLElement;
+		const searchToggle = card.querySelector("#w-search-toggle") as HTMLElement;
+		const searchPanel = card.querySelector("#w-search-panel") as HTMLElement;
+		const searchInput = card.querySelector("#w-search") as HTMLInputElement;
+		const searchBtn = card.querySelector("#w-search-btn") as HTMLElement;
+		const searchResults = card.querySelector("#w-search-results") as HTMLElement;
 
 		if (
 			!loading ||
@@ -797,5 +799,5 @@
 
 		locate();
 		console.log("🌤️ 天气组件已加载");
-	})();
+	});
 </script>
