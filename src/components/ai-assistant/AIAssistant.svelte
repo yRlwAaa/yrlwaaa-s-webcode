@@ -236,7 +236,7 @@
      跟随滑块且比滑块浅，保持深色玻璃质感。
      ========================================================= */
 
-  /* ---------- 悬浮按钮（作为按钮组成员，跟随主题色） ---------- */
+  /* ---------- 悬浮按钮（作为按钮组成员，图标与背景都跟随主题色） ---------- */
   .ai-assistant-wrapper {
     display: flex;
     align-items: center;
@@ -256,7 +256,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: var(--primary);
     transition: all 0.25s ease;
     padding: 0;
     box-sizing: border-box;
