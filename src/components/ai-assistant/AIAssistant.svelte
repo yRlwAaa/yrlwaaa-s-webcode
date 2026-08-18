@@ -15,13 +15,39 @@
   // SSR 阶段先生成一个安全 ID（Node 环境没有 localStorage，但 crypto 可用）
   let sessionId = crypto.randomUUID();
 
-  // 浏览器启动时才读写 localStorage
-  onMount(() => {
+  // ---- 登录相关状态 ----
+  let authToken = '';
+  let currentUser = null;
+  let showLogin = false;
+  let loginEmail = '';
+  let loginPassword = '';
+  let loginNickname = '';
+  let loginMode = 'login'; // 'login' | 'register'
+  let authError = '';
+  let authLoading = false;
+
+  // 浏览器启动时才读写 localStorage，并恢复登录态
+  onMount(async () => {
     const saved = localStorage.getItem('ai-session');
     if (saved) {
       sessionId = saved;
     } else {
       localStorage.setItem('ai-session', sessionId);
+    }
+    authToken = localStorage.getItem('ai-token') || '';
+    if (authToken) {
+      try {
+        const res = await fetch('/api/auth/me', {
+          headers: { Authorization: 'Bearer ' + authToken },
+        });
+        const data = await res.json();
+        if (data.user) {
+          currentUser = data.user;
+        } else {
+          authToken = '';
+          localStorage.removeItem('ai-token');
+        }
+      } catch (e) {}
     }
   });
 
@@ -45,24 +71,71 @@
 
   async function loadSessions() {
     try {
-      const res = await fetch('/api/sessions');
+      const res = await fetch('/api/sessions', { headers: { Authorization: 'Bearer ' + authToken } });
       sessions = await res.json();
     } catch (e) {}
   }
 
   async function loadHistory(id) {
     try {
-      const res = await fetch(`/api/sessions/${id}`);
+      const res = await fetch(`/api/sessions/${id}`, { headers: { Authorization: 'Bearer ' + authToken } });
       const rows = await res.json();
       messages = rows.map((r) => ({ role: r.role, content: r.content, html: renderMd(r.content) }));
       scrollDown();
     } catch (e) {}
   }
 
+  // ---- 登录 / 注册 / 退出 ----
+  async function doLogin() {
+    authError = '';
+    authLoading = true;
+    try {
+      const path = loginMode === 'login' ? '/api/auth/login' : '/api/auth/register';
+      const body = loginMode === 'login'
+        ? { email: loginEmail, password: loginPassword }
+        : { email: loginEmail, password: loginPassword, nickname: loginNickname };
+      const res = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        authError = data.error || '操作失败';
+        return;
+      }
+      authToken = data.token;
+      currentUser = data.user;
+      localStorage.setItem('ai-token', authToken);
+      showLogin = false;
+      if (chatWindowVisible) {
+        loadHistory(sessionId);
+        loadSessions();
+      }
+    } catch (e) {
+      authError = '网络错误，请重试';
+    } finally {
+      authLoading = false;
+    }
+  }
+
+  function logout() {
+    const t = authToken;
+    authToken = '';
+    currentUser = null;
+    localStorage.removeItem('ai-token');
+    try { fetch('/api/auth/logout', { method: 'POST', headers: { Authorization: 'Bearer ' + t } }); } catch (e) {}
+    showLogin = false;
+  }
+
   function toggle() {
     chatWindowVisible = !chatWindowVisible;
     showHistoryPanel = false;
     if (chatWindowVisible) {
+      if (!currentUser) {
+        showLogin = true;
+        return;
+      }
       loadHistory(sessionId);
       loadSessions();
     }
@@ -84,7 +157,10 @@
   }
 
   async function deleteSession(id) {
-    await fetch(`/api/sessions/${id}`, { method: 'DELETE' });
+    await fetch(`/api/sessions/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: 'Bearer ' + authToken },
+    });
     if (id === sessionId) {
       sessionId = crypto.randomUUID();
       localStorage.setItem('ai-session', sessionId);
@@ -113,9 +189,18 @@
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + authToken },
         body: JSON.stringify({ sessionId, message: text }),
       });
+
+      if (res.status === 401) {
+        authToken = '';
+        currentUser = null;
+        localStorage.removeItem('ai-token');
+        messages = messages.slice(0, -2);
+        showLogin = true;
+        throw new Error('请先登录');
+      }
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -177,6 +262,30 @@
 
 {#if chatWindowVisible}
   <div class="ai-chat" role="dialog" aria-label="AI 助手">
+    <!-- 登录遮罩 -->
+    {#if !currentUser}
+      <div class="ai-login-overlay">
+        <div class="ai-login-box">
+          <div class="ai-login-title">{loginMode === 'login' ? '登录' : '注册'}</div>
+          <div class="ai-login-sub">登录后才能使用 AI 助手</div>
+          {#if loginMode === 'register'}
+            <input class="ai-login-input" type="text" placeholder="昵称（可选）" bind:value={loginNickname} />
+          {/if}
+          <input class="ai-login-input" type="email" placeholder="邮箱" bind:value={loginEmail} />
+          <input class="ai-login-input" type="password" placeholder="密码（至少 6 位）" bind:value={loginPassword} />
+          {#if authError}
+            <div class="ai-login-error">{authError}</div>
+          {/if}
+          <button class="ai-login-btn" on:click={doLogin} disabled={authLoading}>
+            {authLoading ? '处理中…' : (loginMode === 'login' ? '登 录' : '注 册')}
+          </button>
+          <div class="ai-login-switch" on:click={() => { loginMode = loginMode === 'login' ? 'register' : 'login'; authError = ''; }}>
+            {loginMode === 'login' ? '没有账号？去注册' : '已有账号？去登录'}
+          </div>
+        </div>
+      </div>
+    {/if}
+
     <!-- 头部 -->
     <div class="ai-chat-header">
       <div class="ai-chat-brand">
@@ -201,6 +310,11 @@
         <button class="ai-icon-btn" on:click={toggleHistoryPanel} title="历史记录">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
         </button>
+        {#if currentUser}
+          <button class="ai-icon-btn" on:click={logout} title="退出登录（{currentUser.nickname || currentUser.email}）">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          </button>
+        {/if}
         <button class="ai-icon-btn ai-close-btn" on:click={toggle} title="关闭">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
@@ -711,6 +825,84 @@
     opacity: 0.4;
     cursor: not-allowed;
     box-shadow: none;
+  }
+
+  /* ---------- 登录遮罩 ---------- */
+  .ai-login-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(14, 16, 24, 0.94);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .ai-login-box {
+    width: 320px;
+    max-width: calc(100% - 48px);
+    background: rgba(30, 33, 45, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 28px 24px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  }
+  .ai-login-title {
+    color: #f0f0f2;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .ai-login-sub {
+    color: #8a90a0;
+    font-size: 12.5px;
+    text-align: center;
+    margin: 6px 0 20px;
+  }
+  .ai-login-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 14px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: #f0f0f2;
+    font-size: 14px;
+    outline: none;
+  }
+  .ai-login-input:focus {
+    border-color: var(--primary, #8ab4ff);
+  }
+  .ai-login-error {
+    color: #ff7b7b;
+    font-size: 12.5px;
+    margin: 6px 0;
+    text-align: center;
+  }
+  .ai-login-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #5b7cfa, #8a5cf6);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .ai-login-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .ai-login-switch {
+    text-align: center;
+    margin-top: 14px;
+    color: #8ab4ff;
+    font-size: 13px;
+    cursor: pointer;
   }
 
   /* ---------- 移动端 ---------- */
