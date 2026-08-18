@@ -75,7 +75,7 @@ async function embedOne(text) {
   return data.data[0].embedding;
 }
 
-// ===== 从 src/data/music.json 自动生成音乐板块描述 =====
+// ===== 从 src/data/music.json 自动生成音乐板块描述（含曲目） =====
 function buildMusicDesc() {
   const p = 'src/data/music.json';
   if (!existsSync(p)) return null;
@@ -87,13 +87,14 @@ function buildMusicDesc() {
       const a = artists.find(x => x.id === id);
       return a ? a.name : id;
     };
-    const albumLine = albums.map(al =>
-      `《${al.title}》by ${nameOf(al.artistId)}（${al.year}年，${al.genre || ''}，共${(al.tracks || []).length}首）`
-    ).join('；');
+    const albumLine = albums.map(al => {
+      const tracks = (al.tracks || []).map(t => t.title).join('、');
+      return `《${al.title}》by ${nameOf(al.artistId)}（${al.year}年，${al.genre || ''}）：${tracks}`;
+    }).join('；');
     const artistLine = artists.length
       ? '歌手：' + artists.map(a => a.name + (a.bio ? `（${a.bio}）` : '')).join('、')
       : '';
-    return `音乐专辑页收录：${artistLine}。收录专辑：${albumLine}。完整试听请访问 /music/ 页面。`;
+    return `音乐专辑页收录：${artistLine}。收录专辑：${albumLine}。`;
   } catch (e) { return null; }
 }
 
@@ -129,7 +130,6 @@ function copySiteGuide() {
   }
   if (!Array.isArray(guide.sections)) guide.sections = [];
 
-  // 用动态数据覆盖音乐、追番板块的 desc
   const musicDesc = buildMusicDesc();
   const animeDesc = buildAnimeDesc();
   for (const s of guide.sections) {
@@ -212,7 +212,7 @@ async function main() {
     console.log(`  - ${it.title} | ${it.url} | ${it.content.length}字 | ${dim}`);
   }
   const music = buildMusicDesc();
-  if (music) console.log('[site-guide] 音乐示例: ' + music.slice(0, 120));
+  if (music) console.log('[site-guide] 音乐示例: ' + music.slice(0, 200));
   if (items.length === 0) console.warn('[site-index] 警告：没找到任何文章');
 }
 

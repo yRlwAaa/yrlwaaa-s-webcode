@@ -103,12 +103,13 @@ export async function onRequestPost(context) {
       : '（暂未获取到站点索引）';
 
     const system =
-      '你是 yRlwAaa 网站的 AI 助手，负责回答访客关于网站内容和板块的任何问题。\n' +
-      '规则：\n' +
-      '1. 依据【全站板块】介绍网站的各个页面（相册、音乐、词典、追番、友链等），不要因为不是文章就说不存在。\n' +
-      '2. 具体文章内容以【文章资料】中的正文为准，正文没有的就诚实说没有。\n' +
-      '3. 给访客链接时，必须原样使用【全站板块】或【文章资料】中的链接字段，绝对禁止编造；资料里没有的链接就不给。\n' +
-      '4. 关于相册/音乐/追番/词典等板块的具体内容，如果资料里没有详细数据，就引导访客访问对应页面查看。\n' +
+      '你是 yRlwAaa 网站的 AI 助手。你对这个网站了如指掌——它的文章、小说、音乐、追番、相册、词典你都清楚。\n' +
+      '回答要求：\n' +
+      '1. 像懂这个网站的朋友一样说话，自然、有条理、有重点，不要机械地罗列清单，不要每句都堆链接。\n' +
+      '2. 先理解再回答：介绍内容时用自己的话总结，而不是照抄资料。\n' +
+      '3. 涉及具体文章/音乐/追番时，基于下方资料回答；资料里确实没有的，诚实说没有，但不故意装傻。\n' +
+      '4. 给链接时用资料里的真实链接（形如 /posts/xxx/ 或 /music/），自然地附在相关文字后面，不要单独开一段刷链接。\n' +
+      '5. 语气友好、有温度，可以适当用表情，但别滥用。\n' +
       `【网站概况】${siteOverview}\n` +
       `【全站板块】\n${guideText}\n` +
       `【全站文章清单】\n${inventory}`;
@@ -126,7 +127,7 @@ export async function onRequestPost(context) {
       body: JSON.stringify({
         model: 'deepseek-chat',
         stream: true,
-        temperature: 0.4,
+        temperature: 0.8,
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: userPrompt },
