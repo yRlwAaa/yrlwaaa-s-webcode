@@ -175,8 +175,8 @@ const stats = [
 </WidgetLayout>
 
 <script is:inline define:vars={{ siteStartDate, lastPostDate }}>
-	// Worker 地址
-	const WORKER_URL = "/api/stats.json";
+	// 实时数据 — 由 functions/api/stats.js 服务端代理
+	const WORKER_URL = "/api/stats";
 
 	function updateDynamicStats() {
 		const today = new Date();
@@ -239,7 +239,15 @@ const stats = [
 	updateDynamicStats();
 	fetchPVCount();
 
-	// 每小时刷新一次
+	// 每 30 秒刷新一次访问量
 	setInterval(updateDynamicStats, 60 * 60 * 1000);
-	setInterval(fetchPVCount, 60 * 60 * 1000);
+	setInterval(fetchPVCount, 30 * 1000);
+
+	// Swup 页面切换时也刷新
+	if (window.swup) {
+		window.swup.hooks.on("visit:end", () => {
+			fetchPVCount();
+			updateDynamicStats();
+		});
+	}
 </script>
