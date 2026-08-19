@@ -55,6 +55,8 @@ if (!album) {
 						src={album.cover}
 						alt={album.title}
 						class="w-full h-full object-cover"
+						loading="lazy"
+						decoding="async"
 					/>
 					<div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
@@ -170,6 +172,7 @@ if (!album) {
 						{album.photos.map((photo: Photo) => (
 							<PhotoCard
 								src={photo.src}
+								thumbnail={photo.thumbnail}
 								alt={photo.alt || photo.title || ""}
 								albumId={album.id}
 							/>

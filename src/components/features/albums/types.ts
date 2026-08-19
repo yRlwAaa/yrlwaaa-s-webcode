@@ -6,6 +6,7 @@ export interface AlbumCardProps {
 
 export interface PhotoCardProps {
 	src: string;
+	thumbnail?: string;
 	alt?: string;
 	albumId: string;
 }

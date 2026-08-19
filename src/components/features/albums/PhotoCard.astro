@@ -1,22 +1,63 @@
 ---
 import type { PhotoCardProps } from "./types";
 
-const { src, alt = "", albumId } = Astro.props as PhotoCardProps;
+const { src: fullSrc, alt = "", albumId, thumbnail } = Astro.props as PhotoCardProps;
+const displaySrc = thumbnail || fullSrc;
 ---
 
 <div class="gallery-photo-card break-inside-avoid mb-3">
 	<div
 		data-fancybox={`gallery-${albumId}`}
-		data-src={src}
+		data-src={fullSrc}
 		data-type="image"
-		class="block rounded-xl overflow-hidden group cursor-pointer"
+		class="block rounded-xl overflow-hidden group cursor-pointer relative bg-[var(--card-bg)]"
 	>
+		<div class="photo-skeleton"></div>
 		<img
-			src={src}
+			src={displaySrc}
 			alt={alt}
 			loading="lazy"
 			decoding="async"
-			class="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+			class="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105 relative z-10"
 		/>
 	</div>
 </div>
+
+<style>
+	.gallery-photo-card .photo-skeleton {
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(
+			90deg,
+			color-mix(in srgb, var(--primary) 6%, transparent) 25%,
+			color-mix(in srgb, var(--primary) 14%, transparent) 50%,
+			color-mix(in srgb, var(--primary) 6%, transparent) 75%
+		);
+		background-size: 200% 100%;
+		animation: photo-shimmer 1.5s ease-in-out infinite;
+		z-index: 0;
+	}
+
+	.gallery-photo-card img {
+		opacity: 0;
+		transition: opacity 0.4s ease;
+	}
+
+	.gallery-photo-card img[src] {
+		opacity: 1;
+	}
+	.gallery-photo-card img[loading="lazy"]:not([src]) {
+		opacity: 0;
+	}
+
+	.gallery-photo-card img[src] ~ .photo-skeleton {
+		opacity: 0;
+		animation: none;
+		transition: opacity 0.5s ease;
+	}
+
+	@keyframes photo-shimmer {
+		0% { background-position: 200% 0; }
+		100% { background-position: -200% 0; }
+	}
+</style>
