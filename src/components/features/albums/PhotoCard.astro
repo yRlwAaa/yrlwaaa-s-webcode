@@ -12,14 +12,16 @@ const displaySrc = thumbnail || fullSrc;
 		data-type="image"
 		class="block rounded-xl overflow-hidden group cursor-pointer relative bg-[var(--card-bg)]"
 	>
-		<div class="photo-skeleton"></div>
 		<img
 			src={displaySrc}
 			alt={alt}
 			loading="lazy"
 			decoding="async"
 			class="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105 relative z-10"
+			onload="this.classList.add('loaded')"
+			onerror="this.classList.add('error')"
 		/>
+		<div class="photo-skeleton"></div>
 	</div>
 </div>
 
@@ -27,6 +29,7 @@ const displaySrc = thumbnail || fullSrc;
 	.gallery-photo-card .photo-skeleton {
 		position: absolute;
 		inset: 0;
+		z-index: 0;
 		background: linear-gradient(
 			90deg,
 			color-mix(in srgb, var(--primary) 6%, transparent) 25%,
@@ -35,25 +38,18 @@ const displaySrc = thumbnail || fullSrc;
 		);
 		background-size: 200% 100%;
 		animation: photo-shimmer 1.5s ease-in-out infinite;
-		z-index: 0;
 	}
 
-	.gallery-photo-card img {
-		opacity: 0;
-		transition: opacity 0.4s ease;
+	.gallery-photo-card .photo-skeleton.hidden {
+		display: none;
 	}
 
-	.gallery-photo-card img[src] {
-		opacity: 1;
+	/* 图片加载完毕后隐藏骨架 */
+	.gallery-photo-card img.loaded ~ .photo-skeleton {
+		display: none;
 	}
-	.gallery-photo-card img[loading="lazy"]:not([src]) {
-		opacity: 0;
-	}
-
-	.gallery-photo-card img[src] ~ .photo-skeleton {
-		opacity: 0;
-		animation: none;
-		transition: opacity 0.5s ease;
+	.gallery-photo-card img.error ~ .photo-skeleton {
+		display: none;
 	}
 
 	@keyframes photo-shimmer {

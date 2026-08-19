@@ -1,8 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import sharp from "sharp";
-
 import type { AlbumGroup, Photo } from "../types/album";
 
 export async function scanAlbums(): Promise<AlbumGroup[]> {
@@ -84,7 +82,7 @@ async function processAlbumFolder(
 		cover = hasWebpCover
 			? `/images/albums/${folderName}/cover.webp`
 			: `/images/albums/${folderName}/cover.jpg`;
-		photos = await scanPhotos(folderPath, folderName);
+		photos = scanPhotos(folderPath, folderName);
 	}
 
 	// 检查是否隐藏相册
@@ -106,13 +104,21 @@ async function processAlbumFolder(
 	};
 }
 
-async function scanPhotos(folderPath: string, albumId: string): Promise<Photo[]> {
+function scanPhotos(folderPath: string, albumId: string): Photo[] {
 	const photos: Photo[] = [];
 	const files = fs.readdirSync(folderPath);
 
 	const imageExtensions = [
-		".jpg", ".jpeg", ".png", ".gif",
-		".webp", ".svg", ".avif", ".bmp", ".tiff", ".tif",
+		".jpg",
+		".jpeg",
+		".png",
+		".gif",
+		".webp",
+		".svg",
+		".avif",
+		".bmp",
+		".tiff",
+		".tif",
 	];
 
 	const imageFiles = files.filter((file) => {
@@ -135,55 +141,25 @@ async function scanPhotos(folderPath: string, albumId: string): Promise<Photo[]>
 		}
 	}
 
-	// 并行生成所有缩略图
-	await Promise.all(imageFiles.map(async (file, index) => {
+	imageFiles.forEach((file, index) => {
+		const filePath = path.join(folderPath, file);
+		const stats = fs.statSync(filePath);
+
+		const { baseName, tags } = parseFileName(file);
+
 		const src = fileWebpMap.has(file)
 			? `/images/albums/${albumId}/${fileWebpMap.get(file)}`
 			: `/images/albums/${albumId}/${file}`;
 
-		const thumbName = path.basename(file, path.extname(file)) + ".thumb.webp";
-		const thumbPath = path.join(folderPath, thumbName);
-		const thumbUrl = `/images/albums/${albumId}/${thumbName}`;
-
-		// 检查缩略图是否已存在且比原图新
-		let needGenerate = true;
-		try {
-			const srcPath = fileWebpMap.has(file)
-				? path.join(folderPath, fileWebpMap.get(file)!)
-				: path.join(folderPath, file);
-			const thumbStat = fs.statSync(thumbPath);
-			const srcStat = fs.statSync(srcPath);
-			if (thumbStat.mtimeMs >= srcStat.mtimeMs) {
-				needGenerate = false;
-			}
-		} catch {}
-
-		if (needGenerate) {
-			try {
-				const srcPath = fileWebpMap.has(file)
-					? path.join(folderPath, fileWebpMap.get(file)!)
-					: path.join(folderPath, file);
-				await sharp(srcPath)
-					.resize(400, undefined, { fit: "inside", withoutEnlargement: true })
-					.webp({ quality: 75 })
-					.toFile(thumbPath);
-			} catch (e) {
-				console.error(`生成缩略图失败: ${file}`, e);
-			}
-		}
-
-		const { baseName, tags } = parseFileName(file);
-
 		photos.push({
 			id: `${albumId}-photo-${index}`,
 			src,
-			thumbnail: thumbUrl,
 			alt: baseName,
 			title: baseName,
 			tags: tags,
-			date: fs.statSync(path.join(folderPath, file)).mtime.toISOString().split("T")[0],
+			date: stats.mtime.toISOString().split("T")[0],
 		});
-	}));
+	});
 
 	return photos;
 }
