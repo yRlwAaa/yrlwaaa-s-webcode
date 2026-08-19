@@ -1,6 +1,4 @@
-const DEEPSEEK_API = 'https://api.deepseek.com/chat/completions';
-const EMBEDDING_API = 'https://api.siliconflow.cn/v1/embeddings';
-const QUERY_PREFIX = '为这个句子生成表示以用于检索相关文章：';
+const SILICONFLOW_API = 'https://api.siliconflow.cn/v1/chat/completions';
 const TOP_N = 5;
 const MAX_CONTEXT = 3000;
 const ALL_CONTEXT = 1200;
@@ -14,33 +12,6 @@ function json(data, status = 200) {
 
 function isOverviewQuestion(q) {
   return /(全部|每章|每篇|所有文章|所有内容|全部章节|全站|都概括|每章内容|每篇内容|概括一下|介绍.*网站|网站.*介绍|全部文章|列.*所有|全部内容|有什么|有哪些|收.?入了什么|都是什么)/.test(q);
-}
-
-async function embedQuery(env, text) {
-  if (!env.EMBEDDING_API_KEY) throw new Error('EMBEDDING_API_KEY 未配置');
-  const res = await fetch(EMBEDDING_API, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${env.EMBEDDING_API_KEY}`,
-    },
-    body: JSON.stringify({ model: 'BAAI/bge-m3', input: QUERY_PREFIX + text, encoding_format: 'float' }),
-  });
-  if (!res.ok) throw new Error('embedding HTTP ' + res.status);
-  const data = await res.json();
-  return data.data[0].embedding;
-}
-
-function cosine(a, b) {
-  let dot = 0, na = 0, nb = 0;
-  const len = Math.min(a.length, b.length);
-  for (let i = 0; i < len; i++) {
-    dot += a[i] * b[i];
-    na += a[i] * a[i];
-    nb += b[i] * b[i];
-  }
-  if (na === 0 || nb === 0) return 0;
-  return dot / (Math.sqrt(na) * Math.sqrt(nb));
 }
 
 export async function onRequestPost(context) {
@@ -87,14 +58,11 @@ export async function onRequestPost(context) {
     // ---- 决定喂哪些内容 ----
     let context;
     if (isOverviewQuestion(message) && index.length) {
+      // 概览类问题：给全量清单（压缩版）
       context = buildContext(index, ALL_CONTEXT);
     } else {
-      let hits = null;
-      try {
-        const qv = await embedQuery(env, message);
-        hits = semanticSearch(index, qv, TOP_N);
-      } catch (e) {}
-      if (!hits || !hits.length) hits = searchSite(index, message, TOP_N);
+      // 具体问题：关键词搜索
+      const hits = searchSite(index, message, TOP_N);
       context = buildContext(hits.length ? hits : index.slice(0, TOP_N), MAX_CONTEXT);
     }
 
@@ -118,14 +86,17 @@ export async function onRequestPost(context) {
       ? `【文章资料】\n${context}\n\n【用户问题】\n${message}`
       : message;
 
-    const upstream = await fetch(DEEPSEEK_API, {
+    const apiKey = env.SILICONFLOW_API_KEY || env.DEEPSEEK_API_KEY;
+    if (!apiKey) return json({ error: 'API key 未配置' }, 500);
+
+    const upstream = await fetch(SILICONFLOW_API, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${env.DEEPSEEK_API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'deepseek-v4-flash',
+        model: 'deepseek-ai/DeepSeek-V3',
         stream: true,
         temperature: 0.8,
         messages: [
@@ -136,8 +107,8 @@ export async function onRequestPost(context) {
     });
 
     if (!upstream.ok || !upstream.body) {
-      const errText = await upstream.text();
-      return json({ error: 'AI 服务异常：' + errText }, 502);
+      const errText = await upstream.text().catch(() => '');
+      return json({ error: `AI 服务异常 (HTTP ${upstream.status})：${errText}` }, 502);
     }
 
     const reader = upstream.body.getReader();
@@ -216,15 +187,7 @@ function buildInventory(index) {
   ).join('\n');
 }
 
-function semanticSearch(index, qv, limit) {
-  const scored = index
-    .filter(it => Array.isArray(it.embedding) && it.embedding.length)
-    .map(it => ({ it, s: cosine(qv, it.embedding) }))
-    .sort((a, b) => b.s - a.s);
-  if (!scored.length) return [];
-  return scored.slice(0, limit).map(x => x.it);
-}
-
+// ===== 关键词搜索 =====
 function splitWords(q) {
   return q.toLowerCase().split(/[\s,，。.!?！？、;；:：“”"'"（）()【】\[\]{}<>《》~·]+/).filter(w => w.length >= 2);
 }
