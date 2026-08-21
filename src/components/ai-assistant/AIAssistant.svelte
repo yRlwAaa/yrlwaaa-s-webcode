@@ -2,6 +2,8 @@
   import { marked } from 'marked';
   import sanitizeHtml from 'sanitize-html';
   import { onMount } from 'svelte';
+  import { i18n } from '../../i18n/translation';
+  import I18nKey from '../../i18n/i18nKey';
 
   let chatWindowVisible = false;
   let messages = [];
@@ -106,7 +108,7 @@
         }
       }
     } catch (e) {
-      aiMsg.content = '出错了：' + e.message;
+      aiMsg.content = i18n(I18nKey.aiError) + e.message;
       messages = [...messages];
     } finally {
       loading = false;
@@ -122,7 +124,7 @@
 </script>
 
 <div class="ai-assistant-wrapper">
-  <button class="ai-fab-btn" on:click={toggle} title="AI 助手">
+  <button class="ai-fab-btn" on:click={toggle} title={i18n(I18nKey.aiAssistant)}>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10 10 10 0 0 1-5-1.3L3 22l1.3-5A10 10 0 0 1 2 12 10 10 0 0 1 12 2z"/>
       <path d="M8 10h.01M12 10h.01M16 10h.01"/>
@@ -131,7 +133,7 @@
 </div>
 
 {#if chatWindowVisible}
-  <div class="ai-chat" use:portal role="dialog" aria-label="AI 助手">
+  <div class="ai-chat" use:portal role="dialog" aria-label={i18n(I18nKey.aiAssistant)}>
     <!-- 头部 -->
     <div class="ai-chat-header">
       <div class="ai-chat-brand">
@@ -145,15 +147,15 @@
           <div class="ai-brand-name">yRlwAaa AI</div>
           <div class="ai-brand-status">
             <span class="ai-status-dot" class:thinking={loading}></span>
-            {loading ? '正在思考…' : '在线'}
+            {loading ? i18n(I18nKey.aiThinking) : i18n(I18nKey.aiOnline)}
           </div>
         </div>
       </div>
       <div class="ai-chat-actions">
-        <button class="ai-icon-btn" on:click={newSession} title="新对话">
+        <button class="ai-icon-btn" on:click={newSession} title={i18n(I18nKey.aiNewChat)}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
         </button>
-        <button class="ai-icon-btn ai-close-btn" on:click={toggle} title="关闭">
+        <button class="ai-icon-btn ai-close-btn" on:click={toggle} title={i18n(I18nKey.aiClose)}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
       </div>
@@ -169,12 +171,12 @@
               <path d="M8 10h.01M12 10h.01M16 10h.01"/>
             </svg>
           </div>
-          <div class="ai-welcome-title">你好，我是 yRlwAaa 的 AI 助手</div>
-          <div class="ai-welcome-sub">可以问我网站里的任何内容</div>
+          <div class="ai-welcome-title">{i18n(I18nKey.aiWelcome)}</div>
+          <div class="ai-welcome-sub">{i18n(I18nKey.aiWelcomeSub)}</div>
           <div class="ai-welcome-chips">
-            <button on:click={() => sendMessage('这个网站里有什么？')}>网站里有什么？</button>
-            <button on:click={() => sendMessage('最近更新了哪些文章？')}>最近更新了哪些文章？</button>
-            <button on:click={() => sendMessage('介绍一下你自己')}>介绍一下你自己</button>
+            <button on:click={() => sendMessage(i18n(I18nKey.aiQuick1))}>{i18n(I18nKey.aiQuick1)}</button>
+            <button on:click={() => sendMessage(i18n(I18nKey.aiQuick2))}>{i18n(I18nKey.aiQuick2)}</button>
+            <button on:click={() => sendMessage(i18n(I18nKey.aiQuick3))}>{i18n(I18nKey.aiQuick3)}</button>
           </div>
         </div>
       {/if}
@@ -218,12 +220,12 @@
         bind:this={inputEl}
         bind:value={input}
         rows="1"
-        placeholder="问我网站里的任何事…（Enter 发送，Shift+Enter 换行）"
+        placeholder={i18n(I18nKey.aiPlaceholder)}
         on:keydown={onKeydown}
         on:input={resizeInput}
         disabled={loading}
       ></textarea>
-      <button class="ai-send-btn" on:click={() => sendMessage()} disabled={loading || !input.trim()} title="发送">
+      <button class="ai-send-btn" on:click={() => sendMessage()} disabled={loading || !input.trim()} title={i18n(I18nKey.aiSend)}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
       </button>
     </div>

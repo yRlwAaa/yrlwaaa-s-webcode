@@ -1,13 +1,15 @@
 ---
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import musicData from "../../data/music.json";
+import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
 ---
 
-<MainGridLayout title="音乐">
+<MainGridLayout title={i18n(I18nKey.musicTitle)}>
   <div id="music-app">
     <div class="page-header">
-      <h1 id="index-title">音乐</h1>
-      <p id="index-subtitle">{musicData.artists.length} 位歌手</p>
+      <h1 id="index-title">{i18n(I18nKey.musicTitle)}</h1>
+      <p id="index-subtitle">{musicData.artists.length} {i18n(I18nKey.musicArtistCount)}</p>
     </div>
     <div class="artist-grid">
       {musicData.artists.map(artist => (

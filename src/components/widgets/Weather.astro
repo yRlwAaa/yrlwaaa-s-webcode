@@ -1,13 +1,48 @@
 ---
 // 天气组件 - Open-Meteo API（苹果天气风格）
 // IP 定位 → 默认显示用户位置天气；支持搜索城市替换地点；颜色跟随主题色滑块
+import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
+
+const weatherI18n = JSON.stringify({
+	locating: i18n(I18nKey.weatherLocating),
+	fetching: i18n(I18nKey.weatherFetching),
+	loadFailed: i18n(I18nKey.weatherLoadFailed),
+	searchCity: i18n(I18nKey.weatherSearchCity),
+	search: i18n(I18nKey.weatherSearch),
+	high: i18n(I18nKey.weatherHigh),
+	low: i18n(I18nKey.weatherLow),
+	forecast: i18n(I18nKey.weatherForecast),
+	today: i18n(I18nKey.weatherToday),
+	notFound: i18n(I18nKey.weatherNotFound),
+	descMap: {
+		0: i18n(I18nKey.weatherSunny), 1: i18n(I18nKey.weatherPartlyCloudy),
+		2: i18n(I18nKey.weatherCloudy), 3: i18n(I18nKey.weatherOvercast),
+		45: i18n(I18nKey.weatherFog), 48: i18n(I18nKey.weatherFog),
+		51: i18n(I18nKey.weatherLightRain), 53: i18n(I18nKey.weatherLightRain), 55: i18n(I18nKey.weatherModerateRain),
+		56: i18n(I18nKey.weatherFreezingRain), 57: i18n(I18nKey.weatherFreezingRain),
+		61: i18n(I18nKey.weatherModerateRain), 63: i18n(I18nKey.weatherHeavyRain), 65: i18n(I18nKey.weatherHeavyRain),
+		66: i18n(I18nKey.weatherFreezingRain), 67: i18n(I18nKey.weatherFreezingRain),
+		71: i18n(I18nKey.weatherLightSnow), 73: i18n(I18nKey.weatherModerateSnow),
+		75: i18n(I18nKey.weatherHeavySnow), 77: i18n(I18nKey.weatherSnowGrains),
+		80: i18n(I18nKey.weatherShowers), 81: i18n(I18nKey.weatherShowers), 82: i18n(I18nKey.weatherHeavyShowers),
+		85: i18n(I18nKey.weatherSnowShowers), 86: i18n(I18nKey.weatherHeavySnowShowers),
+		95: i18n(I18nKey.weatherThunderstorm), 96: i18n(I18nKey.weatherThunderstorm), 99: i18n(I18nKey.weatherSevereThunderstorm),
+	},
+	weekDays: [
+		i18n(I18nKey.calendarSunday), i18n(I18nKey.calendarMonday),
+		i18n(I18nKey.calendarTuesday), i18n(I18nKey.calendarWednesday),
+		i18n(I18nKey.calendarThursday), i18n(I18nKey.calendarFriday),
+		i18n(I18nKey.calendarSaturday),
+	],
+});
 ---
 
 <div id="weather-widget" class="weather-card">
 	<!-- 加载态 -->
 	<div id="weather-loading" class="w-loading">
 		<div class="w-loading-icon">🌤️</div>
-		<div class="w-loading-text">定位中...</div>
+		<div class="w-loading-text">{i18n(I18nKey.weatherLocating)}</div>
 	</div>
 
 	<!-- 主体 -->
@@ -18,8 +53,8 @@
 			<button
 				id="w-search-toggle"
 				class="w-search-toggle"
-				aria-label="搜索城市"
-				title="搜索城市"
+				aria-label={i18n(I18nKey.weatherSearchCity)}
+				title={i18n(I18nKey.weatherSearchCity)}
 			>
 				<svg
 					width="16"
@@ -43,11 +78,11 @@
 				<input
 					id="w-search"
 					type="text"
-					placeholder="搜索城市..."
+					placeholder={i18n(I18nKey.weatherSearchCity)}
 					autocomplete="off"
 					class="w-search-input"
 				/>
-				<button id="w-search-btn" class="w-search-btn">搜索</button>
+				<button id="w-search-btn" class="w-search-btn">{i18n(I18nKey.weatherSearch)}</button>
 			</div>
 			<div id="w-search-results" class="w-search-results"></div>
 		</div>
@@ -64,8 +99,8 @@
 				</div>
 			</div>
 			<div class="w-hilo">
-				<span class="w-hi">最高 <b id="w-max">--°</b></span>
-				<span class="w-lo">最低 <b id="w-min">--°</b></span>
+				<span class="w-hi">{i18n(I18nKey.weatherHigh)} <b id="w-max">--°</b></span>
+				<span class="w-lo">{i18n(I18nKey.weatherLow)} <b id="w-min">--°</b></span>
 			</div>
 			<div class="w-meta">
 				<span class="w-meta-item">
@@ -105,7 +140,7 @@
 
 		<!-- 一周预报 -->
 		<div class="w-forecast">
-			<div class="w-forecast-title">一周预报</div>
+			<div class="w-forecast-title">{i18n(I18nKey.weatherForecast)}</div>
 			<div id="w-forecast" class="w-days"></div>
 		</div>
 	</div>
@@ -436,7 +471,7 @@
 	}
 </style>
 
-<script>
+<script define:vars={{ weatherI18n }}>
 	// 天气组件会按移动端/平板/桌面渲染多份（id 重复），
 	// 必须遍历所有实例分别初始化，否则只有第一份（移动端）生效
 	document.querySelectorAll(".weather-card").forEach(function (card) {
@@ -494,20 +529,9 @@
 			85: "🌨️", 86: "🌨️",
 			95: "⛈️", 96: "⛈️", 99: "⛈️",
 		};
-		const descMap: Record<number, string> = {
-			0: "晴", 1: "晴间多云", 2: "多云", 3: "阴",
-			45: "雾", 48: "雾",
-			51: "小雨", 53: "小雨", 55: "中雨",
-			56: "冻雨", 57: "冻雨",
-			61: "中雨", 63: "大雨", 65: "暴雨",
-			66: "冻雨", 67: "冻雨",
-			71: "小雪", 73: "中雪", 75: "大雪", 77: "雪粒",
-			80: "阵雨", 81: "阵雨", 82: "强阵雨",
-			85: "阵雪", 86: "强阵雪",
-			95: "雷暴", 96: "雷暴", 99: "强雷暴",
-		};
+		const descMap: Record<number, string> = weatherI18n.descMap;
 
-		const weekDays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+		const weekDays = weatherI18n.weekDays;
 		const emoji = (code: number) => emojiMap[code] || "🌤️";
 		const desc = (code: number) => descMap[code] || "--";
 
@@ -575,7 +599,7 @@
 			wForecast.innerHTML = days
 				.map((d, i) => {
 					const dayName =
-						i === 0 ? "今天" : weekDays[(today + i) % 7];
+						i === 0 ? weatherI18n.today : weekDays[(today + i) % 7];
 					const left = ((d.min - allMin) / span) * 100;
 					const width = Math.max(
 						((d.max - d.min) / span) * 100,
@@ -649,7 +673,7 @@
 
 		// ===== 获取天气 =====
 		async function fetchWeather(lat: number, lon: number, city: string) {
-			setLoading("获取中...");
+			setLoading(weatherI18n.fetching);
 			try {
 				const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&hourly=relativehumidity_2m&timezone=auto&forecast_days=7`;
 				const res = await fetchWithTimeout(url, 8000);
@@ -664,7 +688,7 @@
 				}
 			} catch (err) {
 				console.error("❌ 天气获取失败:", err);
-				setLoading("加载失败");
+				setLoading(weatherI18n.loadFailed);
 				loading.style.cursor = "pointer";
 				loading.onclick = function () {
 					loading.style.cursor = "";
@@ -693,7 +717,7 @@
 
 		// ===== 定位 =====
 		async function locate() {
-			setLoading("定位中，请允许浏览器定位权限");
+			setLoading(weatherI18n.locating + "，请允许浏览器定位权限");
 
 			// 优先使用用户上次搜索的地点
 			const saved = loadLocation();
@@ -756,7 +780,7 @@
 			const q = query.trim();
 			if (!q) return;
 			searchResults.innerHTML =
-				'<div class="w-search-empty">搜索中...</div>';
+				'<div class="w-search-empty">' + weatherI18n.fetching + '</div>';
 
 			type Result = { lat: number; lon: number; name: string; admin: string };
 			let results: Result[] = [];
@@ -809,7 +833,7 @@
 
 			if (results.length === 0) {
 				searchResults.innerHTML =
-					'<div class="w-search-empty">未找到该城市，试试英文名或拼音</div>';
+					'<div class="w-search-empty">' + weatherI18n.notFound + '</div>';
 				return;
 			}
 

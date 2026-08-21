@@ -2,6 +2,8 @@
 export const prerender = true;
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import musicData from "../../../data/music.json";
+import I18nKey from "../../../i18n/i18nKey";
+import { i18n } from "../../../i18n/translation";
 
 export async function getStaticPaths() {
   return musicData.artists.map((artist) => ({
@@ -14,14 +16,14 @@ const artist = musicData.artists.find(a => a.id === id);
 const albums = musicData.albums.filter(a => a.artistId === id);
 ---
 
-<MainGridLayout title={artist?.name || "歌手"}>
+<MainGridLayout title={artist?.name || i18n(I18nKey.musicUnknown)}>
   <div id="artist-detail">
     <div class="artist-header">
       <img src={artist?.image} alt={artist?.name} class="artist-avatar" />
       <div>
         <h1 id="artist-name">{artist?.name}</h1>
         <p id="artist-bio">{artist?.bio || ""}</p>
-        <span class="album-count" id="album-count">{albums.length} 张专辑</span>
+        <span class="album-count" id="album-count">{albums.length} {i18n(I18nKey.musicAlbumCount)}</span>
       </div>
     </div>
 
@@ -31,7 +33,7 @@ const albums = musicData.albums.filter(a => a.artistId === id);
           <img src={album.cover} alt={album.title} />
           <div class="album-info">
             <h3 class="album-title">{album.title}</h3>
-            <p class="album-meta">{album.year} · {album.tracks.length} 首</p>
+            <p class="album-meta">{album.year} · {album.tracks.length} {i18n(I18nKey.musicTrackCount)}</p>
           </div>
         </a>
       ))}

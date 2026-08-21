@@ -1,5 +1,7 @@
 <script lang="ts">
 	import Icon from "@iconify/svelte";
+	import { i18n } from "../../../../i18n/translation";
+	import I18nKey from "../../../../i18n/i18nKey";
 
 	interface Props {
 		onclick: () => void;
@@ -11,7 +13,7 @@
 
 <button
 	class="btn-plain w-10 h-10 rounded-lg"
-	aria-label="下一首"
+	aria-label={i18n(I18nKey.musicPlayerNext)}
 	{onclick}
 	{disabled}
 >

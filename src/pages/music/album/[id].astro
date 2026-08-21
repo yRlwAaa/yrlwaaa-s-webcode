@@ -2,6 +2,8 @@
 export const prerender = true;
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import musicData from "../../../data/music.json";
+import I18nKey from "../../../i18n/i18nKey";
+import { i18n } from "../../../i18n/translation";
 
 export async function getStaticPaths() {
   return musicData.albums.map((album) => ({
@@ -14,18 +16,18 @@ const album = musicData.albums.find(a => a.id === id);
 const artist = musicData.artists.find(a => a.id === album?.artistId);
 ---
 
-<MainGridLayout title={album?.title || "专辑"}>
+<MainGridLayout title={album?.title || i18n(I18nKey.musicAlbum)}>
   <div id="album-detail">
     <div class="album-header">
       <img src={album?.cover} alt={album?.title} class="album-cover" />
       <div class="album-meta">
-        <span class="type">专辑</span>
+        <span class="type">{i18n(I18nKey.musicAlbum)}</span>
         <h1 id="album-title">{album?.title}</h1>
         <p class="artist-name">
-          <a href={`/music/artist/${artist?.id}`} id="artist-link">{artist?.name || "未知"}</a>
+          <a href={`/music/artist/${artist?.id}`} id="artist-link">{artist?.name || i18n(I18nKey.musicUnknown)}</a>
         </p>
-        <p class="details" id="album-details">{album?.year} · {album?.genre || "未知"}</p>
-        <span class="track-count" id="track-count">{album?.tracks.length} 首歌曲</span>
+        <p class="details" id="album-details">{album?.year} · {album?.genre || i18n(I18nKey.musicUnknown)}</p>
+        <span class="track-count" id="track-count">{album?.tracks.length} {i18n(I18nKey.musicTrackCount)}</span>
       </div>
     </div>
 
@@ -42,7 +44,7 @@ const artist = musicData.artists.find(a => a.id === album?.artistId);
               <span class="track-title">{track.title}</span>
               <span class="track-duration">{track.duration || "--"}</span>
             </div>
-            <a href={downloadUrl} download={filename} class="download-btn">下载</a>
+            <a href={downloadUrl} download={filename} class="download-btn">{i18n(I18nKey.musicDownload)}</a>
           </div>
         );
       })}
