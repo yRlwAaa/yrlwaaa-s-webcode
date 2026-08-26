@@ -1,5 +1,5 @@
 ---
-title: 基于Qwen3-30B的代码评审
+title: 基于Qwen3-30B-A3B的代码评审
 published: 2026-08-26
 description: 模型：Qwen3-30B-A3B-UD-IQ3_XXS.gguf，总算是找到一个能让E5发光发热的地方。
 encrypted: false
