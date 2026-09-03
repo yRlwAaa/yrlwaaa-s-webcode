@@ -13,7 +13,7 @@ export async function getStaticPaths() {
 
 const { id } = Astro.params;
 const artist = musicData.artists.find(a => a.id === id);
-const albums = musicData.albums.filter(a => a.artistId === id);
+const albums = musicData.albums.filter(a => a.artistId === id).sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
 ---
 
 <MainGridLayout title={artist?.name || i18n(I18nKey.musicUnknown)}>
