@@ -187,6 +187,82 @@
           "file": "/music/audio/good-hello/鹿乃 - サンクチュアリ.flac"
         }
       ]
+    },
+    {
+      "id": "cloud-hairpin",
+      "title": "CLOUD HAIRPIN",
+      "artistId": "sana",
+      "cover": "/music/albums/CLOUD HAIRPIN.jpg",
+      "year": 2025,
+      "genre": "流行,日本",
+      "tracks": [
+        {
+          "id": "1step-2step",
+          "title": "1step 2step",
+          "duration": "2:44",
+          "file": "/music/audio/cloud-hairpin/鎖那 - 1step 2step.flac"
+        },
+        {
+          "id": "kissin-claw",
+          "title": "KISSIN' CLAW",
+          "duration": "3:54",
+          "file": "/music/audio/cloud-hairpin/鎖那 - KISSIN' CLAW.flac"
+        },
+        {
+          "id": "mimicry",
+          "title": "mimicry",
+          "duration": "3:37",
+          "file": "/music/audio/cloud-hairpin/鎖那 - mimicry.flac"
+        },
+        {
+          "id": "oh-my-girl",
+          "title": "oh my girl",
+          "duration": "3:42",
+          "file": "/music/audio/cloud-hairpin/鎖那 - oh my girl.flac"
+        },
+        {
+          "id": "sparkle",
+          "title": "sparkle",
+          "duration": "1:50",
+          "file": "/music/audio/cloud-hairpin/鎖那 - sparkle.flac"
+        },
+        {
+          "id": "tutu",
+          "title": "tutu",
+          "duration": "3:18",
+          "file": "/music/audio/cloud-hairpin/鎖那 - tutu.flac"
+        },
+        {
+          "id": "capsule",
+          "title": "カプセル",
+          "duration": "2:18",
+          "file": "/music/audio/cloud-hairpin/鎖那 - カプセル.flac"
+        },
+        {
+          "id": "kurakuratta",
+          "title": "くらくらった",
+          "duration": "3:34",
+          "file": "/music/audio/cloud-hairpin/鎖那 - くらくらった.flac"
+        },
+        {
+          "id": "teru-teru-you",
+          "title": "テルテルユー",
+          "duration": "3:04",
+          "file": "/music/audio/cloud-hairpin/鎖那 - テルテルユー.flac"
+        },
+        {
+          "id": "baby-halo",
+          "title": "ベイビーヘイロー",
+          "duration": "2:44",
+          "file": "/music/audio/cloud-hairpin/鎖那 - ベイビーヘイロー.flac"
+        },
+        {
+          "id": "bibouroku",
+          "title": "備忘録",
+          "duration": "4:49",
+          "file": "/music/audio/cloud-hairpin/鎖那 - 備忘録.flac"
+        }
+      ]
     }
   ]
 }
