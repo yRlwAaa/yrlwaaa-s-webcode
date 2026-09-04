@@ -1,7 +1,7 @@
 ---
-title: Qwen3.8代码评审精选
+title: Qwen3.8-27B代码评审精选
 published: 2026-09-04
-description: 模型：Qwen3.8-27B-UD-IQ4_XS.gguf。对上一份 30B 逐文件评审做了二次筛选，只保留确定的 bug 和实锤的性能问题。
+description: 模型：Qwen3.8-27B-UD-IQ4_XS.gguf。对上一份 30B 逐文件评审做了二次筛选，只保留确定的 bug 和实锤的性能问题，by-P100。
 encrypted: false
 pinned: true
 alias: "Code-Review-Refined"
