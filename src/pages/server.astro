@@ -263,7 +263,7 @@ const E5_API = "https://producing-supposed-mat-donation.trycloudflare.com";
 				}
 			</style>
 
-			<div class="e5p">
+			<div class="e5p" id="e5pRoot">
 				<div class="hd">
 					<span class="stat-chip"
 						><span class="dot" id="mDot"></span><span id="mTxt">读取中…</span></span
@@ -326,6 +326,20 @@ const E5_API = "https://producing-supposed-mat-donation.trycloudflare.com";
 				(function () {
 					"use strict";
 					var API = window.E5_API || "";
+					var e5Root = document.getElementById("e5pRoot");
+					function applyTheme() {
+						if (!e5Root) return;
+						var de = document.documentElement;
+						var dark = de.classList.contains("dark") ||
+							/dark|night/i.test(de.getAttribute("data-theme") || "");
+						e5Root.style.color = dark ? "#e9edf6" : "#232936";
+					}
+					applyTheme();
+					try {
+						new MutationObserver(applyTheme).observe(document.documentElement, {
+							attributes: true, attributeFilter: ["class", "data-theme"]
+						});
+					} catch (e) {}
 					function $(id) { return document.getElementById(id); }
 					var token = localStorage.getItem("e5tok") || "";
 					function jget(u) {
@@ -413,6 +427,7 @@ const E5_API = "https://producing-supposed-mat-donation.trycloudflare.com";
 					}
 					var busy = false;
 					function refresh() {
+						applyTheme();
 						if (busy) return; busy = true;
 						jget("/api/stats").then(function (d) { if (d && d.ok) render(d); busy = false; });
 					}
