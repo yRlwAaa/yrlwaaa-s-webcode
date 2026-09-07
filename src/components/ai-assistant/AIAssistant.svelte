@@ -124,7 +124,7 @@
 </script>
 
 <div class="ai-assistant-wrapper">
-  <button class="ai-fab-btn" on:click={toggle} title={i18n(I18nKey.aiAssistant)}>
+  <button class="ai-fab-btn btn-card" on:click={toggle} title={i18n(I18nKey.aiAssistant)}>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10 10 10 0 0 1-5-1.3L3 22l1.3-5A10 10 0 0 1 2 12 10 10 0 0 1 12 2z"/>
       <path d="M8 10h.01M12 10h.01M16 10h.01"/>
@@ -250,23 +250,20 @@
     width: var(--fab-button-size, 3rem);
     height: var(--fab-button-size, 3rem);
     border-radius: 1rem;
-    background: var(--btn-card-bg, color-mix(in srgb, var(--primary) 10%, rgba(148, 163, 184, 0.12)));
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(148, 163, 184, 0.45);
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     color: var(--primary);
-    transition: all 0.25s ease;
+    transition:
+      box-shadow 0.3s ease,
+      transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
     box-sizing: border-box;
   }
   .ai-fab-btn:hover {
-    background: var(--btn-card-bg-hover, color-mix(in srgb, var(--primary) 20%, rgba(148, 163, 184, 0.14)));
     box-shadow: var(--shadow-button);
-    transform: translateY(-1px);
+  }
+  .ai-fab-btn:active {
+    transform: scale(0.94);
   }
   :global(.dark) .ai-fab-btn {
     border: 1px solid rgba(255, 255, 255, 0.15);
