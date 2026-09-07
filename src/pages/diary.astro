@@ -16,6 +16,13 @@ if (!siteConfig.featurePages.diary) {
 const moments = getDiaryList();
 const allTags = getAllTags();
 
+const tagCounts = new Map();
+for (const moment of moments) {
+	for (const tag of moment.tags ?? []) {
+		tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+	}
+}
+
 const filterTabs = [
 	{
 		value: "all",
@@ -26,7 +33,7 @@ const filterTabs = [
 	...allTags.map((tag) => ({
 		value: tag,
 		label: tag,
-		count: moments.filter((m) => m.tags && m.tags.includes(tag)).length,
+		count: tagCounts.get(tag) ?? 0,
 	})),
 ];
 

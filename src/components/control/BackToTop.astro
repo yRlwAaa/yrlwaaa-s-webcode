@@ -19,6 +19,7 @@ import FloatingButton from "@components/common/FloatingButton.astro";
 		window.BackToTopManager = class BackToTopManager {
 			constructor() {
 				this.button = document.getElementById("back-to-top-btn");
+				this.rafPending = false;
 				this.init();
 			}
 
@@ -42,22 +43,35 @@ import FloatingButton from "@components/common/FloatingButton.astro";
 					}
 				};
 
-				window.addEventListener("scroll", updateVisibility, {
+				// rAF 节流：同一帧内多次滚动只执行一次可见性判断
+				const onScroll = () => {
+					if (this.rafPending) {
+						return;
+					}
+					this.rafPending = true;
+					requestAnimationFrame(() => {
+						this.rafPending = false;
+						updateVisibility();
+					});
+				};
+
+				window.addEventListener("scroll", onScroll, {
 					passive: true,
 				});
 			}
 		};
 	}
 
-	document.addEventListener("DOMContentLoaded", () => {
-		new window.BackToTopManager();
-	});
+	// 只创建一个管理器实例，避免重复绑定滚动监听
+	const initManager = () => {
+		if (!window.backToTopManager) {
+			window.backToTopManager = new window.BackToTopManager();
+		}
+	};
 
 	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", () => {
-			new window.BackToTopManager();
-		});
+		document.addEventListener("DOMContentLoaded", initManager);
 	} else {
-		new window.BackToTopManager();
+		initManager();
 	}
 </script>

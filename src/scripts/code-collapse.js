@@ -3,6 +3,7 @@ class CodeBlockCollapser {
 		this.processedBlocks = new WeakSet();
 		this.observer = null;
 		this.isThemeChanging = false;
+		this.debounceTimer = null;
 		this.debug = false; // 设置为 true 启用调试日志
 		this.init();
 	}
@@ -232,12 +233,14 @@ class CodeBlockCollapser {
 			return;
 		}
 
-		// 断开现有的 observer
+		// 断开现有的 observer 并清除挂起的防抖任务
 		if (this.observer) {
 			this.observer.disconnect();
 		}
-
-		let debounceTimer = null;
+		if (this.debounceTimer) {
+			clearTimeout(this.debounceTimer);
+			this.debounceTimer = null;
+		}
 
 		this.observer = new MutationObserver((mutations) => {
 			// 如果正在主题切换，忽略所有变化
@@ -276,8 +279,11 @@ class CodeBlockCollapser {
 			}
 
 			if (shouldReinit) {
-				clearTimeout(debounceTimer);
-				debounceTimer = setTimeout(() => this.setupCodeBlocks(), 30);
+				clearTimeout(this.debounceTimer);
+				this.debounceTimer = setTimeout(
+					() => this.setupCodeBlocks(),
+					30,
+				);
 			}
 		});
 
@@ -291,6 +297,10 @@ class CodeBlockCollapser {
 		if (this.observer) {
 			this.observer.disconnect();
 			this.observer = null;
+		}
+		if (this.debounceTimer) {
+			clearTimeout(this.debounceTimer);
+			this.debounceTimer = null;
 		}
 		this.processedBlocks = new WeakSet();
 	}

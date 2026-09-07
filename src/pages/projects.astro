@@ -51,6 +51,14 @@ const getCategoryIcon = (category: string) => {
 	}
 };
 
+const categoryCounts = new Map();
+for (const project of projectsData) {
+	categoryCounts.set(
+		project.category,
+		(categoryCounts.get(project.category) ?? 0) + 1,
+	);
+}
+
 const filterTabs = [
 	{
 		value: "all",
@@ -62,7 +70,7 @@ const filterTabs = [
 		value: category,
 		label: getCategoryText(category),
 		icon: getCategoryIcon(category),
-		count: projectsData.filter((p) => p.category === category).length,
+		count: categoryCounts.get(category) ?? 0,
 	})),
 ];
 

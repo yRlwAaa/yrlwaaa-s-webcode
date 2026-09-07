@@ -24,6 +24,13 @@
 	let observer: IntersectionObserver | undefined;
 	let swupListenersRegistered = $state(false);
 
+	// 标题元素缓存：init/导航时刷新一次，避免滚动时反复全文档查询
+	let headingCache: HTMLElement[] = [];
+	let scrollRafId = 0;
+	// 监听器引用：组件卸载时用于移除，避免泄漏
+	let swupEnableHandler: (() => void) | undefined;
+	let popstateHandler: (() => void) | undefined;
+
 	const togglePanel = async () => {
 		await panelManager.togglePanel("mobile-toc-panel");
 	};
@@ -42,13 +49,19 @@
 		navigateToPage(url);
 	};
 
+	// 只按需查询一次标题列表（init/导航后刷新），避免滚动时反复全文档查询
+	const refreshHeadingCache = () => {
+		headingCache = Array.from(
+			document.querySelectorAll("h1, h2, h3, h4, h5, h6"),
+		);
+	};
+
 	const updateActiveHeading = () => {
-		const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
 		const scrollTop = window.scrollY;
 		const offset = 100;
 
 		let currentActiveId = "";
-		headings.forEach((heading) => {
+		headingCache.forEach((heading) => {
 			if (heading.id) {
 				const elementTop = (heading as HTMLElement).offsetTop - offset;
 				if (scrollTop >= elementTop) {
@@ -60,8 +73,17 @@
 		activeId = currentActiveId;
 	};
 
+	// rAF 节流：同一帧内多次 scroll 只执行一次位置计算
+	const onScroll = () => {
+		if (scrollRafId) return;
+		scrollRafId = requestAnimationFrame(() => {
+			scrollRafId = 0;
+			updateActiveHeading();
+		});
+	};
+
 	const setupIntersectionObserver = () => {
-		const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
+		const headings = headingCache;
 
 		if (observer) {
 			observer.disconnect();
@@ -117,9 +139,10 @@
 
 			swupListenersRegistered = true;
 		} else if (!swupListenersRegistered) {
-			window.addEventListener("popstate", () => {
+			popstateHandler = () => {
 				setTimeout(init, 200);
-			});
+			};
+			window.addEventListener("popstate", popstateHandler);
 			swupListenersRegistered = true;
 		}
 	};
@@ -136,19 +159,32 @@
 			};
 			if (w.swup) {
 				setupSwupListeners();
-			} else {
-				const checkSwup = () => {
+			} else if (!swupEnableHandler) {
+				// 只在 swup 尚未就绪时注册一次；组件卸载时移除
+				swupEnableHandler = () => {
 					if (w.swup) {
 						setupSwupListeners();
-						document.removeEventListener("swup:enable", checkSwup);
+						if (swupEnableHandler) {
+							document.removeEventListener(
+								"swup:enable",
+								swupEnableHandler,
+							);
+							swupEnableHandler = undefined;
+						}
 					}
 				};
 
-				document.addEventListener("swup:enable", checkSwup);
+				document.addEventListener("swup:enable", swupEnableHandler);
 				setTimeout(() => {
 					if (w.swup) {
 						setupSwupListeners();
-						document.removeEventListener("swup:enable", checkSwup);
+						if (swupEnableHandler) {
+							document.removeEventListener(
+								"swup:enable",
+								swupEnableHandler,
+							);
+							swupEnableHandler = undefined;
+						}
 					}
 				}, 1000);
 			}
@@ -158,6 +194,7 @@
 	const init = () => {
 		isHomePage = checkIsHomePage();
 		checkSwupAvailability();
+		refreshHeadingCache();
 
 		if (isHomePage) {
 			tocItems = [];
@@ -173,13 +210,26 @@
 
 	onMount(() => {
 		setTimeout(init, 100);
-		window.addEventListener("scroll", updateActiveHeading, {
+		window.addEventListener("scroll", onScroll, {
 			passive: true,
 		});
 
 		return () => {
 			observer?.disconnect();
-			window.removeEventListener("scroll", updateActiveHeading);
+			if (scrollRafId) {
+				cancelAnimationFrame(scrollRafId);
+				scrollRafId = 0;
+			}
+			window.removeEventListener("scroll", onScroll);
+
+			if (swupEnableHandler) {
+				document.removeEventListener("swup:enable", swupEnableHandler);
+				swupEnableHandler = undefined;
+			}
+			if (popstateHandler) {
+				window.removeEventListener("popstate", popstateHandler);
+				popstateHandler = undefined;
+			}
 
 			const w = window as unknown as {
 				swup?: {

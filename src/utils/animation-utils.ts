@@ -14,6 +14,7 @@ export class AnimationManager {
 	private static instance: AnimationManager;
 	private isAnimating = false;
 	private animationQueue: (() => void)[] = [];
+	private scrollObserver: IntersectionObserver | null = null;
 
 	static getInstance(): AnimationManager {
 		if (!AnimationManager.instance) {
@@ -52,6 +53,8 @@ export class AnimationManager {
 			swup.hooks.on("content:replace", () => {
 				setTimeout(() => {
 					this.initializePageAnimations();
+					// 重建滚动观察器：先断开旧实例，再观察新页面的元素
+					this.setupScrollAnimations();
 				}, 50);
 			});
 		}
@@ -144,6 +147,7 @@ export class AnimationManager {
 
 	/**
 	 * 设置滚动动画
+	 * 每次调用都会先断开旧的 observer，避免重复观察与内存泄漏
 	 */
 	private setupScrollAnimations(): void {
 		if (typeof window === "undefined") {
@@ -156,6 +160,10 @@ export class AnimationManager {
 			threshold: 0.1,
 		};
 
+		if (this.scrollObserver) {
+			this.scrollObserver.disconnect();
+		}
+
 		const observer = new IntersectionObserver((entries) => {
 			entries.forEach((entry) => {
 				if (entry.isIntersecting) {
@@ -164,6 +172,8 @@ export class AnimationManager {
 				}
 			});
 		}, observerOptions);
+
+		this.scrollObserver = observer;
 
 		// 观察所有需要滚动动画的元素
 		const scrollElements = document.querySelectorAll(".animate-on-scroll");

@@ -157,42 +157,51 @@ const processedLinks: ProcessedNavBarLink[] = (
 </style>
 
 <script>
-	document.addEventListener("DOMContentLoaded", function () {
-		const mobileDropdowns = document.querySelectorAll(
-			"[data-mobile-dropdown]",
-		);
+	// 事件委托：只在 document 上注册一次，面板内容无论何时(含 Swup 导航后)
+	// 动态渲染都能响应点击，避免逐个绑定与重复注册
+	const win = window as unknown as { __navMenuPanelDelegated?: boolean };
+	if (!win.__navMenuPanelDelegated) {
+		win.__navMenuPanelDelegated = true;
 
-		mobileDropdowns.forEach((dropdown) => {
-			const trigger = dropdown.querySelector(
-				"[data-mobile-dropdown-trigger]",
-			);
-			const submenu = dropdown.querySelector("[data-mobile-submenu]");
+		document.addEventListener("click", function (e) {
+			const target = e.target as Element | null;
+			const trigger = target?.closest
+				? target.closest("[data-mobile-dropdown-trigger]")
+				: null;
+			if (!trigger) {
+				return;
+			}
+			e.preventDefault();
 
-			if (!trigger || !submenu) {
+			const dropdown = trigger.closest("[data-mobile-dropdown]");
+			if (!dropdown) {
 				return;
 			}
 
-			trigger.addEventListener("click", function (e) {
-				e.preventDefault();
-				const isExpanded =
-					dropdown.getAttribute("data-expanded") === "true";
+			const isExpanded =
+				dropdown.getAttribute("data-expanded") === "true";
 
-				mobileDropdowns.forEach((otherDropdown) => {
+			// 收起其他已展开的下拉菜单
+			document
+				.querySelectorAll("[data-mobile-dropdown]")
+				.forEach((otherDropdown) => {
 					if (otherDropdown !== dropdown) {
 						otherDropdown.setAttribute("data-expanded", "false");
 						const otherTrigger = otherDropdown.querySelector(
 							"[data-mobile-dropdown-trigger]",
 						);
 						if (otherTrigger) {
-							otherTrigger.setAttribute("aria-expanded", "false");
+							otherTrigger.setAttribute(
+								"aria-expanded",
+								"false",
+							);
 						}
 					}
 				});
 
-				const newState = !isExpanded;
-				dropdown.setAttribute("data-expanded", newState.toString());
-				trigger.setAttribute("aria-expanded", newState.toString());
-			});
+			const newState = !isExpanded;
+			dropdown.setAttribute("data-expanded", newState.toString());
+			trigger.setAttribute("aria-expanded", newState.toString());
 		});
-	});
+	}
 </script>
