@@ -29,16 +29,26 @@ const E5_API = "https://producing-supposed-mat-donation.trycloudflare.com";
 			<style>
 				.e5p {
 					--e5-primary: var(--primary, #7186f5);
-					--e5-dim: color-mix(in srgb, currentColor 68%, transparent);
-					--e5-faint: color-mix(in srgb, currentColor 46%, transparent);
+					--e5-dim: color-mix(in srgb, currentColor 62%, transparent);
+					--e5-faint: color-mix(in srgb, currentColor 40%, transparent);
 					--e5-card: color-mix(in srgb, currentColor 6%, transparent);
-					--e5-line: color-mix(in srgb, currentColor 17%, transparent);
-					--e5-soft: color-mix(in srgb, var(--e5-primary) 13%, transparent);
+					--e5-line: color-mix(in srgb, currentColor 15%, transparent);
+					--e5-soft: color-mix(in srgb, var(--e5-primary) 12%, transparent);
 					--e5-good: #3fbf7f;
 					--e5-bad: #e5534b;
 					--e5-r: var(--radius-large, 14px);
-					color: inherit;
+					color: #232936;
 					font-family: inherit;
+				}
+				.dark .e5p,
+				html[data-theme="dark"] .e5p,
+				html[data-theme="night"] .e5p {
+					color: #e9edf6;
+				}
+				@media (prefers-color-scheme: dark) {
+					.e5p {
+						color: #e9edf6;
+					}
 				}
 				.e5p * {
 					box-sizing: border-box;
