@@ -332,7 +332,17 @@ const E5_API = "https://producing-supposed-mat-donation.trycloudflare.com";
 						var de = document.documentElement;
 						var dark = de.classList.contains("dark") ||
 							/dark|night/i.test(de.getAttribute("data-theme") || "");
-						e5Root.style.color = dark ? "#e9edf6" : "#232936";
+						var c = dark ? "#e9edf6" : "#232936";
+						try {
+							// 采样同页面里主题自己渲染的文字颜色(页标题), 与它保持完全一致
+							var card = e5Root.parentElement;
+							var probe = card ? card.querySelector("h1, .card-base > div > p") : null;
+							if (probe) {
+								var col = getComputedStyle(probe).color;
+								if (col && col.indexOf("rgb") === 0) c = col;
+							}
+						} catch (e) {}
+						e5Root.style.setProperty("color", c, "important");
 					}
 					applyTheme();
 					try {
