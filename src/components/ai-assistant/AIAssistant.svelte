@@ -249,11 +249,11 @@
   .ai-fab-btn {
     width: var(--fab-button-size, 3rem);
     height: var(--fab-button-size, 3rem);
-    border-radius: 50%;
-    background: color-mix(in srgb, var(--primary) 14%, rgba(16, 18, 26, 0.9));
+    border-radius: 1rem;
+    background: var(--btn-card-bg, color-mix(in srgb, var(--primary) 10%, rgba(148, 163, 184, 0.12)));
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1px solid color-mix(in srgb, var(--primary) 45%, transparent);
+    border: 1px solid rgba(148, 163, 184, 0.45);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -264,8 +264,18 @@
     box-sizing: border-box;
   }
   .ai-fab-btn:hover {
-    background: color-mix(in srgb, var(--primary) 26%, rgba(16, 18, 26, 0.9));
+    background: var(--btn-card-bg-hover, color-mix(in srgb, var(--primary) 20%, rgba(148, 163, 184, 0.14)));
+    box-shadow: var(--shadow-button);
     transform: translateY(-1px);
+  }
+  :global(.dark) .ai-fab-btn {
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  @media (max-width: 768px) {
+    .ai-fab-btn { border-radius: 0.75rem; }
+  }
+  @media (max-width: 480px) {
+    .ai-fab-btn { border-radius: 0.5rem; }
   }
 
   /* ---------- 聊天窗口（背景跟随主题色） ---------- */
