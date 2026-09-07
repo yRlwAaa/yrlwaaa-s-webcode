@@ -273,6 +273,7 @@ const E5_API = "https://producing-supposed-mat-donation.trycloudflare.com";
 					<span class="stat-chip"
 						><span class="dot" id="mDot"></span><span id="mTxt">读取中…</span></span
 					>
+					<span class="stat-chip" id="srcChip" style="display:none"></span>
 					<span class="sp"></span>
 					<button class="quiet" id="allStop">全部停止</button>
 				</div>
@@ -349,6 +350,13 @@ const E5_API = "https://producing-supposed-mat-donation.trycloudflare.com";
 						var mode = d.mode || "idle";
 						$("mTxt").textContent = names[mode] || mode;
 						$("mDot").className = "dot " + (mode === "chat" || mode === "draw" ? "on" : "");
+						var sc = $("srcChip");
+						if (sc) {
+							var src = d.host || "";
+							if (d.gpu) src += (src ? " · " : "") + "GPU " + d.gpu.total_gb + "GB";
+							sc.textContent = src ? "数据源 " + src : "";
+							sc.style.display = src ? "inline-flex" : "none";
+						}
 						var chat = d.services && d.services.chat, draw = d.services && d.services.draw, build = d.services && d.services.build;
 						$("tagChat").textContent = chat && chat.alive ? "运行中" : "未运行";
 						$("tagChat").className = "pill" + (chat && chat.alive ? " run" : "");
