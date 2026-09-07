@@ -29,16 +29,15 @@ const E5_API = "https://producing-supposed-mat-donation.trycloudflare.com";
 			<style>
 				.e5p {
 					--e5-primary: var(--primary, #7186f5);
-					--e5-text: var(--deep-text, #e7ebf4);
-					--e5-dim: var(--content-meta, #93a1bd);
-					--e5-faint: color-mix(in srgb, var(--e5-dim) 72%, transparent);
-					--e5-card: var(--card-bg, rgba(148, 163, 184, 0.06));
-					--e5-line: var(--line-color, rgba(148, 163, 184, 0.16));
-					--e5-soft: color-mix(in srgb, var(--e5-primary) 12%, transparent);
+					--e5-dim: color-mix(in srgb, currentColor 68%, transparent);
+					--e5-faint: color-mix(in srgb, currentColor 46%, transparent);
+					--e5-card: color-mix(in srgb, currentColor 6%, transparent);
+					--e5-line: color-mix(in srgb, currentColor 17%, transparent);
+					--e5-soft: color-mix(in srgb, var(--e5-primary) 13%, transparent);
 					--e5-good: #3fbf7f;
 					--e5-bad: #e5534b;
 					--e5-r: var(--radius-large, 14px);
-					color: var(--e5-text);
+					color: inherit;
 					font-family: inherit;
 				}
 				.e5p * {
@@ -116,7 +115,7 @@ const E5_API = "https://producing-supposed-mat-donation.trycloudflare.com";
 					height: 3px;
 					border-radius: 99px;
 					margin-top: 7px;
-					background: color-mix(in srgb, var(--e5-text) 12%, transparent);
+					background: color-mix(in srgb, currentColor 12%, transparent);
 					overflow: hidden;
 				}
 				.e5p .res .bk i {
