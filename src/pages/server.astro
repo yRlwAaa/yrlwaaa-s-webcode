@@ -1,0 +1,419 @@
+---
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+
+export const prerender = true;
+
+// 控制台数据后端: 预览期指向本机临时隧道; 正式部署后改成 https://e5.yrlwa.top
+const E5_API = "https://producing-supposed-mat-donation.trycloudflare.com";
+---
+
+<MainGridLayout title="服务器">
+	<script>
+		import("../scripts/right-sidebar-layout.js");
+	</script>
+	<div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
+		<div class="card-base z-10 px-5 sm:px-9 py-6 relative w-full">
+			<!-- 页面标题 -->
+			<div class="flex flex-col items-start justify-center mb-6">
+				<h1
+					class="text-4xl font-bold text-black/90 dark:text-white/90 mb-2 relative before:w-1 before:h-8 before:rounded-md before:bg-[var(--primary)] before:absolute before:top-1/2 before:-translate-y-1/2 before:-left-4"
+				>
+					服务器
+				</h1>
+				<p class="text-lg text-black/60 dark:text-white/60">
+					E5 · P100 16G · 对话 AI / 画图 / 编译 · 资源实时监控
+				</p>
+			</div>
+
+			<!-- ===== 嵌入的服务器控制台(内容区, 不含导航) ===== -->
+			<style>
+				.e5p {
+					--e5-primary: var(--primary, #7186f5);
+					--e5-text: var(--deep-text, #e7ebf4);
+					--e5-dim: var(--content-meta, #93a1bd);
+					--e5-faint: color-mix(in srgb, var(--e5-dim) 72%, transparent);
+					--e5-card: var(--card-bg, rgba(148, 163, 184, 0.06));
+					--e5-line: var(--line-color, rgba(148, 163, 184, 0.16));
+					--e5-soft: color-mix(in srgb, var(--e5-primary) 12%, transparent);
+					--e5-good: #3fbf7f;
+					--e5-bad: #e5534b;
+					--e5-r: var(--radius-large, 14px);
+					color: var(--e5-text);
+					font-family: inherit;
+				}
+				.e5p * {
+					box-sizing: border-box;
+				}
+				.e5p button {
+					font-family: inherit;
+				}
+				.e5p .hd {
+					display: flex;
+					align-items: center;
+					gap: 12px;
+					flex-wrap: wrap;
+					margin: 2px 0 14px;
+				}
+				.e5p .hd .sp {
+					flex: 1;
+				}
+				.e5p .stat-chip {
+					display: inline-flex;
+					align-items: center;
+					gap: 7px;
+					font-size: 0.78rem;
+					color: var(--e5-dim);
+					border: 1px solid var(--e5-line);
+					border-radius: 999px;
+					padding: 3px 11px;
+				}
+				.e5p .dot {
+					width: 8px;
+					height: 8px;
+					border-radius: 50%;
+					background: var(--e5-faint);
+				}
+				.e5p .dot.on {
+					background: var(--e5-good);
+					box-shadow: 0 0 6px color-mix(in srgb, var(--e5-good) 70%, transparent);
+				}
+				.e5p .res {
+					display: grid;
+					grid-template-columns: repeat(4, 1fr);
+					border: 1px solid var(--e5-line);
+					border-radius: var(--e5-r);
+					overflow: hidden;
+					margin-bottom: 14px;
+					background: var(--e5-card);
+				}
+				.e5p .res .cell {
+					padding: 10px 14px;
+					min-width: 0;
+				}
+				.e5p .res .cell + .cell {
+					border-left: 1px solid var(--e5-line);
+				}
+				.e5p .res .k {
+					font-size: 0.74rem;
+					color: var(--e5-faint);
+					margin-bottom: 5px;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+				.e5p .res .v {
+					font-size: 0.9rem;
+					font-weight: 600;
+					font-variant-numeric: tabular-nums;
+					white-space: nowrap;
+				}
+				.e5p .res .v small {
+					font-weight: 400;
+					color: var(--e5-faint);
+					font-size: 0.72rem;
+				}
+				.e5p .res .bk {
+					height: 3px;
+					border-radius: 99px;
+					margin-top: 7px;
+					background: color-mix(in srgb, var(--e5-text) 12%, transparent);
+					overflow: hidden;
+				}
+				.e5p .res .bk i {
+					display: block;
+					height: 100%;
+					width: 0;
+					background: var(--e5-primary);
+					border-radius: 99px;
+					transition: width 0.6s ease;
+				}
+				.e5p .res .disks {
+					grid-column: 1 / -1;
+					border-top: 1px solid var(--e5-line);
+					padding: 6px 14px;
+					font-size: 0.74rem;
+					color: var(--e5-faint);
+				}
+				.e5p .rows {
+					border: 1px solid var(--e5-line);
+					border-radius: var(--e5-r);
+					overflow: hidden;
+					background: var(--e5-card);
+				}
+				.e5p .row {
+					display: flex;
+					align-items: center;
+					gap: 14px;
+					padding: 13px 16px;
+				}
+				.e5p .row + .row {
+					border-top: 1px solid var(--e5-line);
+				}
+				.e5p .ico {
+					flex: 0 0 38px;
+					height: 38px;
+					border-radius: 11px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					background: var(--e5-soft);
+					color: var(--e5-primary);
+				}
+				.e5p .row .tt {
+					font-size: 0.95rem;
+					font-weight: 550;
+				}
+				.e5p .row .ds {
+					font-size: 0.78rem;
+					color: var(--e5-faint);
+					margin-top: 2px;
+					line-height: 1.5;
+				}
+				.e5p .row .mid {
+					flex: 1;
+					min-width: 0;
+				}
+				.e5p .pill {
+					font-size: 0.72rem;
+					border: 1px solid var(--e5-line);
+					color: var(--e5-dim);
+					border-radius: 999px;
+					padding: 2px 9px;
+					white-space: nowrap;
+				}
+				.e5p .pill.run {
+					color: var(--e5-good);
+					border-color: color-mix(in srgb, var(--e5-good) 45%, transparent);
+				}
+				.e5p .act {
+					border: 1px solid var(--e5-line);
+					background: transparent;
+					color: var(--e5-primary);
+					font-size: 0.84rem;
+					font-weight: 550;
+					padding: 7px 15px;
+					border-radius: 10px;
+					cursor: pointer;
+					white-space: nowrap;
+				}
+				.e5p .act:hover {
+					background: var(--e5-soft);
+					border-color: var(--e5-primary);
+				}
+				.e5p .act:disabled {
+					opacity: 0.45;
+					cursor: not-allowed;
+				}
+				.e5p .row.nas .ico {
+					background: color-mix(in srgb, #e0a04a 14%, transparent);
+					color: #e0a04a;
+				}
+				.e5p .row.nas .act {
+					border-color: color-mix(in srgb, #e0a04a 40%, transparent);
+					color: #d99a43;
+				}
+				.e5p .row.nas .act:hover {
+					background: color-mix(in srgb, #e0a04a 14%, transparent);
+				}
+				.e5p #msg {
+					margin: 10px 2px 0;
+					font-size: 0.8rem;
+					min-height: 1em;
+					color: var(--e5-dim);
+				}
+				.e5p #msg.err {
+					color: var(--e5-bad);
+				}
+				.e5p .quiet {
+					border: 0;
+					background: transparent;
+					color: var(--e5-faint);
+					font-size: 0.78rem;
+					padding: 5px 8px;
+					border-radius: 8px;
+					cursor: pointer;
+				}
+				.e5p .quiet:hover {
+					color: var(--e5-bad);
+					background: color-mix(in srgb, var(--e5-bad) 10%, transparent);
+				}
+				@media (max-width: 560px) {
+					.e5p .res {
+						grid-template-columns: 1fr 1fr;
+					}
+					.e5p .res .cell:nth-child(3) {
+						border-left: 0;
+					}
+					.e5p .res .cell:nth-child(1),
+					.e5p .res .cell:nth-child(2) {
+						border-bottom: 1px solid var(--e5-line);
+					}
+					.e5p .row {
+						flex-wrap: wrap;
+						padding: 12px 13px;
+					}
+					.e5p .row .ops {
+						flex: 1 1 100%;
+						justify-content: flex-end;
+					}
+				}
+			</style>
+
+			<div class="e5p">
+				<div class="hd">
+					<span class="stat-chip"
+						><span class="dot" id="mDot"></span><span id="mTxt">读取中…</span></span
+					>
+					<span class="sp"></span>
+					<button class="quiet" id="allStop">全部停止</button>
+				</div>
+
+				<div class="res">
+					<div class="cell"><div class="k">GPU 显存</div><div class="v" id="gpuTxt">–</div><div class="bk"><i id="gpuBar"></i></div></div>
+					<div class="cell"><div class="k">GPU 负载 / 温度</div><div class="v" id="utilTxt">–</div><div class="bk"><i id="utilBar"></i></div></div>
+					<div class="cell"><div class="k">CPU</div><div class="v" id="cpuTxt">–</div><div class="bk"><i id="cpuBar"></i></div></div>
+					<div class="cell"><div class="k">内存</div><div class="v" id="memTxt">–</div><div class="bk"><i id="memBar"></i></div></div>
+					<div class="disks" id="diskTxt">磁盘 —</div>
+				</div>
+
+				<div class="rows">
+					<div class="row">
+						<div class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+						<div class="mid">
+							<div class="tt">AI 对话 <span class="pill" id="tagChat">未运行</span></div>
+							<div class="ds">Qwen 27B · llama.cpp · 端口 11435 · 启动时自动停画图</div>
+						</div>
+						<div class="ops"><button class="act" id="btnChat">启动</button></div>
+					</div>
+					<div class="row">
+						<div class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg></div>
+						<div class="mid">
+							<div class="tt">画图 <span class="pill" id="tagDraw">未运行</span></div>
+							<div class="ds">SD WebUI · 端口 7860 · 启动时自动停对话</div>
+						</div>
+						<div class="ops"><button class="act" id="btnDraw">启动</button></div>
+					</div>
+					<div class="row">
+						<div class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+						<div class="mid">
+							<div class="tt">编译 / 终端 <span class="pill" id="tagBuild">未配置</span></div>
+							<div class="ds">网页终端或 code-server · 在 E5-gpu-manager.py 填 COMPILE_URL 后启用</div>
+						</div>
+						<div class="ops"><button class="act" id="btnBuild" disabled>打开</button></div>
+					</div>
+					<div class="row nas">
+						<div class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/></svg></div>
+						<div class="mid">
+							<div class="tt">NAS 存储</div>
+							<div class="ds" id="nasDs">跳转群晖 DSM 管理文件</div>
+						</div>
+						<div class="ops"><button class="act" id="btnNas">打开 →</button></div>
+					</div>
+				</div>
+
+				<div id="msg"></div>
+			</div>
+
+			<script is:inline>
+				window.E5_API = "https://producing-supposed-mat-donation.trycloudflare.com";
+			</script>
+			<script is:inline>
+				(function () {
+					"use strict";
+					var API = window.E5_API || "";
+					function $(id) { return document.getElementById(id); }
+					var token = localStorage.getItem("e5tok") || "";
+					function jget(u) {
+						var h = {};
+						if (token) h["X-Token"] = token;
+						return fetch(API + u, { headers: h })
+							.then(function (r) {
+								if (r.status === 401) { localStorage.removeItem("e5tok"); token = ""; }
+								return r.json().catch(function () { return { ok: false, msg: "响应异常" }; });
+							})
+							.catch(function (e) { return { ok: false, msg: "无法连接(" + e.message + ")" }; });
+					}
+					function toast(t, err) { var m = $("msg"); m.textContent = t || ""; m.className = err ? "err" : ""; }
+					function bar(id, p) { var el = $(id); if (el) el.style.width = Math.max(0, Math.min(100, p)) + "%"; }
+					var names = { chat: "对话AI运行中", draw: "画图中", idle: "空闲", both: "⚠ 冲突" };
+					function render(d) {
+						var mode = d.mode || "idle";
+						$("mTxt").textContent = names[mode] || mode;
+						$("mDot").className = "dot " + (mode === "chat" || mode === "draw" ? "on" : "");
+						var chat = d.services && d.services.chat, draw = d.services && d.services.draw, build = d.services && d.services.build;
+						$("tagChat").textContent = chat && chat.alive ? "运行中" : "未运行";
+						$("tagChat").className = "pill" + (chat && chat.alive ? " run" : "");
+						$("tagDraw").textContent = draw && draw.alive ? "运行中" : "未运行";
+						$("tagDraw").className = "pill" + (draw && draw.alive ? " run" : "");
+						var bc = $("btnChat");
+						bc.textContent = chat && chat.alive ? "进入 →" : "启动";
+						bc.onclick = function () {
+							if (chat && chat.alive) { window.open(chat.url, "_blank"); return; }
+							bc.disabled = true; toast("正在启动对话(约 30~90 秒, 会自动停画图)…");
+							jget("/api/switch?mode=chat").then(function (r) {
+								toast(r.msg || (r.ok ? "完成" : "失败"), !r.ok);
+								if (r.ok && chat && chat.url) window.open(chat.url, "_blank");
+								bc.disabled = false; refresh();
+							});
+						};
+						var bd = $("btnDraw");
+						bd.textContent = draw && draw.alive ? "进入 →" : "启动";
+						bd.onclick = function () {
+							if (draw && draw.alive) { window.open(draw.url, "_blank"); return; }
+							bd.disabled = true; toast("正在启动画图(约 1~2 分钟, 会自动停对话)…");
+							jget("/api/switch?mode=draw").then(function (r) {
+								toast(r.msg || (r.ok ? "完成" : "失败"), !r.ok);
+								if (r.ok && draw && draw.url) window.open(draw.url, "_blank");
+								bd.disabled = false; refresh();
+							});
+						};
+						if (build) {
+							$("tagBuild").textContent = build.alive ? "就绪" : "未配置";
+							$("tagBuild").className = "pill" + (build.alive ? " run" : "");
+							var bb = $("btnBuild");
+							bb.disabled = !build.alive;
+							bb.onclick = function () { if (build.url) window.open(build.url, "_blank"); };
+						}
+						if (d.links && d.links.nas) {
+							$("nasDs").textContent = d.links.nas.replace(/^https?:\/\//, "");
+							$("btnNas").onclick = function () { window.open(d.links.nas, "_blank"); };
+						}
+						var g = d.gpu;
+						if (g) {
+							$("gpuTxt").innerHTML = g.used_gb + " <small>/ " + g.total_gb + " GB</small>";
+							bar("gpuBar", g.total_gb ? (g.used_gb / g.total_gb) * 100 : 0);
+							$("utilTxt").innerHTML = g.util + "% <small>" + (g.temp_c != null ? g.temp_c + "°" : "") + "</small>";
+							bar("utilBar", g.util);
+						} else { $("gpuTxt").textContent = "—"; $("utilTxt").textContent = "—"; }
+						var c = d.cpu;
+						$("cpuTxt").textContent = c && c.load != null ? c.load + "%" : "—";
+						bar("cpuBar", c ? c.load : 0);
+						var m = d.mem;
+						if (m) {
+							$("memTxt").innerHTML = m.used_gb + " <small>/ " + m.total_gb + " GB</small>";
+							bar("memBar", m.total_gb ? (m.used_gb / m.total_gb) * 100 : 0);
+						} else { $("memTxt").textContent = "—"; }
+						if (d.disks && d.disks.length) {
+							$("diskTxt").textContent = "磁盘  " + d.disks.map(function (x) {
+								return x.drive + " " + x.used_gb + " / " + x.total_gb + " GB";
+							}).join("   ·   ");
+						}
+					}
+					var busy = false;
+					function refresh() {
+						if (busy) return; busy = true;
+						jget("/api/stats").then(function (d) { if (d && d.ok) render(d); busy = false; });
+					}
+					$("allStop").onclick = function () {
+						this.disabled = true; toast("正在全部停止…");
+						jget("/api/switch?mode=idle").then(function (r) {
+							toast(r.msg || (r.ok ? "完成" : "失败"), !r.ok);
+							$("allStop").disabled = false; setTimeout(refresh, 800);
+						});
+					};
+					refresh(); setInterval(refresh, 3000);
+				})();
+			</script>
+		</div>
+	</div>
+</MainGridLayout>

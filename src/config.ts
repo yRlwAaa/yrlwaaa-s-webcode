@@ -288,6 +288,11 @@ export const navBarConfig: NavBarConfig = {
 					icon: "material-symbols:devices",
 					external: false,
 				},
+				{
+					name: "服务器",
+					url: "/server/",
+					icon: "material-symbols:dns",
+				},
 			],
 		},
 		{
