@@ -888,6 +888,19 @@ const weatherI18n = JSON.stringify({
 		});
 
 		locate();
+		// 兜底防卡: 9 秒后若仍停留在加载态, 显示可点击重试(绝不无限转圈)
+		setTimeout(() => {
+			try {
+				if (loading && loading.style.display !== "none") {
+					setLoading(weatherI18n.loadFailed);
+					loading.style.cursor = "pointer";
+					loading.onclick = () => {
+						loading.style.cursor = "";
+						locate();
+					};
+				}
+			} catch (e) {}
+		}, 9000);
 		console.log("🌤️ 天气组件已加载");
 	});
 </script>

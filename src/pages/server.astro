@@ -363,6 +363,28 @@ const E5_API = "https://ipod-ozone-fares-wonder.trycloudflare.com";
 							})
 							.catch(function (e) { return { ok: false, msg: "无法连接(" + e.message + ")" }; });
 					}
+					// 控制类操作: 需要口令(访客没有口令 → 只能看数据, 不能操作)
+					function askToken() {
+						var t = prompt("请输入控制口令(仅站主可用):");
+						if (t) { token = t.trim(); localStorage.setItem("e5tok", token); }
+						return token;
+					}
+					function control(u) {
+						if (!token) { if (!askToken()) return Promise.resolve({ ok: false, msg: "已取消: 需要口令" }); }
+						return fetch(API + u, { headers: { "X-Token": token } })
+							.then(function (r) {
+								if (r.status === 401) {
+									localStorage.removeItem("e5tok"); token = "";
+									if (!askToken()) return { ok: false, msg: "口令错误, 操作已取消" };
+									return fetch(API + u, { headers: { "X-Token": token } }).then(function (r2) {
+										if (r2.status === 401) { localStorage.removeItem("e5tok"); token = ""; return { ok: false, msg: "口令错误" }; }
+										return r2.json();
+									});
+								}
+								return r.json();
+							})
+							.catch(function (e) { return { ok: false, msg: "无法连接(" + e.message + ")" }; });
+					}
 					function toast(t, err) { var m = $("msg"); m.textContent = t || ""; m.className = err ? "err" : ""; }
 					function bar(id, p) { var el = $(id); if (el) el.style.width = Math.max(0, Math.min(100, p)) + "%"; }
 					var names = { chat: "对话AI运行中", draw: "画图中", idle: "空闲", both: "⚠ 冲突" };
@@ -387,7 +409,7 @@ const E5_API = "https://ipod-ozone-fares-wonder.trycloudflare.com";
 						bc.onclick = function () {
 							if (chat && chat.alive) { window.open(chat.url, "_blank"); return; }
 							bc.disabled = true; toast("正在启动对话(约 30~90 秒, 会自动停画图)…");
-							jget("/api/switch?mode=chat").then(function (r) {
+							control("/api/switch?mode=chat").then(function (r) {
 								toast(r.msg || (r.ok ? "完成" : "失败"), !r.ok);
 								if (r.ok && chat && chat.url) window.open(chat.url, "_blank");
 								bc.disabled = false; refresh();
@@ -398,7 +420,7 @@ const E5_API = "https://ipod-ozone-fares-wonder.trycloudflare.com";
 						bd.onclick = function () {
 							if (draw && draw.alive) { window.open(draw.url, "_blank"); return; }
 							bd.disabled = true; toast("正在启动画图(约 1~2 分钟, 会自动停对话)…");
-							jget("/api/switch?mode=draw").then(function (r) {
+							control("/api/switch?mode=draw").then(function (r) {
 								toast(r.msg || (r.ok ? "完成" : "失败"), !r.ok);
 								if (r.ok && draw && draw.url) window.open(draw.url, "_blank");
 								bd.disabled = false; refresh();
@@ -444,7 +466,7 @@ const E5_API = "https://ipod-ozone-fares-wonder.trycloudflare.com";
 					}
 					$("allStop").onclick = function () {
 						this.disabled = true; toast("正在全部停止…");
-						jget("/api/switch?mode=idle").then(function (r) {
+						control("/api/switch?mode=idle").then(function (r) {
 							toast(r.msg || (r.ok ? "完成" : "失败"), !r.ok);
 							$("allStop").disabled = false; setTimeout(refresh, 800);
 						});
@@ -452,7 +474,7 @@ const E5_API = "https://ipod-ozone-fares-wonder.trycloudflare.com";
 					$("wakeBtn").onclick = function () {
 						var b = this; b.disabled = true;
 						toast("已请 NAS 发送唤醒包, 正在等待 E5 上线…");
-						jget("/api/wake").then(function (r) {
+						control("/api/wake").then(function (r) {
 							var ok = r && r.ok;
 							toast(ok ? "唤醒包已发出(需 E5 的 BIOS 开启 WoL), 大约 30~90 秒" :
 								"唤醒请求失败:检查 NAS 唤醒服务", !ok);
