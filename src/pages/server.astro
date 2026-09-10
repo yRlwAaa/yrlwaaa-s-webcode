@@ -270,6 +270,7 @@ const E5_API = "https://producing-supposed-mat-donation.trycloudflare.com";
 					>
 					<span class="stat-chip" id="srcChip" style="display:none"></span>
 					<span class="sp"></span>
+					<button class="quiet" id="wakeBtn">唤醒 E5</button>
 					<button class="quiet" id="allStop">全部停止</button>
 				</div>
 
@@ -446,6 +447,28 @@ const E5_API = "https://producing-supposed-mat-donation.trycloudflare.com";
 						jget("/api/switch?mode=idle").then(function (r) {
 							toast(r.msg || (r.ok ? "完成" : "失败"), !r.ok);
 							$("allStop").disabled = false; setTimeout(refresh, 800);
+						});
+					};
+					$("wakeBtn").onclick = function () {
+						var b = this; b.disabled = true;
+						toast("已请 NAS 发送唤醒包, 正在等待 E5 上线…");
+						jget("/api/wake").then(function (r) {
+							var ok = r && r.ok;
+							toast(ok ? "唤醒包已发出(需 E5 的 BIOS 开启 WoL), 大约 30~90 秒" :
+								"唤醒请求失败:检查 NAS 唤醒服务", !ok);
+							var tries = 0;
+							var t = setInterval(function () {
+								tries++;
+								jget("/api/stats").then(function (d) {
+									if (d && d.ok && d.mode && d.mode !== "idle") {
+										clearInterval(t); b.disabled = false;
+										toast("E5 已上线 ✅"); render(d);
+									} else if (tries >= 12) {
+										clearInterval(t); b.disabled = false;
+										toast("E5 仍未上线:可能 BIOS 未启用 WoL 或电源被断开");
+									}
+								});
+							}, 10000);
 						});
 					};
 					refresh(); setInterval(refresh, 3000);
