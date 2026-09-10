@@ -1,4 +1,4 @@
----
+﻿---
 // 天气组件 - Open-Meteo API（苹果天气风格）
 // IP 定位 → 默认显示用户位置天气；支持搜索城市替换地点；颜色跟随主题色滑块
 import I18nKey from "../../i18n/i18nKey";
@@ -42,7 +42,7 @@ const weatherI18n = JSON.stringify({
 	<!-- 加载态 -->
 	<div id="weather-loading" class="w-loading">
 		<div class="w-loading-icon">🌤️</div>
-		<div class="w-loading-text">{i18n(I18nKey.weatherLocating)}</div>
+		<div class="w-loading-text">{i18n(I18nKey.weatherFetching)}</div>
 	</div>
 
 	<!-- 主体 -->
@@ -715,56 +715,23 @@ const weatherI18n = JSON.stringify({
 			}
 		}
 
-		// ===== 定位 =====
+		// ===== 城市确定(不再依赖浏览器定位: 之前常卡在"定位中"且不准) =====
+		// 1) 上次搜索并记住的城市  2) 否则默认城市立即加载, 用户可在右上角搜索改成自己的城市(永久记住)
+		const DEFAULT_CITY = { lat: 39.9075, lon: 116.3972, city: "北京" };
 		async function locate() {
-			setLoading(weatherI18n.locating + "，请允许浏览器定位权限");
-
-			// 优先使用用户上次搜索的地点
 			const saved = loadLocation();
-			if (saved) {
+			if (saved && saved.lat && saved.lon && saved.city) {
+				setLoading(weatherI18n.fetching);
 				await fetchWeather(saved.lat, saved.lon, saved.city);
 				return;
 			}
-
-			// 5 秒兜底：无论定位结果如何，保证显示天气（默认上海），绝不卡在“定位中”
-			let settled = false;
-			const settleDefault = () => {
-				if (settled) return;
-				settled = true;
-				fetchWeather(31.23, 121.47, "上海");
-			};
-			const fallbackTimer = setTimeout(settleDefault, 5000);
-
-			const useCoords = (lat: number, lon: number) => {
-				if (settled) return;
-				settled = true;
-				clearTimeout(fallbackTimer);
-				fetchWeather(lat, lon, "当前位置").then(() => {
-					// 异步反查城市名并更新
-					reverseGeocode(lat, lon).then((city) => {
-						if (city) {
-							wCity.textContent = city;
-							searchInput.value = city;
-							saveLocation(lat, lon, city);
-						}
-					});
-				});
-			};
-
-			// 浏览器原生定位（GPS/WiFi，大陆可用，无需第三方 IP API）
-			if ("geolocation" in navigator) {
-				navigator.geolocation.getCurrentPosition(
-					(pos) => useCoords(pos.coords.latitude, pos.coords.longitude),
-					() => {
-						// 用户拒绝或定位失败 → 立即默认城市
-						clearTimeout(fallbackTimer);
-						settleDefault();
-					},
-					{ timeout: 8000, maximumAge: 300000 },
-				);
-			} else {
-				settleDefault();
-			}
+			// 立即用默认城市渲染, 绝不出现无限"定位中"
+			setLoading(weatherI18n.fetching);
+			await fetchWeather(DEFAULT_CITY.lat, DEFAULT_CITY.lon, DEFAULT_CITY.city);
+			// 首次给出清晰提示: 点右上角搜索可改城市
+			try {
+				if (wCity && !searchInput.value) searchInput.placeholder = "搜索你的城市(会记住)";
+			} catch (e) {}
 		}
 
 		// ===== 搜索 =====
