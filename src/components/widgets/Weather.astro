@@ -471,7 +471,12 @@ const weatherI18n = JSON.stringify({
 	}
 </style>
 
-<script define:vars={{ weatherI18n }}>
+<!-- i18n 通过 JSON 注入(不再用 define:vars, 否则脚本会被强制内联, TS 语法将无法编译而在浏览器报错) -->
+<script is:inline id="weather-i18n-data" type="application/json" set:html={weatherI18n}></script>
+<script>
+	const weatherI18n = JSON.parse(
+		(document.getElementById("weather-i18n-data")?.textContent || "{}"),
+	);
 	// 天气组件会按移动端/平板/桌面渲染多份（id 重复），
 	// 必须遍历所有实例分别初始化，否则只有第一份（移动端）生效
 	document.querySelectorAll(".weather-card").forEach(function (card) {
@@ -723,20 +728,68 @@ const weatherI18n = JSON.stringify({
 		// ===== 城市确定(不再依赖浏览器定位: 之前常卡在"定位中"且不准) =====
 		// 1) 上次搜索并记住的城市  2) 否则默认城市立即加载, 用户可在右上角搜索改成自己的城市(永久记住)
 		const DEFAULT_CITY = { lat: 39.9075, lon: 116.3972, city: "北京" };
+		// 离线城市表(搜索不能联网时也能用)
+		const LOCAL_CITIES = [
+			{ city: "北京", lat: 39.9075, lon: 116.3972 },
+			{ city: "上海", lat: 31.2304, lon: 121.4737 },
+			{ city: "广州", lat: 23.1291, lon: 113.2644 },
+			{ city: "深圳", lat: 22.5431, lon: 114.0579 },
+			{ city: "西安", lat: 34.3416, lon: 108.9398 },
+			{ city: "成都", lat: 30.5728, lon: 104.0668 },
+			{ city: "杭州", lat: 30.2741, lon: 120.1551 },
+			{ city: "南京", lat: 32.0603, lon: 118.7969 },
+			{ city: "武汉", lat: 30.5928, lon: 114.3055 },
+			{ city: "重庆", lat: 29.5630, lon: 106.5516 },
+			{ city: "天津", lat: 39.3434, lon: 117.3616 },
+			{ city: "郑州", lat: 34.7466, lon: 113.6254 },
+			{ city: "长沙", lat: 28.2282, lon: 112.9388 },
+			{ city: "青岛", lat: 36.0671, lon: 120.3826 },
+			{ city: "沈阳", lat: 41.8057, lon: 123.4315 },
+			{ city: "哈尔滨", lat: 45.8038, lon: 126.5340 },
+			{ city: "昆明", lat: 24.8801, lon: 102.8329 },
+			{ city: "厦门", lat: 24.4798, lon: 118.0894 },
+			{ city: "苏州", lat: 31.2989, lon: 120.5853 },
+			{ city: "合肥", lat: 31.8206, lon: 117.2272 },
+			{ city: "济南", lat: 36.6512, lon: 117.1201 },
+			{ city: "福州", lat: 26.0745, lon: 119.2965 },
+		];
+		// 构建期生成的同源静态天气(不依赖访客网络, 秒出)
+		let staticWeather: any = null;
+		async function loadStaticWeather() {
+			if (staticWeather) return staticWeather;
+			try {
+				const res = await fetchWithTimeout(`/weather-data.json?t=${Date.now()}`, 8000);
+				if (!res.ok) return null;
+				staticWeather = await res.json();
+				return staticWeather;
+			} catch {
+				return null;
+			}
+		}
+		async function showCity(city: string, lat?: number, lon?: number) {
+			setLoading(weatherI18n.fetching);
+			// 1) 静态数据里有的城市 → 直接用(最快最稳)
+			const st = await loadStaticWeather();
+			const entry = st && st.cities ? st.cities[city] : null;
+			if (entry && entry.data) {
+				if (displayWeather(entry.data, city)) {
+					saveLocation(entry.lat, entry.lon, city);
+					searchInput.value = city;
+					return;
+				}
+			}
+			// 2) 静态里没有 → 走实时接口(带超时, 失败会给出明确提示)
+			const c = lat != null && lon != null ? { lat, lon } : (LOCAL_CITIES.find((x) => x.city === city) || DEFAULT_CITY);
+			await fetchWeather(c.lat, c.lon, city);
+		}
 		async function locate() {
 			const saved = loadLocation();
 			if (saved && saved.lat && saved.lon && saved.city) {
-				setLoading(weatherI18n.fetching);
-				await fetchWeather(saved.lat, saved.lon, saved.city);
+				await showCity(saved.city, saved.lat, saved.lon);
 				return;
 			}
-			// 立即用默认城市渲染, 绝不出现无限"定位中"
-			setLoading(weatherI18n.fetching);
-			await fetchWeather(DEFAULT_CITY.lat, DEFAULT_CITY.lon, DEFAULT_CITY.city);
-			// 首次给出清晰提示: 点右上角搜索可改城市
-			try {
-				if (wCity && !searchInput.value) searchInput.placeholder = "搜索你的城市(会记住)";
-			} catch (e) {}
+			// 首次访问: 用构建期静态数据里的默认城市, 立即出结果
+			await showCity(DEFAULT_CITY.city, DEFAULT_CITY.lat, DEFAULT_CITY.lon);
 		}
 
 		// ===== 搜索 =====
@@ -803,6 +856,16 @@ const weatherI18n = JSON.stringify({
 				}
 			}
 
+			// 3. 离线城市表兜底(联网搜索全部失败时仍可换城市)
+			if (results.length === 0) {
+				results = LOCAL_CITIES.filter((c) => c.city.includes(q)).map((c) => ({
+					lat: c.lat,
+					lon: c.lon,
+					name: c.city,
+					admin: "内置城市表",
+				}));
+			}
+
 			if (results.length === 0) {
 				searchResults.innerHTML =
 					'<div class="w-search-empty">' + weatherI18n.notFound + '</div>';
@@ -829,7 +892,7 @@ const weatherI18n = JSON.stringify({
 						const admin = btn.dataset.admin;
 						const city = admin ? `${name}, ${admin}` : name;
 						closeSearch();
-						fetchWeather(lat, lon, city);
+						showCity(city, lat, lon);
 					});
 				});
 		}
