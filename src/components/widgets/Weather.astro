@@ -1,4 +1,4 @@
-﻿---
+---
 // 天气组件 - Open-Meteo API（苹果天气风格）
 // IP 定位 → 默认显示用户位置天气；支持搜索城市替换地点；颜色跟随主题色滑块
 import I18nKey from "../../i18n/i18nKey";
@@ -39,14 +39,14 @@ const weatherI18n = JSON.stringify({
 ---
 
 <div id="weather-widget" class="weather-card">
-	<!-- 加载态 -->
-	<div id="weather-loading" class="w-loading">
+	<!-- 加载态(默认隐藏: 页面先显示天气卡占位, 不会出现"一直转圈") -->
+	<div id="weather-loading" class="w-loading" style="display:none;">
 		<div class="w-loading-icon">🌤️</div>
 		<div class="w-loading-text">{i18n(I18nKey.weatherFetching)}</div>
 	</div>
 
-	<!-- 主体 -->
-	<div id="weather-content" class="w-content" style="display:none;">
+	<!-- 主体(默认可见) -->
+	<div id="weather-content" class="w-content" style="display:block;">
 		<!-- 头部：城市 + 搜索入口 -->
 		<div class="w-header">
 			<span id="w-city" class="w-city">--</span>
@@ -555,10 +555,15 @@ const weatherI18n = JSON.stringify({
 				if (
 					typeof data.lat === "number" &&
 					typeof data.lon === "number" &&
-					typeof data.city === "string"
+					typeof data.city === "string" &&
+					data.city.trim() !== "" &&
+					data.city !== "当前位置" &&   // 旧版浏览器定位留下的错误城市, 直接忽略
+					Number.isFinite(data.lat) &&
+					Number.isFinite(data.lon)
 				) {
 					return data;
 				}
+				localStorage.removeItem(STORAGE_KEY);
 			} catch {
 				/* ignore */
 			}
