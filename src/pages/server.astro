@@ -388,10 +388,24 @@ const E5_API = "https://e5.yrlwa.top";
 					function toast(t, err) { var m = $("msg"); m.textContent = t || ""; m.className = err ? "err" : ""; }
 					function bar(id, p) { var el = $(id); if (el) el.style.width = Math.max(0, Math.min(100, p)) + "%"; }
 					var names = { chat: "对话AI运行中", draw: "画图中", idle: "空闲", both: "⚠ 冲突" };
+					var pending = "";   // 正在等待完成的切换目标(用于完成时提示)
 					function render(d) {
 						var mode = d.mode || "idle";
-						$("mTxt").textContent = names[mode] || mode;
-						$("mDot").className = "dot " + (mode === "chat" || mode === "draw" ? "on" : "");
+						var sw = d.switch || {};
+						var switching = !!sw.running;
+						if (switching) {
+							$("mTxt").textContent = (sw.phase || "正在切换…") +
+								(sw.elapsed ? "  " + Math.round(sw.elapsed) + "s" : "");
+							$("mDot").className = "dot on";
+						} else {
+							$("mTxt").textContent = names[mode] || mode;
+							$("mDot").className = "dot " + (mode === "chat" || mode === "draw" ? "on" : "");
+						}
+						if (pending && !switching && sw.msg) {
+							if (sw.ok) toast("✅ " + sw.msg + " 点「进入 →」打开");
+							else toast("❌ " + sw.msg, true);
+							pending = "";
+						}
 						var sc = $("srcChip");
 						if (sc) {
 							var src = d.host || "";
@@ -405,24 +419,30 @@ const E5_API = "https://e5.yrlwa.top";
 						$("tagDraw").textContent = draw && draw.alive ? "运行中" : "未运行";
 						$("tagDraw").className = "pill" + (draw && draw.alive ? " run" : "");
 						var bc = $("btnChat");
-						bc.textContent = chat && chat.alive ? "进入 →" : "启动";
+						bc.textContent = chat && chat.alive ? "进入 →" : (switching && sw.mode === "chat" ? "启动中…" : "启动");
+						bc.disabled = switching;
 						bc.onclick = function () {
 							if (chat && chat.alive) { window.open(chat.url, "_blank"); return; }
-							bc.disabled = true; toast("正在启动对话(约 30~90 秒, 会自动停画图)…");
+							bc.disabled = true; toast("正在启动对话(会自动停画图), 约 1~3 分钟…");
 							control("/api/switch?mode=chat").then(function (r) {
-								toast(r.msg || (r.ok ? "完成" : "失败"), !r.ok);
-								if (r.ok && chat && chat.url) window.open(chat.url, "_blank");
+								r = r || {};
+								if (r.accepted) { pending = "chat"; toast("已开始切换, 进度见上方状态"); }
+								else if (r.busy) { toast(r.msg || "已有切换在进行中, 请稍候"); }
+								else { toast(r.msg || "启动失败", !r.ok); }
 								bc.disabled = false; refresh();
 							});
 						};
 						var bd = $("btnDraw");
-						bd.textContent = draw && draw.alive ? "进入 →" : "启动";
+						bd.textContent = draw && draw.alive ? "进入 →" : (switching && sw.mode === "draw" ? "启动中…" : "启动");
+						bd.disabled = switching;
 						bd.onclick = function () {
 							if (draw && draw.alive) { window.open(draw.url, "_blank"); return; }
-							bd.disabled = true; toast("正在启动画图(约 1~2 分钟, 会自动停对话)…");
+							bd.disabled = true; toast("正在启动画图(会自动停对话), 约 1~3 分钟…");
 							control("/api/switch?mode=draw").then(function (r) {
-								toast(r.msg || (r.ok ? "完成" : "失败"), !r.ok);
-								if (r.ok && draw && draw.url) window.open(draw.url, "_blank");
+								r = r || {};
+								if (r.accepted) { pending = "draw"; toast("已开始切换, 进度见上方状态"); }
+								else if (r.busy) { toast(r.msg || "已有切换在进行中, 请稍候"); }
+								else { toast(r.msg || "启动失败", !r.ok); }
 								bd.disabled = false; refresh();
 							});
 						};
@@ -479,10 +499,13 @@ const E5_API = "https://e5.yrlwa.top";
 						});
 					}
 					$("allStop").onclick = function () {
-						this.disabled = true; toast("正在全部停止…");
+						var b = this; b.disabled = true; toast("正在全部停止…");
 						control("/api/switch?mode=idle").then(function (r) {
-							toast(r.msg || (r.ok ? "完成" : "失败"), !r.ok);
-							$("allStop").disabled = false; setTimeout(refresh, 800);
+							r = r || {};
+							if (r.accepted) { pending = "idle"; toast("已开始停止, 稍后显存归零"); }
+							else if (r.busy) { toast(r.msg || "已有切换在进行中, 请稍候"); }
+							else { toast(r.msg || "操作失败", !r.ok); }
+							b.disabled = false; setTimeout(refresh, 800);
 						});
 					};
 					$("wakeBtn").onclick = function () {
