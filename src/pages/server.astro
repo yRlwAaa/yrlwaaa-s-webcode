@@ -1,10 +1,10 @@
-﻿---
+---
 import MainGridLayout from "../layouts/MainGridLayout.astro";
 
 export const prerender = true;
 
 // 控制台数据后端: 预览期指向本机临时隧道; 正式部署后改成 https://e5.yrlwa.top
-const E5_API = "https://ipod-ozone-fares-wonder.trycloudflare.com";
+const E5_API = "https://e5.yrlwa.top";
 ---
 
 <MainGridLayout title="服务器">
@@ -321,7 +321,7 @@ const E5_API = "https://ipod-ozone-fares-wonder.trycloudflare.com";
 			</div>
 
 			<script is:inline>
-				window.E5_API = "https://ipod-ozone-fares-wonder.trycloudflare.com";
+				window.E5_API = "https://e5.yrlwa.top";
 			</script>
 			<script is:inline>
 				(function () {
@@ -459,10 +459,24 @@ const E5_API = "https://ipod-ozone-fares-wonder.trycloudflare.com";
 						}
 					}
 					var busy = false;
+					var offlineNotified = false;
 					function refresh() {
 						applyTheme();
 						if (busy) return; busy = true;
-						jget("/api/stats").then(function (d) { if (d && d.ok) render(d); busy = false; });
+						jget("/api/stats").then(function (d) {
+							if (d && d.ok) {
+								if (offlineNotified) { offlineNotified = false; toast("数据源已恢复 ✅"); }
+								render(d);
+							} else {
+								$("mTxt").textContent = "数据源离线";
+								$("mDot").className = "dot";
+								if (!offlineNotified) {
+									offlineNotified = true;
+									toast(((d && d.msg) ? d.msg + " · " : "") + "数据源离线(隧道未运行或域名未解析)", true);
+								}
+							}
+							busy = false;
+						});
 					}
 					$("allStop").onclick = function () {
 						this.disabled = true; toast("正在全部停止…");
