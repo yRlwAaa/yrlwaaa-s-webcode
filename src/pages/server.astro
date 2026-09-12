@@ -480,23 +480,38 @@ const E5_API = "https://e5.yrlwa.top";
 					}
 					var busy = false;
 					var offlineNotified = false;
+					var fails = 0;   // 隧道本身会偶发丢包, 连续失败才判定离线, 避免界面来回闪
+					function applyStats(d) {
+						if (d && d.ok) {
+							fails = 0;
+							if (offlineNotified) { offlineNotified = false; toast("数据源已恢复 ✅"); }
+							render(d);
+							return true;
+						}
+						fails++;
+						if (fails >= 3) {
+							$("mTxt").textContent = "数据源离线";
+							$("mDot").className = "dot";
+							if (!offlineNotified) {
+								offlineNotified = true;
+								toast(((d && d.msg) ? d.msg + " · " : "") + "数据源离线(隧道未运行或域名未解析)", true);
+							}
+						} else if (!$("mTxt").textContent || $("mTxt").textContent === "读取中…") {
+							$("mTxt").textContent = "重试中…";
+						}
+						return false;
+					}
 					function refresh() {
 						applyTheme();
 						if (busy) return; busy = true;
 						jget("/api/stats").then(function (d) {
-							if (d && d.ok) {
-								if (offlineNotified) { offlineNotified = false; toast("数据源已恢复 ✅"); }
-								render(d);
-							} else {
-								$("mTxt").textContent = "数据源离线";
-								$("mDot").className = "dot";
-								if (!offlineNotified) {
-									offlineNotified = true;
-									toast(((d && d.msg) ? d.msg + " · " : "") + "数据源离线(隧道未运行或域名未解析)", true);
-								}
+							if (!applyStats(d)) {
+								// 立刻再试一次, 多数丢包重试即通
+								return new Promise(function (res) { setTimeout(res, 1200); })
+									.then(function () { return jget("/api/stats"); })
+									.then(function (d2) { applyStats(d2); });
 							}
-							busy = false;
-						});
+						}).then(function () { busy = false; });
 					}
 					$("allStop").onclick = function () {
 						var b = this; b.disabled = true; toast("正在全部停止…");
