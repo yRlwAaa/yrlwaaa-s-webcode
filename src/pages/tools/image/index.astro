@@ -1,0 +1,442 @@
+---
+import { Icon } from "astro-icon/components";
+
+import { getTool } from "../../../data/tools";
+import MainGridLayout from "../../../layouts/MainGridLayout.astro";
+
+export const prerender = true;
+
+const tool = getTool("image");
+---
+
+<MainGridLayout title="图片转换">
+	<script>
+		import("../../../scripts/right-sidebar-layout.js");
+	</script>
+	<div
+		class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32"
+	>
+		<div
+			class="card-base z-10 px-5 sm:px-9 py-6 relative w-full text-black/90 dark:text-white/90"
+		>
+			<!-- 面包屑 -->
+			<div class="tool-crumb">
+				<a href="/tools/">工具</a>
+				<span class="sep">/</span>
+				<span class="cur">{tool?.name}</span>
+			</div>
+
+			<!-- 工具名 + 简介 -->
+			<div class="flex flex-col items-start justify-center mb-6">
+				<h1
+					class="text-4xl font-bold text-black/90 dark:text-white/90 mb-2 relative before:w-1 before:h-8 before:rounded-md before:bg-[var(--primary)] before:absolute before:top-1/2 before:-translate-y-1/2 before:-left-4"
+				>
+					{tool?.name}
+				</h1>
+				<p class="text-lg text-black/60 dark:text-white/60 mb-3">
+					{tool?.desc}
+				</p>
+				<p class="tool-intro">{tool?.intro}</p>
+			</div>
+
+			<!-- ===== 转换器 ===== -->
+			<div class="img-tool" id="imgRoot">
+				<div class="img-drop" id="imgDrop">
+					<svg
+						class="img-drop-ico"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.6"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<rect x="3" y="3" width="18" height="18" rx="2" />
+						<circle cx="9" cy="9" r="2" />
+						<path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />
+					</svg>
+					<div class="img-drop-t">把图片拖到这里</div>
+					<div class="img-drop-s">
+						或者<button type="button" class="img-link" id="imgPick"
+							>点击选择本地图片</button
+						>· 支持一次选多张 · 全程在本站浏览器内转换, 不上传
+					</div>
+					<input
+						type="file"
+						id="imgInput"
+						accept="image/*"
+						multiple
+						hidden
+					/>
+				</div>
+
+				<div class="img-opts">
+					<label class="img-opt">
+						<span class="img-opt-k">输出格式</span>
+						<select id="imgFormat">
+							<option value="webp" selected>WebP</option>
+							<option value="png">PNG</option>
+							<option value="jpeg">JPEG</option>
+							<option value="avif">AVIF</option>
+						</select>
+					</label>
+					<label class="img-opt">
+						<span class="img-opt-k">最大宽度</span>
+						<select id="imgMaxWidth">
+							<option value="0">保持原尺寸</option>
+							<option value="2560">2560 px</option>
+							<option value="1920">1920 px</option>
+							<option value="1600" selected>1600 px</option>
+							<option value="1200">1200 px</option>
+							<option value="800">800 px</option>
+						</select>
+					</label>
+					<label class="img-opt">
+						<span class="img-opt-k">质量</span>
+						<input
+							type="range"
+							id="imgQuality"
+							min="50"
+							max="100"
+							step="5"
+							value="80"
+						/>
+						<span class="img-opt-v" id="imgQualityVal">80</span>
+					</label>
+				</div>
+				<div class="img-hint" id="imgFormatHint"></div>
+
+				<div class="img-bar" id="imgBarWrap" hidden>
+					<i id="imgBar"></i>
+				</div>
+
+				<div class="img-status" id="imgStatus"></div>
+
+				<div class="img-list" id="imgList"></div>
+
+				<div class="img-out" id="imgOut" hidden>
+					<button type="button" class="img-btn primary" id="imgDownload">
+						下载压缩包
+					</button>
+					<button type="button" class="img-btn" id="imgRerun" hidden>
+						按新设置重新转换
+					</button>
+					<button type="button" class="img-btn ghost" id="imgClear">
+						清空列表
+					</button>
+				</div>
+
+				<div class="img-foot">
+					<Icon name="material-symbols:shield-lock-outline-rounded" />
+					<span
+						>解码与编码都在你的浏览器里完成, 不联网、不上传。注意: iPhone 的 HEIC/HEIF
+						浏览器解不了, 请先在手机上导出为 JPG; 动图 GIF 只会取第一帧。</span
+					>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 公共打包库 + 页面交互 (普通脚本, Swup 切换后会重新执行) -->
+	<script is:inline src="/js/tool-kit.js"></script>
+	<script is:inline src="/js/img-tool.js"></script>
+</MainGridLayout>
+
+<style is:global>
+	.tool-crumb {
+		display: flex;
+		align-items: center;
+		gap: 7px;
+		font-size: 0.82rem;
+		margin-bottom: 14px;
+		color: color-mix(in srgb, currentColor 55%, transparent);
+	}
+	.tool-crumb a {
+		color: var(--primary);
+		text-decoration: none;
+	}
+	.tool-crumb a:hover {
+		text-decoration: underline;
+	}
+
+	.tool-intro {
+		font-size: 0.88rem;
+		line-height: 1.75;
+		max-width: 62rem;
+		color: color-mix(in srgb, currentColor 62%, transparent);
+	}
+
+	/* ---------- 图片转换器 ---------- */
+	.img-tool {
+		--img-line: color-mix(in srgb, currentColor 15%, transparent);
+		--img-soft: color-mix(in srgb, var(--primary) 11%, transparent);
+		/* 浅色底用深一档, 深色底用亮一档, 两种模式都要看得清 */
+		--img-good: #1f9d63;
+		--img-bad: #d64540;
+		--img-warn: #b8761f;
+	}
+
+	:root.dark .img-tool {
+		--img-good: #3fbf7f;
+		--img-bad: #e5534b;
+		--img-warn: #d99a43;
+	}
+
+	.img-drop {
+		border: 1.5px dashed color-mix(in srgb, currentColor 26%, transparent);
+		border-radius: var(--radius-large);
+		padding: 34px 20px;
+		text-align: center;
+		cursor: pointer;
+		background: color-mix(in srgb, currentColor 4%, transparent);
+		transition:
+			border-color 0.18s ease,
+			background 0.18s ease;
+	}
+	.img-drop:hover,
+	.img-drop.over {
+		border-color: var(--primary);
+		background: var(--img-soft);
+	}
+	.img-drop-ico {
+		width: 34px;
+		height: 34px;
+		color: var(--primary);
+		margin-bottom: 10px;
+	}
+	.img-drop-t {
+		font-size: 1.02rem;
+		font-weight: 600;
+		margin-bottom: 6px;
+	}
+	.img-drop-s {
+		font-size: 0.8rem;
+		line-height: 1.7;
+		color: color-mix(in srgb, currentColor 55%, transparent);
+	}
+	.img-link {
+		border: 0;
+		background: none;
+		padding: 0 4px;
+		font: inherit;
+		color: var(--primary);
+		cursor: pointer;
+		text-decoration: underline;
+	}
+
+	.img-opts {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 10px 22px;
+		margin: 16px 2px 0;
+	}
+	.img-opt {
+		display: inline-flex;
+		align-items: center;
+		gap: 9px;
+		font-size: 0.8rem;
+		color: color-mix(in srgb, currentColor 68%, transparent);
+	}
+	.img-opt-k {
+		white-space: nowrap;
+	}
+	.img-opt-v {
+		min-width: 3.2em;
+		font-variant-numeric: tabular-nums;
+		font-weight: 600;
+		color: var(--primary);
+	}
+	.img-opt select {
+		font-family: inherit;
+		font-size: 0.8rem;
+		padding: 6px 10px;
+		border-radius: 9px;
+		border: 1px solid var(--img-line);
+		background: color-mix(in srgb, currentColor 5%, transparent);
+		color: inherit;
+		cursor: pointer;
+	}
+	.img-opt input[type="range"] {
+		width: 130px;
+		accent-color: var(--primary);
+		cursor: pointer;
+	}
+	.img-opt input[type="range"]:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+
+	.img-hint {
+		margin: 9px 2px 0;
+		font-size: 0.74rem;
+		line-height: 1.6;
+		color: color-mix(in srgb, currentColor 48%, transparent);
+	}
+
+	.img-bar {
+		height: 4px;
+		border-radius: 99px;
+		margin: 14px 2px 0;
+		background: color-mix(in srgb, currentColor 12%, transparent);
+		overflow: hidden;
+	}
+	.img-bar[hidden] {
+		display: none;
+	}
+	.img-bar i {
+		display: block;
+		height: 100%;
+		width: 0;
+		border-radius: 99px;
+		background: var(--primary);
+		transition: width 0.25s ease;
+	}
+
+	.img-status {
+		margin: 11px 2px 0;
+		font-size: 0.82rem;
+		min-height: 1.2em;
+		color: color-mix(in srgb, currentColor 62%, transparent);
+	}
+	.img-status.ok {
+		color: var(--img-good);
+	}
+	.img-status.warn {
+		color: var(--img-warn);
+	}
+	.img-status.err {
+		color: var(--img-bad);
+	}
+
+	.img-list:not(:empty) {
+		margin-top: 13px;
+		border: 1px solid var(--img-line);
+		border-radius: var(--radius-large);
+		overflow: hidden;
+	}
+	.img-row {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 11px 14px;
+		background: color-mix(in srgb, currentColor 4%, transparent);
+	}
+	.img-row + .img-row {
+		border-top: 1px solid var(--img-line);
+	}
+	.img-row-main {
+		flex: 1;
+		min-width: 0;
+	}
+	.img-row-name {
+		font-size: 0.85rem;
+		font-weight: 550;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.img-row-note {
+		font-size: 0.73rem;
+		margin-top: 3px;
+		line-height: 1.5;
+		color: color-mix(in srgb, currentColor 52%, transparent);
+	}
+	.img-badge {
+		flex: 0 0 auto;
+		font-size: 0.7rem;
+		padding: 2px 9px;
+		border-radius: 999px;
+		white-space: nowrap;
+		color: var(--img-good);
+		border: 1px solid color-mix(in srgb, var(--img-good) 42%, transparent);
+		background: color-mix(in srgb, var(--img-good) 11%, transparent);
+	}
+	.img-badge.dim {
+		color: color-mix(in srgb, currentColor 55%, transparent);
+		border-color: var(--img-line);
+		background: transparent;
+	}
+	.img-badge.red {
+		color: var(--img-bad);
+		border-color: color-mix(in srgb, var(--img-bad) 42%, transparent);
+		background: color-mix(in srgb, var(--img-bad) 11%, transparent);
+	}
+
+	.img-out {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		margin-top: 14px;
+	}
+	.img-out[hidden] {
+		display: none;
+	}
+	.img-btn {
+		font-family: inherit;
+		font-size: 0.88rem;
+		font-weight: 550;
+		padding: 9px 20px;
+		border-radius: 11px;
+		cursor: pointer;
+		border: 1px solid var(--img-line);
+		background: transparent;
+		color: var(--primary);
+		transition:
+			background 0.18s ease,
+			opacity 0.18s ease;
+	}
+	.img-btn[hidden] {
+		display: none;
+	}
+	.img-btn:hover:not(:disabled) {
+		background: var(--img-soft);
+	}
+	.img-btn.primary {
+		background: var(--primary);
+		border-color: var(--primary);
+		color: #fff;
+	}
+	/* 暗色模式下 --primary 更亮, 白字对比度不够, 与站内既有按钮约定一致改用深色字 */
+	:root.dark .img-btn.primary {
+		color: var(--deep-text);
+	}
+	.img-btn.primary:hover:not(:disabled) {
+		opacity: 0.88;
+	}
+	.img-btn.ghost {
+		color: color-mix(in srgb, currentColor 60%, transparent);
+	}
+	.img-btn:disabled {
+		opacity: 0.45;
+		cursor: not-allowed;
+	}
+
+	.img-foot {
+		display: flex;
+		align-items: flex-start;
+		gap: 7px;
+		margin-top: 16px;
+		font-size: 0.74rem;
+		line-height: 1.6;
+		color: color-mix(in srgb, currentColor 45%, transparent);
+	}
+	.img-foot svg {
+		flex: 0 0 auto;
+		width: 15px;
+		height: 15px;
+		margin-top: 2px;
+	}
+
+	@media (max-width: 560px) {
+		.img-drop {
+			padding: 26px 14px;
+		}
+		.img-row {
+			padding: 10px 12px;
+		}
+		.img-opts {
+			gap: 10px 14px;
+		}
+	}
+</style>

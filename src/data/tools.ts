@@ -35,6 +35,17 @@ export const toolsData: ToolItem[] = [
 		tags: ["音频", "无损", "纯本地"],
 		local: true,
 	},
+	{
+		id: "image",
+		name: "图片转换",
+		desc: "jpg / png / gif / avif / svg 批量转 WebP·PNG, 可选最大宽度与质量, 打包下载",
+		intro:
+			"把各种图片格式转成适合放网页的 WebP / PNG / JPEG, 并且可以顺手把尺寸压下来。网页图片真正吃流量的是尺寸不是格式 —— 一张 4000px 的照片缩到 1600px 往往就省掉八九成体积, 格式转换再省两到三成。拖进来选好输出格式、最大宽度和质量就行, 处理完打包成一个 zip 下载; 全程在本站浏览器内完成, 图片不会上传到任何服务器。",
+		url: "/tools/image/",
+		icon: "material-symbols:image",
+		tags: ["图片", "WebP", "纯本地"],
+		local: true,
+	},
 ];
 
 export function getTool(id: string): ToolItem | undefined {
