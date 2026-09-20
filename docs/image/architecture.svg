@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 620" width="1080" height="620" role="img" aria-label="yrlwa.top 架构图">
+  <defs>
+    <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b9cff"/>
+    </marker>
+    <marker id="arw2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5fbf9a"/>
+    </marker>
+  </defs>
+
+  <style>
+    .box { fill: #ffffff; fill-opacity: .05; stroke: #ffffff; stroke-opacity: .22; }
+    .box-hi { fill: #8b9cff; fill-opacity: .13; stroke: #8b9cff; stroke-opacity: .55; }
+    .box-own { fill: #5fbf9a; fill-opacity: .12; stroke: #5fbf9a; stroke-opacity: .5; }
+    .t  { font-family: system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif; fill: #ffffff; }
+    .ttl { font-size: 17px; font-weight: 600; }
+    .sub { font-size: 12.5px; fill: #ffffff; fill-opacity: .62; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; fill: #c9c6e6; }
+    .lbl { font-size: 12px; fill: #8b9cff; }
+    .lbl2 { font-size: 12px; fill: #5fbf9a; }
+    .line { stroke: #8b9cff; stroke-opacity: .75; stroke-width: 1.6; fill: none; }
+    .line2 { stroke: #5fbf9a; stroke-opacity: .75; stroke-width: 1.6; fill: none; stroke-dasharray: 5 4; }
+    .sec { font-size: 13px; font-weight: 600; fill: #ffffff; fill-opacity: .45; letter-spacing: .08em; }
+  </style>
+
+  <rect width="1080" height="620" rx="16" fill="#161822"/>
+  <rect width="1080" height="620" rx="16" fill="#8b9cff" fill-opacity="0.04"/>
+
+  <text x="40" y="46" class="t ttl" font-size="21">yrlwa.top 架构总览</text>
+  <text x="40" y="70" class="sub">静态站点 + Cloudflare Pages Functions + R2 存储 + 一台 E5 本地算力机</text>
+
+  <!-- 浏览器 -->
+  <text x="40" y="118" class="sec">客户端</text>
+  <rect x="40" y="130" width="250" height="96" rx="12" class="box"/>
+  <text x="60" y="160" class="t ttl">浏览器</text>
+  <text x="60" y="182" class="sub">Swup 无刷新跳转 · 深浅色主题</text>
+  <text x="60" y="200" class="sub">壁纸模式 · 樱花特效 · 打字机</text>
+  <text x="60" y="218" class="sub">Pagefind 全文搜索</text>
+
+  <!-- 纯前端工具 -->
+  <rect x="40" y="252" width="250" height="128" rx="12" class="box-own"/>
+  <text x="60" y="282" class="t ttl">纯前端工具箱</text>
+  <text x="60" y="304" class="sub">/tools/ · 零依赖 · 零上传</text>
+  <text x="60" y="328" class="mono">ncm-core.js / tool-kit.js</text>
+  <text x="60" y="348" class="mono">ncm-tool.js / img-tool.js</text>
+  <text x="60" y="368" class="sub">文件只在浏览器内存里处理</text>
+
+  <!-- 箭头 -->
+  <path class="line" d="M 290 178 C 360 178, 360 178, 420 178" marker-end="url(#arw)"/>
+  <path class="line2" d="M 290 316 C 360 316, 360 316, 420 316" marker-end="url(#arw2)"/>
+  <text x="300" y="168" class="lbl">HTTPS</text>
+  <text x="300" y="306" class="lbl2">完全不出浏览器</text>
+
+  <!-- Cloudflare Pages -->
+  <text x="420" y="118" class="sec">Cloudflare Pages</text>
+  <rect x="420" y="130" width="290" height="120" rx="12" class="box-hi"/>
+  <text x="440" y="160" class="t ttl">静态站点</text>
+  <text x="440" y="182" class="sub">Astro 6 构建产物 (dist/)</text>
+  <text x="440" y="202" class="sub">public/_headers 缓存策略</text>
+  <text x="440" y="222" class="sub">/tools/ · /js/ 走强校验</text>
+
+  <rect x="420" y="268" width="290" height="176" rx="12" class="box-hi"/>
+  <text x="440" y="298" class="t ttl">Functions 边缘接口</text>
+  <text x="440" y="322" class="mono">/api/chat</text>
+  <text x="540" y="322" class="sub">站内 AI 助手</text>
+  <text x="440" y="346" class="mono">/api/stats</text>
+  <text x="540" y="346" class="sub">访问量代理</text>
+  <text x="440" y="370" class="mono">/api/auth/me</text>
+  <text x="558" y="370" class="sub">口令登录态</text>
+  <text x="440" y="394" class="mono">/music/*</text>
+  <text x="520" y="394" class="sub">R2 音频代理</text>
+  <text x="440" y="420" class="sub">functions/site-data.js 提供站点语料</text>
+
+  <!-- 外部服务 -->
+  <text x="790" y="118" class="sec">后端与数据</text>
+  <rect x="790" y="130" width="250" height="76" rx="12" class="box"/>
+  <text x="810" y="158" class="t ttl">Cloudflare R2</text>
+  <text x="810" y="180" class="sub">music-storage 桶 · FLAC 音频</text>
+
+  <rect x="790" y="222" width="250" height="76" rx="12" class="box"/>
+  <text x="810" y="250" class="t ttl">SiliconFlow</text>
+  <text x="810" y="272" class="sub">对话与向量检索 (bge-m3)</text>
+
+  <rect x="790" y="314" width="250" height="76" rx="12" class="box"/>
+  <text x="810" y="342" class="t ttl">E5 算力机</text>
+  <text x="810" y="364" class="sub">P100 16G · 对话 / 画图</text>
+
+  <rect x="790" y="406" width="250" height="76" rx="12" class="box"/>
+  <text x="810" y="434" class="t ttl">统计 Worker</text>
+  <text x="810" y="456" class="sub">PV / 今日 PV</text>
+
+  <path class="line" d="M 710 178 C 750 178, 750 168, 790 168" marker-end="url(#arw)"/>
+  <path class="line" d="M 710 300 C 750 300, 750 260, 790 260" marker-end="url(#arw)"/>
+  <path class="line" d="M 710 340 C 750 340, 750 352, 790 352" marker-end="url(#arw)"/>
+  <path class="line" d="M 710 386 C 750 386, 750 444, 790 444" marker-end="url(#arw)"/>
+
+  <!-- 本地开发 -->
+  <rect x="40" y="418" width="250" height="100" rx="12" class="box"/>
+  <text x="60" y="446" class="t ttl">本地开发</text>
+  <text x="60" y="468" class="mono">pnpm dev → localhost:4321</text>
+  <text x="60" y="490" class="sub">git push → Cloudflare 自动构建</text>
+  <text x="60" y="508" class="sub">→ 数分钟内上线</text>
+
+  <text x="40" y="580" class="sub">说明: 工具箱的一切运算都在用户浏览器内存中完成, 不经过任何服务器; 其余功能由 Cloudflare 边缘与自建算力机提供。</text>
+</svg>

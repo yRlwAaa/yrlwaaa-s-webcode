@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="1200" height="320" role="img" aria-label="yRlwAaa 站点横幅">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1b1d2b"/>
+      <stop offset="55%" stop-color="#2a2350"/>
+      <stop offset="100%" stop-color="#3b2a6b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8b9cff"/>
+      <stop offset="100%" stop-color="#c9a6ff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.85" cy="0.15" r="0.8">
+      <stop offset="0%" stop-color="#8b9cff" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#8b9cff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="320" rx="18" fill="url(#bg)"/>
+  <rect width="1200" height="320" rx="18" fill="url(#glow)"/>
+
+  <!-- 装饰: 圆点网格 -->
+  <g fill="#ffffff" opacity="0.08">
+    <circle cx="980" cy="60" r="2"/><circle cx="1020" cy="60" r="2"/><circle cx="1060" cy="60" r="2"/><circle cx="1100" cy="60" r="2"/>
+    <circle cx="980" cy="100" r="2"/><circle cx="1020" cy="100" r="2"/><circle cx="1060" cy="100" r="2"/><circle cx="1100" cy="100" r="2"/>
+    <circle cx="980" cy="140" r="2"/><circle cx="1020" cy="140" r="2"/><circle cx="1060" cy="140" r="2"/><circle cx="1100" cy="140" r="2"/>
+  </g>
+
+  <!-- 左侧文字 -->
+  <text x="70" y="128" font-family="system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif"
+        font-size="64" font-weight="700" fill="#ffffff" letter-spacing="1">yRlwAaa</text>
+  <text x="72" y="176" font-family="system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif"
+        font-size="24" fill="#c9c6e6">私の小さな部屋へようこそ</text>
+
+  <rect x="70" y="212" width="228" height="40" rx="20" fill="#ffffff" opacity="0.10"/>
+  <text x="92" y="238" font-family="ui-monospace, SFMono-Regular, Consolas, monospace"
+        font-size="19" fill="url(#accent)">https://yrlwa.top</text>
+
+  <!-- 右侧标记 -->
+  <g transform="translate(860, 92)">
+    <rect x="0" y="0" width="200" height="140" rx="24" fill="#ffffff" opacity="0.07" stroke="#ffffff" stroke-opacity="0.18"/>
+    <text x="100" y="86" text-anchor="middle"
+          font-family="system-ui, -apple-system, 'Segoe UI', sans-serif"
+          font-size="56" font-weight="700" fill="url(#accent)">yR</text>
+    <text x="100" y="116" text-anchor="middle"
+          font-family="system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif"
+          font-size="13" fill="#ffffff" opacity="0.6">PERSONAL SITE</text>
+  </g>
+</svg>

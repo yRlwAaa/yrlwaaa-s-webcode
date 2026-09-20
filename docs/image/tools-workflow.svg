@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 440" width="1080" height="440" role="img" aria-label="工具箱工作流">
+  <defs>
+    <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b9cff"/>
+    </marker>
+  </defs>
+  <style>
+    .b { fill: #ffffff; fill-opacity: .05; stroke: #ffffff; stroke-opacity: .22; }
+    .bh { fill: #8b9cff; fill-opacity: .13; stroke: #8b9cff; stroke-opacity: .5; }
+    .bo { fill: #5fbf9a; fill-opacity: .12; stroke: #5fbf9a; stroke-opacity: .5; }
+    .t { font-family: system-ui, -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif; fill: #fff; }
+    .ttl { font-size: 16px; font-weight: 600; }
+    .sub { font-size: 12.5px; fill: #fff; fill-opacity: .62; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; fill: #c9c6e6; }
+    .line { stroke: #8b9cff; stroke-opacity: .8; stroke-width: 1.6; fill: none; }
+  </style>
+
+  <rect width="1080" height="440" rx="16" fill="#161822"/>
+  <rect width="1080" height="440" rx="16" fill="#8b9cff" fill-opacity="0.04"/>
+
+  <text x="40" y="50" class="t ttl" font-size="20">工具箱是怎么跑起来的</text>
+  <text x="40" y="74" class="sub">从拖进文件到拿到成品, 全程只在你的浏览器里完成</text>
+
+  <rect x="40" y="110" width="200" height="96" rx="12" class="b"/>
+  <text x="60" y="142" class="t ttl">① 放入文件</text>
+  <text x="60" y="166" class="sub">拖拽 / 点选</text>
+  <text x="60" y="188" class="sub">支持批量</text>
+
+  <rect x="280" y="110" width="220" height="96" rx="12" class="bh"/>
+  <text x="300" y="142" class="t ttl">② 浏览器内解析</text>
+  <text x="300" y="166" class="mono">ncm-core.js</text>
+  <text x="300" y="188" class="mono">img-tool.js</text>
+
+  <rect x="540" y="110" width="220" height="96" rx="12" class="bh"/>
+  <text x="560" y="142" class="t ttl">③ 逐行结果</text>
+  <text x="560" y="166" class="sub">原始大小 → 成品大小</text>
+  <text x="560" y="188" class="sub">合计与节省比例</text>
+
+  <rect x="800" y="110" width="240" height="96" rx="12" class="bo"/>
+  <text x="820" y="142" class="t ttl">④ 两种拿法</text>
+  <text x="820" y="166" class="sub">右侧「下载」单取一个</text>
+  <text x="820" y="188" class="sub">或「打包下载」出 zip</text>
+
+  <path class="line" d="M 240 158 L 280 158" marker-end="url(#a3)"/>
+  <path class="line" d="M 500 158 L 540 158" marker-end="url(#a3)"/>
+  <path class="line" d="M 760 158 L 800 158" marker-end="url(#a3)"/>
+
+  <!-- 两条工具线 -->
+  <rect x="40" y="248" width="460" height="150" rx="12" class="b"/>
+  <text x="60" y="278" class="t ttl">/tools/ncm/ · NCM 转 FLAC</text>
+  <text x="60" y="302" class="sub">解出 key 区与 meta 区, 还原容器里的原始音频流</text>
+  <text x="60" y="324" class="mono">AES-128-ECB 解密 → RC4 密钥盒 → 逐字节异或</text>
+  <text x="60" y="346" class="sub">无损源直接产出真 FLAC, 不做二次转码</text>
+  <text x="60" y="372" class="sub">有损源如实标注, 可一键跳过</text>
+
+  <rect x="540" y="248" width="500" height="150" rx="12" class="b"/>
+  <text x="560" y="278" class="t ttl">/tools/image/ · 图片转换</text>
+  <text x="560" y="302" class="sub">jpg / png / gif / webp / avif / bmp / svg → WebP·PNG·JPEG·AVIF</text>
+  <text x="560" y="324" class="mono">createImageBitmap → canvas → toBlob</text>
+  <text x="560" y="346" class="sub">可选最大宽度与质量, 逐级折半缩放保画质</text>
+  <text x="560" y="372" class="sub">网页配图真正的瓶颈是尺寸, 其次才是格式</text>
+
+  <text x="40" y="424" class="sub">两个工具共用 public/js/tool-kit.js 的打包与命名逻辑, 新增工具只需加一个页面与一个脚本。</text>
+</svg>
