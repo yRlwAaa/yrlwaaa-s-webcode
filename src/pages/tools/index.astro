@@ -1,0 +1,196 @@
+---
+import { Icon } from "astro-icon/components";
+
+import { toolsData } from "../../data/tools";
+import MainGridLayout from "../../layouts/MainGridLayout.astro";
+
+export const prerender = true;
+
+const tools = toolsData;
+---
+
+<MainGridLayout title="工具">
+	<script>
+		import("../../scripts/right-sidebar-layout.js");
+	</script>
+	<div
+		class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32"
+	>
+		<div class="card-base z-10 px-5 sm:px-9 py-6 relative w-full">
+			<!-- 页面标题 -->
+			<div class="flex flex-col items-start justify-center mb-6">
+				<h1
+					class="text-4xl font-bold text-black/90 dark:text-white/90 mb-2 relative before:w-1 before:h-8 before:rounded-md before:bg-[var(--primary)] before:absolute before:top-1/2 before:-translate-y-1/2 before:-left-4"
+				>
+					工具
+				</h1>
+				<p class="text-lg text-black/60 dark:text-white/60">
+					一些自己顺手写的小工具 · 打开即用, 能纯本地跑的就纯本地跑
+				</p>
+			</div>
+
+			<div class="tool-list">
+				{
+					tools.length === 0 && (
+						<div class="tool-empty">还没有工具, 敬请期待</div>
+					)
+				}
+				{
+					tools.map((tool) => (
+						<a class="tool-row" href={tool.url}>
+							<span class="tool-ico">
+								<Icon name={tool.icon} />
+							</span>
+							<span class="tool-mid">
+								<span class="tool-tt">
+									{tool.name}
+									{tool.local && <em class="tool-pill">纯本地</em>}
+								</span>
+								<span class="tool-ds">{tool.desc}</span>
+								{tool.tags.length > 0 && (
+									<span class="tool-tags">
+										{tool.tags.map((tag) => (
+											<span class="tool-tag">{tag}</span>
+										))}
+									</span>
+								)}
+							</span>
+							<span class="tool-go">
+								<Icon name="material-symbols:chevron-right-rounded" />
+							</span>
+						</a>
+					))
+				}
+			</div>
+		</div>
+	</div>
+</MainGridLayout>
+
+<style is:global>
+	/* 工具列表: 一行一个工具 */
+	.tool-list {
+		display: flex;
+		flex-direction: column;
+		border: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+		border-radius: var(--radius-large);
+		overflow: hidden;
+	}
+
+	.tool-empty {
+		padding: 26px 18px;
+		font-size: 0.9rem;
+		color: color-mix(in srgb, currentColor 55%, transparent);
+	}
+
+	.tool-row {
+		display: flex;
+		align-items: center;
+		gap: 15px;
+		padding: 15px 17px;
+		text-decoration: none;
+		color: inherit;
+		background: color-mix(in srgb, currentColor 4%, transparent);
+		transition:
+			background 0.18s ease,
+			transform 0.18s ease;
+	}
+
+	.tool-row + .tool-row {
+		border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+	}
+
+	.tool-row:hover {
+		background: color-mix(in srgb, var(--primary) 11%, transparent);
+	}
+
+	.tool-row:hover .tool-go {
+		transform: translateX(3px);
+		color: var(--primary);
+	}
+
+	.tool-ico {
+		flex: 0 0 42px;
+		width: 42px;
+		height: 42px;
+		border-radius: 12px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: color-mix(in srgb, var(--primary) 14%, transparent);
+		color: var(--primary);
+	}
+
+	.tool-ico svg,
+	.tool-go svg {
+		width: 21px;
+		height: 21px;
+	}
+
+	.tool-mid {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 3px;
+	}
+
+	.tool-tt {
+		font-size: 1rem;
+		font-weight: 600;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.tool-pill {
+		font-style: normal;
+		font-size: 0.68rem;
+		font-weight: 500;
+		padding: 1px 8px;
+		border-radius: 999px;
+		color: #3fbf7f;
+		border: 1px solid color-mix(in srgb, #3fbf7f 45%, transparent);
+		background: color-mix(in srgb, #3fbf7f 12%, transparent);
+	}
+
+	.tool-ds {
+		font-size: 0.82rem;
+		line-height: 1.55;
+		color: color-mix(in srgb, currentColor 58%, transparent);
+	}
+
+	.tool-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		margin-top: 2px;
+	}
+
+	.tool-tag {
+		font-size: 0.68rem;
+		padding: 1px 8px;
+		border-radius: 999px;
+		color: color-mix(in srgb, currentColor 60%, transparent);
+		border: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+	}
+
+	.tool-go {
+		flex: 0 0 auto;
+		color: color-mix(in srgb, currentColor 35%, transparent);
+		transition:
+			transform 0.18s ease,
+			color 0.18s ease;
+	}
+
+	@media (max-width: 560px) {
+		.tool-row {
+			padding: 13px 13px;
+			gap: 12px;
+		}
+		.tool-ico {
+			flex: 0 0 36px;
+			width: 36px;
+			height: 36px;
+		}
+	}
+</style>

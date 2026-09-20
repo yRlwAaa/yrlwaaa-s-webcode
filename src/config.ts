@@ -293,6 +293,11 @@ export const navBarConfig: NavBarConfig = {
 					url: "/server/",
 					icon: "material-symbols:dns",
 				},
+				{
+					name: "工具",
+					url: "/tools/",
+					icon: "material-symbols:handyman",
+				},
 			],
 		},
 		{

@@ -1,0 +1,373 @@
+---
+import { Icon } from "astro-icon/components";
+
+import { getTool } from "../../../data/tools";
+import MainGridLayout from "../../../layouts/MainGridLayout.astro";
+
+export const prerender = true;
+
+const tool = getTool("ncm");
+---
+
+<MainGridLayout title="NCM 转 FLAC">
+	<script>
+		import("../../../scripts/right-sidebar-layout.js");
+	</script>
+	<div
+		class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32"
+	>
+		<div class="card-base z-10 px-5 sm:px-9 py-6 relative w-full">
+			<!-- 面包屑 -->
+			<div class="tool-crumb">
+				<a href="/tools/">工具</a>
+				<span class="sep">/</span>
+				<span class="cur">{tool?.name}</span>
+			</div>
+
+			<!-- 工具名 + 简介 -->
+			<div class="flex flex-col items-start justify-center mb-6">
+				<h1
+					class="text-4xl font-bold text-black/90 dark:text-white/90 mb-2 relative before:w-1 before:h-8 before:rounded-md before:bg-[var(--primary)] before:absolute before:top-1/2 before:-translate-y-1/2 before:-left-4"
+				>
+					{tool?.name}
+				</h1>
+				<p class="text-lg text-black/60 dark:text-white/60 mb-3">
+					{tool?.desc}
+				</p>
+				<p class="tool-intro">{tool?.intro}</p>
+			</div>
+
+			<!-- ===== 转换器 ===== -->
+			<div class="ncm" id="ncmRoot">
+				<div class="ncm-drop" id="ncmDrop">
+					<svg
+						class="ncm-drop-ico"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.6"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path d="M12 16V4" />
+						<path d="m7 9 5-5 5 5" />
+						<path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
+					</svg>
+					<div class="ncm-drop-t">把 .ncm 文件拖到这里</div>
+					<div class="ncm-drop-s">
+						或者<button type="button" class="ncm-link" id="ncmPick"
+							>点击选择本地文件</button
+						>· 支持一次选多个 · 全程在本站浏览器内解密, 文件不上传
+					</div>
+					<input
+						type="file"
+						id="ncmInput"
+						accept=".ncm"
+						multiple
+						hidden
+					/>
+				</div>
+
+				<div class="ncm-opts">
+					<label class="ncm-opt">
+						<input type="checkbox" id="ncmLosslessOnly" />
+						<span>只保留无损 (跳过 MP3 / M4A 等有损源)</span>
+					</label>
+					<label class="ncm-opt">
+						<input type="checkbox" id="ncmCover" />
+						<span>附带专辑封面 (每个音频同名 .jpg)</span>
+					</label>
+				</div>
+
+				<div class="ncm-bar" id="ncmBarWrap" hidden>
+					<i id="ncmBar"></i>
+				</div>
+
+				<div class="ncm-status" id="ncmStatus"></div>
+
+				<div class="ncm-list" id="ncmList"></div>
+
+				<div class="ncm-out" id="ncmOut" hidden>
+					<button type="button" class="ncm-btn primary" id="ncmDownload">
+						下载压缩包
+					</button>
+					<button type="button" class="ncm-btn ghost" id="ncmClear">
+						清空列表
+					</button>
+				</div>
+
+				<div class="ncm-foot">
+					<Icon name="material-symbols:shield-lock-outline-rounded" />
+					<span
+						>解密与打包都在你的浏览器内存里完成, 不联网、不上传、不留档; 仅请用于处理自己合法获得的本地文件。</span
+					>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 纯计算核心 + 页面交互 (普通脚本, Swup 切换后会重新执行) -->
+	<script is:inline src="/js/ncm-core.js"></script>
+	<script is:inline src="/js/ncm-tool.js"></script>
+</MainGridLayout>
+
+<style is:global>
+	.tool-crumb {
+		display: flex;
+		align-items: center;
+		gap: 7px;
+		font-size: 0.82rem;
+		margin-bottom: 14px;
+		color: color-mix(in srgb, currentColor 55%, transparent);
+	}
+	.tool-crumb a {
+		color: var(--primary);
+		text-decoration: none;
+	}
+	.tool-crumb a:hover {
+		text-decoration: underline;
+	}
+
+	.tool-intro {
+		font-size: 0.88rem;
+		line-height: 1.75;
+		max-width: 62rem;
+		color: color-mix(in srgb, currentColor 62%, transparent);
+	}
+
+	/* ---------- 转换器 ---------- */
+	.ncm {
+		--ncm-line: color-mix(in srgb, currentColor 15%, transparent);
+		--ncm-soft: color-mix(in srgb, var(--primary) 11%, transparent);
+		--ncm-good: #3fbf7f;
+		--ncm-bad: #e5534b;
+		--ncm-warn: #d99a43;
+	}
+
+	.ncm-drop {
+		border: 1.5px dashed color-mix(in srgb, currentColor 26%, transparent);
+		border-radius: var(--radius-large);
+		padding: 34px 20px;
+		text-align: center;
+		cursor: pointer;
+		background: color-mix(in srgb, currentColor 4%, transparent);
+		transition:
+			border-color 0.18s ease,
+			background 0.18s ease;
+	}
+	.ncm-drop:hover,
+	.ncm-drop.over {
+		border-color: var(--primary);
+		background: var(--ncm-soft);
+	}
+	.ncm-drop-ico {
+		width: 34px;
+		height: 34px;
+		color: var(--primary);
+		margin-bottom: 10px;
+	}
+	.ncm-drop-t {
+		font-size: 1.02rem;
+		font-weight: 600;
+		margin-bottom: 6px;
+	}
+	.ncm-drop-s {
+		font-size: 0.8rem;
+		line-height: 1.7;
+		color: color-mix(in srgb, currentColor 55%, transparent);
+	}
+	.ncm-link {
+		border: 0;
+		background: none;
+		padding: 0 4px;
+		font: inherit;
+		color: var(--primary);
+		cursor: pointer;
+		text-decoration: underline;
+	}
+
+	.ncm-opts {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px 22px;
+		margin: 14px 2px 0;
+	}
+	.ncm-opt {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 0.8rem;
+		color: color-mix(in srgb, currentColor 68%, transparent);
+		cursor: pointer;
+	}
+	.ncm-opt input {
+		accent-color: var(--primary);
+		width: 15px;
+		height: 15px;
+		cursor: pointer;
+	}
+
+	.ncm-bar {
+		height: 4px;
+		border-radius: 99px;
+		margin: 14px 2px 0;
+		background: color-mix(in srgb, currentColor 12%, transparent);
+		overflow: hidden;
+	}
+	.ncm-bar i {
+		display: block;
+		height: 100%;
+		width: 0;
+		border-radius: 99px;
+		background: var(--primary);
+		transition: width 0.25s ease;
+	}
+
+	.ncm-status {
+		margin: 11px 2px 0;
+		font-size: 0.82rem;
+		min-height: 1.2em;
+		color: color-mix(in srgb, currentColor 62%, transparent);
+	}
+	.ncm-status.ok {
+		color: var(--ncm-good);
+	}
+	.ncm-status.warn {
+		color: var(--ncm-warn);
+	}
+	.ncm-status.err {
+		color: var(--ncm-bad);
+	}
+
+	.ncm-list:not(:empty) {
+		margin-top: 13px;
+		border: 1px solid var(--ncm-line);
+		border-radius: var(--radius-large);
+		overflow: hidden;
+	}
+	.ncm-row {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 11px 14px;
+		background: color-mix(in srgb, currentColor 4%, transparent);
+	}
+	.ncm-row + .ncm-row {
+		border-top: 1px solid var(--ncm-line);
+	}
+	.ncm-row-main {
+		flex: 1;
+		min-width: 0;
+	}
+	.ncm-row-name {
+		font-size: 0.85rem;
+		font-weight: 550;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.ncm-row-note {
+		font-size: 0.74rem;
+		margin-top: 2px;
+		color: color-mix(in srgb, currentColor 52%, transparent);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.ncm-badge {
+		flex: 0 0 auto;
+		font-size: 0.7rem;
+		padding: 2px 9px;
+		border-radius: 999px;
+		white-space: nowrap;
+		color: var(--ncm-good);
+		border: 1px solid color-mix(in srgb, var(--ncm-good) 42%, transparent);
+		background: color-mix(in srgb, var(--ncm-good) 11%, transparent);
+	}
+	.ncm-badge.dim {
+		color: color-mix(in srgb, currentColor 55%, transparent);
+		border-color: var(--ncm-line);
+		background: transparent;
+	}
+	.ncm-badge.red {
+		color: var(--ncm-bad);
+		border-color: color-mix(in srgb, var(--ncm-bad) 42%, transparent);
+		background: color-mix(in srgb, var(--ncm-bad) 11%, transparent);
+	}
+	.ncm-row.lossy .ncm-badge {
+		color: var(--ncm-warn);
+		border-color: color-mix(in srgb, var(--ncm-warn) 45%, transparent);
+		background: color-mix(in srgb, var(--ncm-warn) 12%, transparent);
+	}
+	.ncm-row.skip {
+		opacity: 0.62;
+	}
+
+	.ncm-out {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		margin-top: 14px;
+	}
+	.ncm-out[hidden],
+	.ncm-bar[hidden] {
+		display: none;
+	}
+	.ncm-btn {
+		font-family: inherit;
+		font-size: 0.88rem;
+		font-weight: 550;
+		padding: 9px 20px;
+		border-radius: 11px;
+		cursor: pointer;
+		border: 1px solid var(--ncm-line);
+		background: transparent;
+		color: var(--primary);
+		transition:
+			background 0.18s ease,
+			opacity 0.18s ease;
+	}
+	.ncm-btn:hover:not(:disabled) {
+		background: var(--ncm-soft);
+	}
+	.ncm-btn.primary {
+		background: var(--primary);
+		border-color: var(--primary);
+		color: #fff;
+	}
+	.ncm-btn.primary:hover:not(:disabled) {
+		opacity: 0.88;
+	}
+	.ncm-btn.ghost {
+		color: color-mix(in srgb, currentColor 60%, transparent);
+	}
+	.ncm-btn:disabled {
+		opacity: 0.45;
+		cursor: not-allowed;
+	}
+
+	.ncm-foot {
+		display: flex;
+		align-items: flex-start;
+		gap: 7px;
+		margin-top: 16px;
+		font-size: 0.74rem;
+		line-height: 1.6;
+		color: color-mix(in srgb, currentColor 45%, transparent);
+	}
+	.ncm-foot svg {
+		flex: 0 0 auto;
+		width: 15px;
+		height: 15px;
+		margin-top: 2px;
+	}
+
+	@media (max-width: 560px) {
+		.ncm-drop {
+			padding: 26px 14px;
+		}
+		.ncm-row {
+			padding: 10px 12px;
+		}
+	}
+</style>
