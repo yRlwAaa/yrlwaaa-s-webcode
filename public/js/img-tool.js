@@ -356,20 +356,26 @@
 
 	/* ---------- 列表渲染 ---------- */
 	function renderList() {
+		var sumEl = document.getElementById("imgSum");
 		if (!items.length) {
 			listEl.innerHTML = "";
 			outEl.hidden = true;
+			if (sumEl) sumEl.hidden = true;
 			return;
 		}
 		var html = "";
 		var okCount = 0;
+		var failCount = 0;
+		var pendCount = 0;
 		var inSize = 0;
 		var outSize = 0;
+		var inAll = 0;
 		for (var i = 0; i < items.length; i++) {
 			var it = items[i];
 			var cls = "img-row";
 			var badge = "";
 			var note = "";
+			inAll += it.srcSize || 0;
 			if (it.state === "done") {
 				cls += " ok";
 				badge = '<span class="img-badge">' + esc(it.outLabel) + "</span>";
@@ -397,12 +403,24 @@
 				okCount++;
 				inSize += it.srcSize;
 				outSize += it.outSize;
-			} else if (it.state === "work") {
-				badge = '<span class="img-badge dim">' + esc(it.note || "处理中") + "</span>";
+			} else if (it.state === "work" || it.state === "wait") {
+				// 还没转换完也先把原始大小列出来
+				badge =
+					'<span class="img-badge dim">' +
+					esc(it.state === "wait" ? "排队中" : it.note || "处理中") +
+					"</span>";
+				note = esc(it.srcLabel) + " " + KIT.formatSize(it.srcSize);
+				pendCount++;
 			} else if (it.state === "fail") {
 				cls += " bad";
 				badge = '<span class="img-badge red">失败</span>';
-				note = esc(it.note);
+				note =
+					esc(it.srcLabel) +
+					" " +
+					KIT.formatSize(it.srcSize) +
+					" · " +
+					esc(it.note);
+				failCount++;
 			}
 			html +=
 				'<div class="' +
@@ -418,6 +436,29 @@
 				"</div>";
 		}
 		listEl.innerHTML = html;
+
+		// 合计: 输入总量 → 输出总量
+		if (sumEl) {
+			var savedPct = inSize > outSize ? Math.round((1 - outSize / inSize) * 100) : 0;
+			var text = "";
+			if (okCount > 0) {
+				text =
+					"共 " +
+					items.length +
+					" 张 · 输入 " +
+					KIT.formatSize(inSize) +
+					" → 输出 " +
+					KIT.formatSize(outSize) +
+					(savedPct > 0 ? " · 省 " + savedPct + "%" : "");
+			} else {
+				text = "共 " + items.length + " 张 · 输入合计 " + KIT.formatSize(inAll);
+				if (pendCount) text += " · 转换中…";
+			}
+			if (failCount) text += " · " + failCount + " 张失败";
+			if (okCount > 0 && pendCount) text += " · " + pendCount + " 张待处理";
+			sumEl.textContent = text;
+			sumEl.hidden = false;
+		}
 
 		if (okCount > 0) {
 			outEl.hidden = false;

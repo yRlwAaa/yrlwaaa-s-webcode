@@ -87,38 +87,67 @@
 
 	/* ---------- 列表渲染 ---------- */
 	function renderList() {
+		var sumEl = document.getElementById("ncmSum");
 		if (!results.length) {
 			listEl.innerHTML = "";
 			outEl.hidden = true;
+			if (sumEl) sumEl.hidden = true;
 			return;
 		}
 		var html = "";
 		var usable = 0;
 		var usableSize = 0;
+		var inUsedSize = 0;
+		var pendCount = 0;
+		var failCount = 0;
+		var inAll = 0;
 		for (var i = 0; i < results.length; i++) {
 			var r = results[i];
 			var cls = "ncm-row";
 			var badge = "";
 			var note = "";
+			inAll += r.srcSize || 0;
 			if (r.state === "done") {
 				cls += r.lossless ? " ok" : " ok lossy";
 				badge = '<span class="ncm-badge">' + esc(r.formatLabel) + "</span>";
+				var pct = r.srcSize
+					? Math.round((1 - r.size / r.srcSize) * 100)
+					: 0;
 				note =
+					"NCM " +
+					CORE.formatSize(r.srcSize) +
+					"  →  " +
 					(r.outName ? esc(r.outName) + " · " : "") +
-					CORE.formatSize(r.size);
+					CORE.formatSize(r.size) +
+					(pct > 1 ? " · 省 " + pct + "%" : pct < -1 ? " · 大 " + -pct + "%" : "");
 				usable++;
 				usableSize += r.size;
+				inUsedSize += r.srcSize;
 			} else if (r.state === "skip") {
 				cls += " skip";
 				badge = '<span class="ncm-badge dim">已跳过</span>';
-				note = esc(r.note);
+				note =
+					"NCM " +
+					CORE.formatSize(r.srcSize) +
+					" · " +
+					esc(r.note);
 			} else if (r.state === "fail") {
 				cls += " bad";
 				badge = '<span class="ncm-badge red">失败</span>';
-				note = esc(r.note);
+				note =
+					"NCM " +
+					CORE.formatSize(r.srcSize) +
+					" · " +
+					esc(r.note);
+				failCount++;
 			} else {
-				badge = '<span class="ncm-badge dim">' + esc(r.note || "处理中") + "</span>";
-				note = "";
+				// 还没解密完也先把原始大小列出来
+				badge =
+					'<span class="ncm-badge dim">' +
+					esc(r.note === "排队中" ? "排队中" : r.note || "处理中") +
+					"</span>";
+				note = "NCM " + CORE.formatSize(r.srcSize);
+				pendCount++;
 			}
 			html +=
 				'<div class="' +
@@ -134,6 +163,32 @@
 				"</div>";
 		}
 		listEl.innerHTML = html;
+
+		// 合计: 输入总量 → 输出总量
+		if (sumEl) {
+			var savedPct =
+				inUsedSize > usableSize
+					? Math.round((1 - usableSize / inUsedSize) * 100)
+					: 0;
+			var text = "";
+			if (usable > 0) {
+				text =
+					"共 " +
+					results.length +
+					" 首 · 输入 " +
+					CORE.formatSize(inUsedSize) +
+					" → 输出 " +
+					CORE.formatSize(usableSize) +
+					(savedPct > 0 ? " · 省 " + savedPct + "%" : "");
+			} else {
+				text = "共 " + results.length + " 首 · 输入合计 " + CORE.formatSize(inAll);
+				if (pendCount) text += " · 解密中…";
+			}
+			if (failCount) text += " · " + failCount + " 首失败";
+			if (usable > 0 && pendCount) text += " · " + pendCount + " 首待处理";
+			sumEl.textContent = text;
+			sumEl.hidden = false;
+		}
 
 		if (usable > 0) {
 			outEl.hidden = false;
@@ -194,6 +249,7 @@
 		for (var k = 0; k < files.length; k++) {
 			results.push({
 				label: files[k].name,
+				srcSize: files[k].size || 0,
 				state: "work",
 				note: "排队中",
 			});

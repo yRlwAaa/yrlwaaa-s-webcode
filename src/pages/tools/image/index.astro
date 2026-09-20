@@ -112,6 +112,8 @@ const tool = getTool("image");
 
 				<div class="img-status" id="imgStatus"></div>
 
+				<div class="img-sum" id="imgSum" hidden></div>
+
 				<div class="img-list" id="imgList"></div>
 
 				<div class="img-out" id="imgOut" hidden>
@@ -307,6 +309,21 @@ const tool = getTool("image");
 	}
 	.img-status.err {
 		color: var(--img-bad);
+	}
+
+	/* 合计行: 输入总量 → 输出总量 */
+	.img-sum {
+		margin: 12px 2px 0;
+		padding: 9px 13px;
+		border-radius: 10px;
+		border: 1px solid var(--img-line);
+		background: color-mix(in srgb, currentColor 5%, transparent);
+		font-size: 0.8rem;
+		font-variant-numeric: tabular-nums;
+		color: color-mix(in srgb, currentColor 78%, transparent);
+	}
+	.img-sum[hidden] {
+		display: none;
 	}
 
 	.img-list:not(:empty) {
