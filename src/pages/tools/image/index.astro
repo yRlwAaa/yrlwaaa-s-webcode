@@ -126,6 +126,7 @@ const tool = getTool("image");
 					<button type="button" class="img-btn ghost" id="imgClear">
 						清空列表
 					</button>
+					<span class="img-out-hint">也可以点每行右侧的「下载」单张保存, 不打包</span>
 				</div>
 
 				<div class="img-foot">
@@ -258,6 +259,19 @@ const tool = getTool("image");
 		background: color-mix(in srgb, currentColor 5%, transparent);
 		color: inherit;
 		cursor: pointer;
+		/* 下拉弹层是系统原生绘制的, 不显式给颜色的话深色模式下会白底白字看不见 */
+		color-scheme: light;
+	}
+	:root.dark .img-opt select {
+		color-scheme: dark;
+	}
+	.img-opt select option {
+		background-color: #ffffff;
+		color: #232936;
+	}
+	:root.dark .img-opt select option {
+		background-color: #1e2028;
+		color: #e9edf6;
 	}
 	.img-opt input[type="range"] {
 		width: 130px;
@@ -380,6 +394,25 @@ const tool = getTool("image");
 		background: color-mix(in srgb, var(--img-bad) 11%, transparent);
 	}
 
+	/* 每行右侧的单张下载 */
+	.img-dl {
+		flex: 0 0 auto;
+		font-family: inherit;
+		font-size: 0.75rem;
+		font-weight: 550;
+		padding: 5px 13px;
+		border-radius: 8px;
+		cursor: pointer;
+		white-space: nowrap;
+		border: 1px solid color-mix(in srgb, var(--primary) 42%, transparent);
+		background: color-mix(in srgb, var(--primary) 8%, transparent);
+		color: var(--primary);
+		transition: background 0.15s ease;
+	}
+	.img-dl:hover {
+		background: var(--img-soft);
+	}
+
 	.img-out {
 		display: flex;
 		flex-wrap: wrap;
@@ -388,6 +421,11 @@ const tool = getTool("image");
 	}
 	.img-out[hidden] {
 		display: none;
+	}
+	.img-out-hint {
+		align-self: center;
+		font-size: 0.74rem;
+		color: color-mix(in srgb, currentColor 48%, transparent);
 	}
 	.img-btn {
 		font-family: inherit;

@@ -20,8 +20,17 @@
 	window.__ncmToolState = { detach: null };
 
 	var root = document.getElementById("ncmRoot");
+	if (!root) return;
 	var CORE = window.NCMCore;
-	if (!root || !CORE) return;
+	if (!CORE) {
+		// 核心脚本没加载成功时不能默默无反应, 否则页面看起来就是"点了没动静"
+		var errEl = document.getElementById("ncmStatus");
+		if (errEl) {
+			errEl.textContent = "核心脚本未加载成功, 请按 Ctrl+F5 强制刷新页面";
+			errEl.className = "ncm-status err";
+		}
+		return;
+	}
 
 	var dropEl = document.getElementById("ncmDrop");
 	var inputEl = document.getElementById("ncmInput");
@@ -38,7 +47,6 @@
 
 	var results = [];
 	var busy = false;
-	var lastUrl = null;
 	var staleUrls = [];
 
 	/** 延迟释放旧的 blob 地址, 避免打断正在进行的下载 */
@@ -94,6 +102,7 @@
 			if (sumEl) sumEl.hidden = true;
 			return;
 		}
+		assignNames();
 		var html = "";
 		var usable = 0;
 		var usableSize = 0;
@@ -160,6 +169,11 @@
 				(note ? '<div class="ncm-row-note">' + note + "</div>" : "") +
 				"</div>" +
 				badge +
+				(r.state === "done" && r.audio
+					? '<button type="button" class="ncm-dl" data-dl="' +
+						i +
+						'">下载</button>'
+					: "") +
 				"</div>";
 		}
 		listEl.innerHTML = html;
@@ -211,15 +225,106 @@
 		return CORE.sanitizeName(base, "track");
 	}
 
-	function uniqueName(used, base, ext) {
-		var name = base + "." + ext;
-		var n = 2;
-		while (used[name]) {
-			name = base + " (" + n + ")." + ext;
-			n++;
+	// 每次渲染前重算输出名, 重名自动加序号
+	function assignNames() {
+		var used = {};
+		for (var i = 0; i < results.length; i++) {
+			var r = results[i];
+			if (r.state !== "done" || !r.ext) continue;
+			var name = r.base + "." + r.ext;
+			var n = 2;
+			while (used[name]) {
+				name = r.base + " (" + n + ")." + r.ext;
+				n++;
+			}
+			used[name] = true;
+			r.outName = name;
 		}
-		used[name] = true;
-		return name;
+	}
+
+	/* ---------- 下载 ---------- */
+	var MIME_BY_EXT = {
+		flac: "audio/flac",
+		mp3: "audio/mpeg",
+		m4a: "audio/mp4",
+		ogg: "audio/ogg",
+		wav: "audio/wav",
+	};
+
+	function saveBlob(blob, filename) {
+		var url = URL.createObjectURL(blob);
+		var a = document.createElement("a");
+		a.href = url;
+		a.download = filename;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		releaseLater(url);
+	}
+
+	function saveOne(index) {
+		var r = results[index];
+		if (!r || r.state !== "done" || !r.audio) return;
+		saveBlob(
+			new Blob([r.audio], {
+				type: MIME_BY_EXT[r.ext] || "application/octet-stream",
+			}),
+			r.outName,
+		);
+		if (r.withCover && r.cover && r.cover.length) {
+			saveBlob(
+				new Blob([r.cover], { type: "image/" + (r.coverExt === "png" ? "png" : "jpeg") }),
+				r.base + "." + (r.coverExt || "jpg"),
+			);
+		}
+		setStatus("已保存:" + r.outName, "ok");
+	}
+
+	// 压缩包改成点的时候才打包, 不点就不占内存
+	function saveZip() {
+		var entries = [];
+		var total = 0;
+		for (var i = 0; i < results.length; i++) {
+			var r = results[i];
+			if (r.state !== "done" || !r.audio) continue;
+			entries.push({ name: r.outName, data: r.audio });
+			total += r.audio.length;
+			if (r.withCover && r.cover && r.cover.length) {
+				entries.push({ name: r.base + "." + (r.coverExt || "jpg"), data: r.cover });
+				total += r.cover.length;
+			}
+		}
+		if (!entries.length) return;
+		if (total > 1.5 * 1024 * 1024 * 1024) {
+			if (
+				!window.confirm(
+					"合计 " +
+						CORE.formatSize(total) +
+						", 打包会额外占一份内存, 可能很慢。\n确定继续吗? 也可以点每首右侧的「下载」单独保存。",
+				)
+			) {
+				return;
+			}
+		}
+		setStatus("正在打包 " + entries.length + " 个文件…");
+		setTimeout(function () {
+			try {
+				var zip = CORE.zipStore(entries, new Date());
+				saveBlob(
+					new Blob(zip.chunks, { type: "application/zip" }),
+					zipName(),
+				);
+				setStatus(
+					"已保存压缩包 · " +
+						entries.length +
+						" 个文件 · " +
+						CORE.formatSize(zip.size),
+					"ok",
+				);
+			} catch (e) {
+				setStatus("打包失败:" + ((e && e.message) || e), "err");
+			}
+		}, 0);
 	}
 
 	/* ---------- 主流程 ---------- */
@@ -305,56 +410,26 @@
 			await tick();
 		}
 
-		// 生成压缩包
-		var used = {};
-		var entries = [];
+		// 只统计, 压缩包改成点按钮时才打包
 		var count = 0;
-		// 之前几批已经定过名字的先占位, 避免同名覆盖
-		for (var p = 0; p < results.length; p++) {
-			if (results[p].outName) used[results[p].outName] = true;
-		}
 		for (var m = 0; m < results.length; m++) {
-			var it = results[m];
-			if (it.state !== "done" || it.zipped) continue;
-			var name = uniqueName(used, it.base, it.ext);
-			it.outName = name;
-			entries.push({ name: name, data: it.audio });
-			if (it.withCover && it.cover && it.cover.length) {
-				var coverName = uniqueName(used, it.base, it.coverExt || "jpg");
-				entries.push({ name: coverName, data: it.cover });
-			}
-			it.zipped = true;
-			count++;
+			if (results[m].state === "done") count++;
 		}
 
 		busy = false;
 		setProgress(files.length, files.length);
+		renderList();
 
 		if (!count) {
 			setStatus("没有可输出的音频文件", "warn");
-			renderList();
 			return;
 		}
-		try {
-			var zip = CORE.zipStore(entries, new Date());
-			releaseLater(lastUrl);
-			lastUrl = URL.createObjectURL(
-				new Blob(zip.chunks, { type: "application/zip" }),
-			);
-			dlBtn.dataset.url = lastUrl;
-			dlBtn.dataset.name = zipName();
-			setStatus(
-				"已完成 " +
-					count +
-					" 首 · 压缩包 " +
-					CORE.formatSize(zip.size) +
-					" · 点击下方按钮保存",
-				"ok",
-			);
-		} catch (e) {
-			setStatus("打包失败:" + ((e && e.message) || e), "err");
-		}
-		renderList();
+		setStatus(
+			"已完成 " +
+				count +
+				" 首 · 点每首右侧「下载」单独保存, 或点下方打包下载",
+			"ok",
+		);
 		setTimeout(function () {
 			barWrap.hidden = true;
 		}, 1200);
@@ -415,16 +490,32 @@
 		highlight(false);
 		if (e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files);
 	});
-	on(dropEl, "click", function () {
+	// 点拖拽区打开文件选择框。必须挡住 input 自己冒泡上来的那次点击,
+	// 否则 input.click() → 事件冒泡回这里 → 又 input.click() → 无限递归爆栈, 选择框根本打不开。
+	on(dropEl, "click", function (e) {
+		if (e && e.target === inputEl) return;
 		inputEl.click();
 	});
 	on(pickBtn, "click", function (e) {
 		e.stopPropagation();
 		inputEl.click();
 	});
+	on(inputEl, "click", function (e) {
+		if (e && e.stopPropagation) e.stopPropagation();
+	});
 	on(inputEl, "change", function () {
 		if (inputEl.files && inputEl.files.length) handleFiles(inputEl.files);
 		inputEl.value = "";
+	});
+
+	// 每首右侧的「下载」: 事件委托, 列表重绘也不用重新绑
+	on(listEl, "click", function (e) {
+		var t = e && e.target;
+		var btn = t && t.closest ? t.closest("[data-dl]") : null;
+		if (!btn) return;
+		e.preventDefault();
+		e.stopPropagation();
+		saveOne(parseInt(btn.getAttribute("data-dl"), 10));
 	});
 
 	// 避免拖到页面其它位置时浏览器直接打开文件
@@ -450,23 +541,12 @@
 	window.addEventListener("drop", onWinDrop);
 
 	on(dlBtn, "click", function () {
-		var url = dlBtn.dataset.url;
-		if (!url) return;
-		var a = document.createElement("a");
-		a.href = url;
-		a.download = dlBtn.dataset.name || "ncm-flac.zip";
-		document.body.appendChild(a);
-		a.click();
-		document.body.removeChild(a);
-		setStatus("压缩包已开始保存到本地下载目录", "ok");
+		saveZip();
 	});
 
 	on(clearBtn, "click", function () {
 		if (busy) return;
 		results = [];
-		releaseLater(lastUrl);
-		lastUrl = null;
-		dlBtn.dataset.url = "";
 		renderList();
 		setStatus("");
 		barWrap.hidden = true;
@@ -477,8 +557,6 @@
 			for (var i = 0; i < detachFns.length; i++) detachFns[i]();
 			detachFns = [];
 			detachWin();
-			releaseLater(lastUrl);
-			lastUrl = null;
 		},
 	};
 

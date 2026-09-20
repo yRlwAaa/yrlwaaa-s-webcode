@@ -98,6 +98,7 @@ const tool = getTool("ncm");
 					<button type="button" class="ncm-btn ghost" id="ncmClear">
 						清空列表
 					</button>
+					<span class="ncm-out-hint">也可以点每首右侧的「下载」单曲保存, 不打包</span>
 				</div>
 
 				<div class="ncm-foot">
@@ -329,6 +330,25 @@ const tool = getTool("ncm");
 		opacity: 0.62;
 	}
 
+	/* 每首右侧的单曲下载 */
+	.ncm-dl {
+		flex: 0 0 auto;
+		font-family: inherit;
+		font-size: 0.75rem;
+		font-weight: 550;
+		padding: 5px 13px;
+		border-radius: 8px;
+		cursor: pointer;
+		white-space: nowrap;
+		border: 1px solid color-mix(in srgb, var(--primary) 42%, transparent);
+		background: color-mix(in srgb, var(--primary) 8%, transparent);
+		color: var(--primary);
+		transition: background 0.15s ease;
+	}
+	.ncm-dl:hover {
+		background: var(--ncm-soft);
+	}
+
 	.ncm-out {
 		display: flex;
 		flex-wrap: wrap;
@@ -338,6 +358,11 @@ const tool = getTool("ncm");
 	.ncm-out[hidden],
 	.ncm-bar[hidden] {
 		display: none;
+	}
+	.ncm-out-hint {
+		align-self: center;
+		font-size: 0.74rem;
+		color: color-mix(in srgb, currentColor 48%, transparent);
 	}
 	.ncm-btn {
 		font-family: inherit;

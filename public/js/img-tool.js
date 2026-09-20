@@ -27,8 +27,17 @@
 	window.__imgToolState = { detach: null };
 
 	var root = document.getElementById("imgRoot");
+	if (!root) return;
 	var KIT = window.ToolKit;
-	if (!root || !KIT) return;
+	if (!KIT) {
+		// 公共库没加载成功时不能默默无反应, 否则页面看起来就是"点了没动静"
+		var errEl = document.getElementById("imgStatus");
+		if (errEl) {
+			errEl.textContent = "公共库未加载成功, 请按 Ctrl+F5 强制刷新页面";
+			errEl.className = "img-status err";
+		}
+		return;
+	}
 
 	var dropEl = document.getElementById("imgDrop");
 	var inputEl = document.getElementById("imgInput");
@@ -66,7 +75,6 @@
 	var busy = false;
 	var stale = false;
 	var ignoredTotal = 0;
-	var lastUrl = null;
 	var staleUrls = [];
 
 	/* ---------- 小工具 ---------- */
@@ -343,15 +351,85 @@
 	function baseName(name) {
 		return String(name || "image").replace(/\.[^./\\]+$/, "");
 	}
-	function uniqueName(used, base, ext) {
-		var name = base + "." + ext;
-		var n = 2;
-		while (used[name]) {
-			name = base + " (" + n + ")." + ext;
-			n++;
+	// 每次渲染前重算一遍输出名(改格式后扩展名会变), 重名自动加序号
+	function assignNames() {
+		var used = {};
+		for (var i = 0; i < items.length; i++) {
+			var it = items[i];
+			if (it.state !== "done" || !it.ext) continue;
+			var base = KIT.sanitizeName(it.base || baseName(it.label), "image");
+			it.base = base;
+			var name = base + "." + it.ext;
+			var n = 2;
+			while (used[name]) {
+				name = base + " (" + n + ")." + it.ext;
+				n++;
+			}
+			used[name] = true;
+			it.outName = name;
 		}
-		used[name] = true;
-		return name;
+	}
+
+	/* ---------- 下载 ---------- */
+	function saveBlob(blob, filename) {
+		var url = URL.createObjectURL(blob);
+		var a = document.createElement("a");
+		a.href = url;
+		a.download = filename;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		releaseLater(url);
+	}
+
+	function saveOne(index) {
+		var it = items[index];
+		if (!it || it.state !== "done" || !it.blobData) return;
+		saveBlob(new Blob([it.blobData], { type: MIME[it.format] || "application/octet-stream" }), it.outName);
+		setStatus("已保存单张:" + it.outName, "ok");
+	}
+
+	// 压缩包改成点的时候才打包, 不点就不占内存
+	function saveZip() {
+		var entries = [];
+		var total = 0;
+		for (var i = 0; i < items.length; i++) {
+			var it = items[i];
+			if (it.state !== "done" || !it.blobData) continue;
+			entries.push({ name: it.outName, data: it.blobData });
+			total += it.blobData.length;
+		}
+		if (!entries.length) return;
+		if (total > 1.5 * 1024 * 1024 * 1024) {
+			if (
+				!window.confirm(
+					"合计 " +
+						KIT.formatSize(total) +
+						", 打包会额外占一份内存, 可能很慢。\n确定继续吗? 也可以点每行右侧的「下载」单张保存。",
+				)
+			) {
+				return;
+			}
+		}
+		setStatus("正在打包 " + entries.length + " 个文件…");
+		setTimeout(function () {
+			try {
+				var zip = KIT.zipStore(entries, new Date());
+				saveBlob(
+					new Blob(zip.chunks, { type: "application/zip" }),
+					"images-" + KIT.stamp() + ".zip",
+				);
+				setStatus(
+					"已保存压缩包 · " +
+						entries.length +
+						" 张 · " +
+						KIT.formatSize(zip.size),
+					"ok",
+				);
+			} catch (e) {
+				setStatus("打包失败:" + ((e && e.message) || e), "err");
+			}
+		}, 0);
 	}
 
 	/* ---------- 列表渲染 ---------- */
@@ -363,6 +441,7 @@
 			if (sumEl) sumEl.hidden = true;
 			return;
 		}
+		assignNames();
 		var html = "";
 		var okCount = 0;
 		var failCount = 0;
@@ -433,6 +512,11 @@
 				(note ? '<div class="img-row-note">' + note + "</div>" : "") +
 				"</div>" +
 				badge +
+				(it.state === "done" && it.blobData
+					? '<button type="button" class="img-dl" data-dl="' +
+						i +
+						'">下载</button>'
+					: "") +
 				"</div>";
 		}
 		listEl.innerHTML = html;
@@ -545,6 +629,7 @@
 				it.origHeight = r.origHeight;
 				it.outLabel = LABEL[opts.format];
 				it.ext = EXT[opts.format];
+				it.format = opts.format;
 				it.state = "done";
 				it.stale = false;
 			} catch (err) {
@@ -555,49 +640,27 @@
 			await tick();
 		}
 
-		// 打包
-		var used = {};
-		var entries = [];
+		// 打包改成点按钮时才做, 这里只统计
 		var count = 0;
 		for (var m = 0; m < items.length; m++) {
-			var x = items[m];
-			if (x.state !== "done" || x.zipped || !x.blobData) continue;
-			var name = uniqueName(used, KIT.sanitizeName(baseName(x.label), "image"), x.ext);
-			x.outName = name;
-			entries.push({ name: name, data: x.blobData });
-			x.zipped = true;
-			count++;
+			if (items[m].state === "done" && items[m].blobData) count++;
 		}
 
 		busy = false;
 		setProgress(total, total);
+		renderList();
 
 		if (!count) {
 			setStatus("没有可输出的图片", "warn");
-			renderList();
 			return;
 		}
-		try {
-			var zip = KIT.zipStore(entries, new Date());
-			releaseLater(lastUrl);
-			lastUrl = URL.createObjectURL(
-				new Blob(zip.chunks, { type: "application/zip" }),
-			);
-			dlBtn.dataset.url = lastUrl;
-			dlBtn.dataset.name = "images-" + KIT.stamp() + ".zip";
-			setStatus(
-				"已完成 " +
-					count +
-					" 张 · 压缩包 " +
-					KIT.formatSize(zip.size) +
-					(ignoredTotal ? " · 已忽略 " + ignoredTotal + " 个非图片文件" : "") +
-					" · 点击下方按钮保存",
-				"ok",
-			);
-		} catch (e) {
-			setStatus("打包失败:" + ((e && e.message) || e), "err");
-		}
-		renderList();
+		setStatus(
+			"已完成 " +
+				count +
+				" 张 · 点每行右侧「下载」单独保存, 或点下方打包下载" +
+				(ignoredTotal ? " · 已忽略 " + ignoredTotal + " 个非图片文件" : ""),
+			"ok",
+		);
 		setTimeout(function () {
 			barWrap.hidden = true;
 		}, 1200);
@@ -638,16 +701,32 @@
 		highlight(false);
 		if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files);
 	});
-	on(dropEl, "click", function () {
+	// 点拖拽区打开文件选择框。必须挡住 input 自己冒泡上来的那次点击,
+	// 否则 input.click() → 事件冒泡回这里 → 又 input.click() → 无限递归爆栈, 选择框根本打不开。
+	on(dropEl, "click", function (e) {
+		if (e && e.target === inputEl) return;
 		inputEl.click();
 	});
 	on(pickBtn, "click", function (e) {
 		e.stopPropagation();
 		inputEl.click();
 	});
+	on(inputEl, "click", function (e) {
+		if (e && e.stopPropagation) e.stopPropagation();
+	});
 	on(inputEl, "change", function () {
 		if (inputEl.files && inputEl.files.length) addFiles(inputEl.files);
 		inputEl.value = "";
+	});
+
+	// 每行右侧的「下载」: 事件委托, 列表重绘也不用重新绑
+	on(listEl, "click", function (e) {
+		var t = e && e.target;
+		var btn = t && t.closest ? t.closest("[data-dl]") : null;
+		if (!btn) return;
+		e.preventDefault();
+		e.stopPropagation();
+		saveOne(parseInt(btn.getAttribute("data-dl"), 10));
 	});
 
 	// 选项改变 → 标记旧结果为过期, 提示重新转换
@@ -678,7 +757,6 @@
 		if (busy) return;
 		for (var i = 0; i < items.length; i++) {
 			if (items[i].state === "done") items[i].stale = true;
-			items[i].zipped = false;
 		}
 		rerunBtn.hidden = true;
 		stale = false;
@@ -701,24 +779,13 @@
 	window.addEventListener("drop", stopWin);
 
 	on(dlBtn, "click", function () {
-		var url = dlBtn.dataset.url;
-		if (!url) return;
-		var a = document.createElement("a");
-		a.href = url;
-		a.download = dlBtn.dataset.name || "images.zip";
-		document.body.appendChild(a);
-		a.click();
-		document.body.removeChild(a);
-		setStatus("压缩包已开始保存到本地下载目录", "ok");
+		saveZip();
 	});
 
 	on(clearBtn, "click", function () {
 		if (busy) return;
 		items = [];
 		ignoredTotal = 0;
-		releaseLater(lastUrl);
-		lastUrl = null;
-		dlBtn.dataset.url = "";
 		rerunBtn.hidden = true;
 		stale = false;
 		renderList();
@@ -731,8 +798,6 @@
 			for (var i = 0; i < detachFns.length; i++) detachFns[i]();
 			detachFns = [];
 			detachWin();
-			releaseLater(lastUrl);
-			lastUrl = null;
 		},
 	};
 
