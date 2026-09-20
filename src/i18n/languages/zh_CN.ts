@@ -409,4 +409,78 @@ export const zh_CN: Translation = {
 	[Key.aiQuick2]: "最近更新了哪些文章？",
 	[Key.aiQuick3]: "介绍一下你自己",
 	[Key.aiError]: "出错了：",
+
+	// ---------- 工具箱 ----------
+	[Key.toolsTitle]: "工具",
+	[Key.toolsSubtitle]: "一些方便的小工具，开袋即食",
+	[Key.toolsLocal]: "纯本地",
+	[Key.toolsEmpty]: "还没有工具，敬请期待",
+	[Key.toolCrumbTools]: "工具",
+	[Key.toolOr]: "或者",
+	[Key.toolPick]: "点击选择本地文件",
+	[Key.toolDownload]: "下载",
+	[Key.toolZip]: "打包下载",
+	[Key.toolRerun]: "按新设置重新转换",
+	[Key.toolClear]: "清空列表",
+	[Key.toolSingleHint]: "也可以点每行右侧的「下载」单个保存, 不打包",
+
+	// 工具 · NCM 转 FLAC
+	[Key.toolNcmName]: "NCM 转 FLAC",
+	[Key.toolNcmDesc]: "网易云 .ncm 加密文件还原成原始 FLAC, 批量拖入, 一键打包成 zip",
+	[Key.toolNcmIntro]:
+		".ncm 是网易云音乐客户端给下载文件套的一层加密容器, 里面装的其实就是原始音频流(无损源就是真 FLAC)。这个工具在浏览器里把外层壳解掉, 直接吐出原始 FLAC, 不做任何二次转码, 所以音质和源文件完全一致。支持多选和拖拽, 处理完打包成一个 zip 下载; 全程在本站页面内完成, 文件不会被上传到任何服务器。",
+	[Key.toolNcmTags]: "音频|无损|纯本地",
+	[Key.toolNcmDropTitle]: "把 .ncm 文件拖到这里",
+	[Key.toolNcmDropSub]: "支持一次选多个 · 全程在本站浏览器内解密, 文件不上传",
+	[Key.toolNcmOptLossless]: "只保留无损 (跳过 MP3 / M4A 等有损源)",
+	[Key.toolNcmOptCover]: "附带专辑封面 (每个音频同名 .jpg)",
+	[Key.toolNcmFoot]:
+		"解密与打包都在你的浏览器内存里完成, 不联网、不上传、不留档; 请仅用于处理自己合法获得的本地文件。",
+	[Key.toolNcmSkip]: "有损音频({format}), 按设置跳过",
+
+	// 工具 · 图片转换
+	[Key.toolImgName]: "图片转换",
+	[Key.toolImgDesc]:
+		"jpg / png / gif / avif / svg 批量转 WebP·PNG, 可选最大宽度与质量, 打包下载",
+	[Key.toolImgIntro]:
+		"把各种图片格式转成适合放网页的 WebP / PNG / JPEG, 并且可以顺手把尺寸压下来。网页图片真正吃流量的是尺寸不是格式 —— 一张 4000px 的照片缩到 1600px 往往就省掉八九成体积, 格式转换再省两到三成。拖进来选好输出格式、最大宽度和质量就行, 处理完打包成一个 zip 下载; 全程在本站浏览器内完成, 图片不会上传到任何服务器。",
+	[Key.toolImgTags]: "图片|WebP|纯本地",
+	[Key.toolImgDropTitle]: "把图片拖到这里",
+	[Key.toolImgDropSub]: "支持一次选多张 · 全程在本站浏览器内转换, 不上传",
+	[Key.toolImgFormat]: "输出格式",
+	[Key.toolImgMaxWidth]: "最大宽度",
+	[Key.toolImgKeepSize]: "保持原尺寸",
+	[Key.toolImgQuality]: "质量",
+	[Key.toolImgLossless]: "无损",
+	[Key.toolImgUnavailable]: " (不可用)",
+	[Key.toolImgHintWebp]: "WebP 兼顾体积与质量, 网页配图首选",
+	[Key.toolImgHintPng]: "PNG 为无损, 体积通常比 WebP 大; 适合截图/线稿/需要透明时",
+	[Key.toolImgHintJpeg]: "JPEG 不支持透明, 透明区域会被填成白底",
+	[Key.toolImgHintAvif]: "AVIF 体积最小, 但编码较慢且旧浏览器可能不支持",
+	[Key.toolImgFoot]:
+		"解码与编码都在你的浏览器里完成, 不联网、不上传。注意: iPhone 的 HEIC/HEIF 浏览器解不了, 请先在手机上导出为 JPG; 动图 GIF 只会取第一帧。",
+
+	// 工具页运行时状态({x} 为占位符)
+	[Key.toolStatusQueued]: "排队中",
+	[Key.toolStatusReading]: "读取文件…",
+	[Key.toolStatusDecrypting]: "解密中…",
+	[Key.toolStatusDecoding]: "解码中…",
+	[Key.toolStatusWorking]: "正在处理 {done} / {total} · {name}",
+	[Key.toolStatusDoneNcm]: "已完成 {n} 首 · 点每首右侧「下载」单个保存, 或点下方打包下载",
+	[Key.toolStatusDoneImg]: "已完成 {n} 张 · 点每行右侧「下载」单个保存, 或点下方打包下载",
+	[Key.toolStatusSaved]: "已保存: {name}",
+	[Key.toolStatusZipping]: "正在打包 {n} 个文件…",
+	[Key.toolStatusZipSaved]: "已保存压缩包 · {n} 个文件 · {size}",
+	[Key.toolStatusNoOutputNcm]: "没有可输出的音频文件",
+	[Key.toolStatusNoOutputImg]: "没有可输出的图片",
+	[Key.toolStatusIgnored]: "已忽略 {n} 个非目标格式文件",
+	[Key.toolStatusNothing]: "没有选择文件",
+	[Key.toolStatusZipFail]: "打包失败: ",
+	[Key.toolStatusRerun]: "设置已更改, 点「按新设置重新转换」重跑",
+	[Key.toolStatusStale]: "页面是旧版本, 请按 Ctrl+F5 强制刷新",
+	[Key.toolCoreMissing]: "核心脚本未加载成功, 请按 Ctrl+F5 强制刷新页面",
+	[Key.toolZipWarn]:
+		"合计 {size}, 打包会额外占一份内存, 可能很慢。\n确定继续吗? 也可以点每行右侧的「下载」单个保存。",
+	[Key.toolFail]: "失败",
+	[Key.toolSkipped]: "已跳过",
 };

@@ -422,4 +422,81 @@ export const en: Translation = {
 	[Key.aiQuick2]: "What are the latest articles?",
 	[Key.aiQuick3]: "Tell me about yourself",
 	[Key.aiError]: "Error: ",
+
+	// ---------- Toolbox ----------
+	[Key.toolsTitle]: "Tools",
+	[Key.toolsSubtitle]: "A few handy little tools, ready to use straight out of the box",
+	[Key.toolsLocal]: "Runs locally",
+	[Key.toolsEmpty]: "No tools yet — stay tuned",
+	[Key.toolCrumbTools]: "Tools",
+	[Key.toolOr]: "or",
+	[Key.toolPick]: "choose a local file",
+	[Key.toolDownload]: "Download",
+	[Key.toolZip]: "Download all as ZIP",
+	[Key.toolRerun]: "Convert again with the new settings",
+	[Key.toolClear]: "Clear list",
+	[Key.toolSingleHint]: "You can also save each file on its own with the button on the right",
+
+	[Key.toolNcmName]: "NCM to FLAC",
+	[Key.toolNcmDesc]:
+		"Restore NetEase Cloud .ncm files to the original FLAC — drag in a batch, get one ZIP",
+	[Key.toolNcmIntro]:
+		".ncm is an encrypted wrapper the NetEase Cloud Music client puts around downloaded files; inside is the original audio stream (a lossless source holds a real FLAC). This tool strips that wrapper in your browser and hands you the original FLAC — no re-encoding at all, so the audio is identical to the source file. Drag in several files and download them as a single ZIP when it finishes. Everything happens inside this page; nothing is uploaded to any server.",
+	[Key.toolNcmTags]: "Audio|Lossless|Runs locally",
+	[Key.toolNcmDropTitle]: "Drop .ncm files here",
+	[Key.toolNcmDropSub]:
+		"Multiple files at once · decrypted entirely in your browser, files are never uploaded",
+	[Key.toolNcmOptLossless]: "Lossless only (skip MP3 / M4A and other lossy sources)",
+	[Key.toolNcmOptCover]: "Include album cover (a .jpg named after each track)",
+	[Key.toolNcmFoot]:
+		"Decryption and packing happen in your browser's memory: no network, no upload, nothing stored. Please only use it on files you legitimately own.",
+	[Key.toolNcmSkip]: "Lossy audio ({format}), skipped per your setting",
+
+	[Key.toolImgName]: "Image Converter",
+	[Key.toolImgDesc]:
+		"Batch convert jpg / png / gif / avif / svg to WebP·PNG, with max width and quality options",
+	[Key.toolImgIntro]:
+		"Convert all sorts of image formats into something web-friendly (WebP / PNG / JPEG) and shrink them while you're at it. What really eats bandwidth on the web is pixel size, not the format — a 4000px photo scaled to 1600px usually saves 80-90% of the bytes, and the format switch saves another 20-30%. Drop images in, pick an output format, a max width and a quality, then download everything as one ZIP. Everything runs in your browser; images are never uploaded.",
+	[Key.toolImgTags]: "Image|WebP|Runs locally",
+	[Key.toolImgDropTitle]: "Drop images here",
+	[Key.toolImgDropSub]:
+		"Multiple images at once · converted entirely in your browser, nothing is uploaded",
+	[Key.toolImgFormat]: "Output format",
+	[Key.toolImgMaxWidth]: "Max width",
+	[Key.toolImgKeepSize]: "Keep original size",
+	[Key.toolImgQuality]: "Quality",
+	[Key.toolImgLossless]: "lossless",
+	[Key.toolImgUnavailable]: " (unavailable)",
+	[Key.toolImgHintWebp]: "WebP balances size and quality — the go-to choice for web images",
+	[Key.toolImgHintPng]:
+		"PNG is lossless but usually larger; best for screenshots, line art and transparency",
+	[Key.toolImgHintJpeg]: "JPEG has no transparency — transparent areas are filled with white",
+	[Key.toolImgHintAvif]: "AVIF gives the smallest files, but encodes slowly and older browsers may not support it",
+	[Key.toolImgFoot]:
+		"Decoding and encoding happen in your browser: no network, no upload. Note: browsers cannot decode iPhone HEIC/HEIF — export as JPG on the phone first. Animated GIFs keep only the first frame.",
+
+	[Key.toolStatusQueued]: "Queued",
+	[Key.toolStatusReading]: "Reading file…",
+	[Key.toolStatusDecrypting]: "Decrypting…",
+	[Key.toolStatusDecoding]: "Decoding…",
+	[Key.toolStatusWorking]: "Processing {done} / {total} · {name}",
+	[Key.toolStatusDoneNcm]:
+		"Finished {n} track(s) · save each one with the button on the right, or download the ZIP below",
+	[Key.toolStatusDoneImg]:
+		"Finished {n} image(s) · save each one with the button on the right, or download the ZIP below",
+	[Key.toolStatusSaved]: "Saved: {name}",
+	[Key.toolStatusZipping]: "Packing {n} file(s)…",
+	[Key.toolStatusZipSaved]: "ZIP saved · {n} file(s) · {size}",
+	[Key.toolStatusNoOutputNcm]: "No audio to output",
+	[Key.toolStatusNoOutputImg]: "No images to output",
+	[Key.toolStatusIgnored]: "Ignored {n} file(s) in unsupported formats",
+	[Key.toolStatusNothing]: "No files selected",
+	[Key.toolStatusZipFail]: "Packing failed: ",
+	[Key.toolStatusRerun]: "Settings changed — click “Convert again with the new settings”",
+	[Key.toolStatusStale]: "This page is out of date — press Ctrl+F5 to hard refresh",
+	[Key.toolCoreMissing]: "The core script failed to load — press Ctrl+F5 to hard refresh the page",
+	[Key.toolZipWarn]:
+		"Total {size}. Packing keeps an extra copy in memory and can be slow.\nContinue? You can also save files one by one with the button on each row.",
+	[Key.toolFail]: "Failed",
+	[Key.toolSkipped]: "Skipped",
 };

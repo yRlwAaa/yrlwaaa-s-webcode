@@ -46,6 +46,23 @@
 		}
 	}
 
+	/* ---------- 文案: 跟随站点语言(词条在 src/i18n/languages/*.ts) ---------- */
+	function t(key, fallback) {
+		try {
+			var lang = document.documentElement.getAttribute("lang") || "";
+			var d = window.I18N_DICTS || {};
+			var dict =
+				d[lang] || d[lang.toLowerCase()] || d[lang.split("_")[0]] || {};
+			if (dict[key]) return dict[key];
+		} catch (e) {}
+		return fallback;
+	}
+	function tf(key, fallback, vars) {
+		var s = t(key, fallback);
+		for (var k in vars) s = s.split("{" + k + "}").join(vars[k]);
+		return s;
+	}
+
 	var dropEl = document.getElementById("ncmDrop");
 	var inputEl = document.getElementById("ncmInput");
 	var listEl = document.getElementById("ncmList");
@@ -148,7 +165,7 @@
 				inUsedSize += r.srcSize;
 			} else if (r.state === "skip") {
 				cls += " skip";
-				badge = '<span class="ncm-badge dim">已跳过</span>';
+				badge = '<span class="ncm-badge dim">' + esc(t("toolSkipped", "已跳过")) + "</span>";
 				note =
 					"NCM " +
 					CORE.formatSize(r.srcSize) +
@@ -156,7 +173,7 @@
 					esc(r.note);
 			} else if (r.state === "fail") {
 				cls += " bad";
-				badge = '<span class="ncm-badge red">失败</span>';
+				badge = '<span class="ncm-badge red">' + esc(t("toolFail", "失败")) + "</span>";
 				note =
 					"NCM " +
 					CORE.formatSize(r.srcSize) +
@@ -186,7 +203,9 @@
 				(r.state === "done" && r.audio
 					? '<button type="button" class="ncm-dl" data-dl="' +
 						i +
-						'">下载</button>'
+						'">' +
+						esc(t("toolDownload", "下载")) +
+						"</button>"
 					: "") +
 				"</div>";
 		}
@@ -221,7 +240,12 @@
 		if (usable > 0) {
 			outEl.hidden = false;
 			dlBtn.textContent =
-				"打包下载 (" + usable + " 首 · " + CORE.formatSize(usableSize) + ")";
+				t("toolZip", "打包下载") +
+				" (" +
+				usable +
+				" · " +
+				CORE.formatSize(usableSize) +
+				")";
 			dlBtn.disabled = false;
 		} else {
 			outEl.hidden = true;

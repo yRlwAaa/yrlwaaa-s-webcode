@@ -2,14 +2,21 @@
 import { Icon } from "astro-icon/components";
 
 import { toolsData } from "../../data/tools";
+import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
 import MainGridLayout from "../../layouts/MainGridLayout.astro";
 
 export const prerender = true;
 
 const tools = toolsData;
+const tagsOf = (key: I18nKey) =>
+	i18n(key)
+		.split("|")
+		.map((t) => t.trim())
+		.filter(Boolean);
 ---
 
-<MainGridLayout title="工具">
+<MainGridLayout title={i18n(I18nKey.toolsTitle)}>
 	<script>
 		import("../../scripts/right-sidebar-layout.js");
 	</script>
@@ -23,18 +30,24 @@ const tools = toolsData;
 			<div class="flex flex-col items-start justify-center mb-6">
 				<h1
 					class="text-4xl font-bold text-black/90 dark:text-white/90 mb-2 relative before:w-1 before:h-8 before:rounded-md before:bg-[var(--primary)] before:absolute before:top-1/2 before:-translate-y-1/2 before:-left-4"
+					data-i18n={I18nKey.toolsTitle}
 				>
-					工具
+					{i18n(I18nKey.toolsTitle)}
 				</h1>
-				<p class="text-lg text-black/60 dark:text-white/60">
-					一些方便的小工具，开袋即食
+				<p
+					class="text-lg text-black/60 dark:text-white/60"
+					data-i18n={I18nKey.toolsSubtitle}
+				>
+					{i18n(I18nKey.toolsSubtitle)}
 				</p>
 			</div>
 
 			<div class="tool-list">
 				{
 					tools.length === 0 && (
-						<div class="tool-empty">还没有工具, 敬请期待</div>
+						<div class="tool-empty" data-i18n={I18nKey.toolsEmpty}>
+							{i18n(I18nKey.toolsEmpty)}
+						</div>
 					)
 				}
 				{
@@ -45,17 +58,21 @@ const tools = toolsData;
 							</span>
 							<span class="tool-mid">
 								<span class="tool-tt">
-									{tool.name}
-									{tool.local && <em class="tool-pill">纯本地</em>}
+									<span data-i18n={tool.nameKey}>{i18n(tool.nameKey)}</span>
+									{tool.local && (
+										<em class="tool-pill" data-i18n={I18nKey.toolsLocal}>
+											{i18n(I18nKey.toolsLocal)}
+										</em>
+									)}
 								</span>
-								<span class="tool-ds">{tool.desc}</span>
-								{tool.tags.length > 0 && (
-									<span class="tool-tags">
-										{tool.tags.map((tag) => (
-											<span class="tool-tag">{tag}</span>
-										))}
-									</span>
-								)}
+								<span class="tool-ds" data-i18n={tool.descKey}>
+									{i18n(tool.descKey)}
+								</span>
+								<span class="tool-tags" data-i18n-tags={tool.tagsKey}>
+									{tagsOf(tool.tagsKey).map((tag) => (
+										<span class="tool-tag">{tag}</span>
+									))}
+								</span>
 							</span>
 							<span class="tool-go">
 								<Icon name="material-symbols:chevron-right-rounded" />
@@ -66,6 +83,37 @@ const tools = toolsData;
 			</div>
 		</div>
 	</div>
+
+	<!-- 标签是多个 span, 通用的 data-i18n 只能替换纯文本节点, 所以单独处理 -->
+	<script is:inline>
+		(function () {
+			function applyTags(lang) {
+				var dicts = window.I18N_DICTS || {};
+				var dict =
+					dicts[lang] ||
+					dicts[String(lang).toLowerCase()] ||
+					dicts[String(lang).split("_")[0]] ||
+					{};
+				document.querySelectorAll("[data-i18n-tags]").forEach(function (el) {
+					var value = dict[el.getAttribute("data-i18n-tags")];
+					if (!value) return;
+					var parts = String(value).split("|");
+					var spans = el.querySelectorAll(".tool-tag");
+					for (var i = 0; i < spans.length && i < parts.length; i++) {
+						spans[i].textContent = parts[i].trim();
+					}
+				});
+			}
+			var lang = document.documentElement.getAttribute("lang") || "zh_CN";
+			applyTags(lang);
+			document.addEventListener("i18n:changed", function (e) {
+				applyTags((e && e.detail && e.detail.lang) || lang);
+			});
+			document.addEventListener("swup:contentReplaced", function () {
+				applyTags(document.documentElement.getAttribute("lang") || lang);
+			});
+		})();
+	</script>
 </MainGridLayout>
 
 <style is:global>

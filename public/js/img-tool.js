@@ -53,6 +53,23 @@
 		}
 	}
 
+	/* ---------- 文案: 跟随站点语言(词条在 src/i18n/languages/*.ts) ---------- */
+	function t(key, fallback) {
+		try {
+			var lang = document.documentElement.getAttribute("lang") || "";
+			var d = window.I18N_DICTS || {};
+			var dict =
+				d[lang] || d[lang.toLowerCase()] || d[lang.split("_")[0]] || {};
+			if (dict[key]) return dict[key];
+		} catch (e) {}
+		return fallback;
+	}
+	function tf(key, fallback, vars) {
+		var s = t(key, fallback);
+		for (var k in vars) s = s.split("{" + k + "}").join(vars[k]);
+		return s;
+	}
+
 	var dropEl = document.getElementById("imgDrop");
 	var inputEl = document.getElementById("imgInput");
 	var pickBtn = document.getElementById("imgPick");
@@ -529,7 +546,9 @@
 				(it.state === "done" && it.blobData
 					? '<button type="button" class="img-dl" data-dl="' +
 						i +
-						'">下载</button>'
+						'">' +
+						esc(t("toolDownload", "下载")) +
+						"</button>"
 					: "") +
 				"</div>";
 		}
@@ -562,11 +581,12 @@
 			outEl.hidden = false;
 			var saved = inSize > outSize ? Math.round((1 - outSize / inSize) * 100) : 0;
 			dlBtn.textContent =
-				"打包下载 (" +
+				t("toolZip", "打包下载") +
+				" (" +
 				okCount +
-				" 张 · " +
+				" · " +
 				KIT.formatSize(outSize) +
-				(saved > 0 ? " · 省 " + saved + "%" : "") +
+				(saved > 0 ? " · -" + saved + "%" : "") +
 				")";
 			dlBtn.disabled = false;
 		} else {

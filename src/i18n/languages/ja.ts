@@ -425,4 +425,80 @@ export const ja: Translation = {
 	[Key.aiQuick2]: "最新の記事は？",
 	[Key.aiQuick3]: "自己紹介をお願いします",
 	[Key.aiError]: "エラー: ",
+
+	// ---------- ツールボックス ----------
+	[Key.toolsTitle]: "ツール",
+	[Key.toolsSubtitle]: "ちょっと便利な小物たち、開けてすぐ使えます",
+	[Key.toolsLocal]: "完全ローカル",
+	[Key.toolsEmpty]: "まだツールはありません、お楽しみに",
+	[Key.toolCrumbTools]: "ツール",
+	[Key.toolOr]: "または",
+	[Key.toolPick]: "ローカルのファイルを選択",
+	[Key.toolDownload]: "ダウンロード",
+	[Key.toolZip]: "まとめてダウンロード",
+	[Key.toolRerun]: "新しい設定で再変換",
+	[Key.toolClear]: "リストを空にする",
+	[Key.toolSingleHint]: "各行の右側の「ダウンロード」から 1 つずつ保存することもできます",
+
+	[Key.toolNcmName]: "NCM → FLAC",
+	[Key.toolNcmDesc]:
+		"NetEase Cloud の .ncm を元の FLAC に戻します。まとめてドロップして ZIP で取得",
+	[Key.toolNcmIntro]:
+		".ncm は NetEase Cloud Music クライアントがダウンロードファイルに被せた暗号化コンテナで、中身は元の音声ストリームそのものです（ロスレス音源なら本物の FLAC）。このツールはブラウザ内で外殻を剥がし、元の FLAC をそのまま取り出します。再エンコードは一切行わないので、音質は元ファイルと完全に同一です。複数選択とドラッグに対応し、処理後は ZIP でまとめてダウンロードできます。すべてこのページ内で完結し、ファイルはサーバーに送信されません。",
+	[Key.toolNcmTags]: "音声|ロスレス|完全ローカル",
+	[Key.toolNcmDropTitle]: ".ncm ファイルをここにドロップ",
+	[Key.toolNcmDropSub]:
+		"複数まとめて選択できます · 復号はすべてブラウザ内、ファイルは送信されません",
+	[Key.toolNcmOptLossless]: "ロスレスのみ（MP3 / M4A などの非可逆音源はスキップ）",
+	[Key.toolNcmOptCover]: "アルバムアートを含める（各音声と同名の .jpg）",
+	[Key.toolNcmFoot]:
+		"復号と梱包はブラウザのメモリ内で完結します。通信も送信も記録もありません。ご自身が正当に入手したファイルにのみお使いください。",
+	[Key.toolNcmSkip]: "非可逆音声（{format}）、設定によりスキップ",
+
+	[Key.toolImgName]: "画像変換",
+	[Key.toolImgDesc]:
+		"jpg / png / gif / avif / svg を WebP・PNG へ一括変換。最大幅と品質を指定可能",
+	[Key.toolImgIntro]:
+		"さまざまな画像形式を Web 向けの WebP / PNG / JPEG に変換し、ついでにサイズも落とせます。Web 画像で本当に通信量を食うのは形式よりも画素数で、4000px の写真を 1600px に縮めるだけで 8〜9 割の容量が減り、形式変換でさらに 2〜3 割減ります。画像をドロップして出力形式・最大幅・品質を選ぶだけ。処理後は ZIP でまとめてダウンロードできます。すべてブラウザ内で完結し、画像はサーバーに送信されません。",
+	[Key.toolImgTags]: "画像|WebP|完全ローカル",
+	[Key.toolImgDropTitle]: "画像をここにドロップ",
+	[Key.toolImgDropSub]: "複数まとめて選択できます · 変換はすべてブラウザ内、送信されません",
+	[Key.toolImgFormat]: "出力形式",
+	[Key.toolImgMaxWidth]: "最大幅",
+	[Key.toolImgKeepSize]: "元のサイズのまま",
+	[Key.toolImgQuality]: "品質",
+	[Key.toolImgLossless]: "ロスレス",
+	[Key.toolImgUnavailable]: "（使用不可）",
+	[Key.toolImgHintWebp]: "WebP は容量と品質のバランスが良く、Web 画像の第一候補です",
+	[Key.toolImgHintPng]:
+		"PNG はロスレスですが通常 WebP より大きめ。スクリーンショットや線画、透過が必要なときに",
+	[Key.toolImgHintJpeg]: "JPEG は透過に対応しないため、透明部分は白で塗られます",
+	[Key.toolImgHintAvif]: "AVIF は最も小さくなりますが、エンコードが遅く古いブラウザでは未対応のことがあります",
+	[Key.toolImgFoot]:
+		"デコードとエンコードはブラウザ内で完結します。通信も送信もありません。注意: iPhone の HEIC/HEIF はブラウザでデコードできないため、先にスマホ側で JPG に書き出してください。アニメ GIF は 1 フレーム目のみ取り出します。",
+
+	[Key.toolStatusQueued]: "待機中",
+	[Key.toolStatusReading]: "ファイルを読み込み中…",
+	[Key.toolStatusDecrypting]: "復号中…",
+	[Key.toolStatusDecoding]: "デコード中…",
+	[Key.toolStatusWorking]: "処理中 {done} / {total} · {name}",
+	[Key.toolStatusDoneNcm]:
+		"{n} 曲完了 · 各行右側の「ダウンロード」で個別保存、または下の ZIP でまとめて保存",
+	[Key.toolStatusDoneImg]:
+		"{n} 枚完了 · 各行右側の「ダウンロード」で個別保存、または下の ZIP でまとめて保存",
+	[Key.toolStatusSaved]: "保存しました: {name}",
+	[Key.toolStatusZipping]: "{n} 件を梱包中…",
+	[Key.toolStatusZipSaved]: "ZIP を保存しました · {n} 件 · {size}",
+	[Key.toolStatusNoOutputNcm]: "出力できる音声がありません",
+	[Key.toolStatusNoOutputImg]: "出力できる画像がありません",
+	[Key.toolStatusIgnored]: "対象外の形式 {n} 件を無視しました",
+	[Key.toolStatusNothing]: "ファイルが選択されていません",
+	[Key.toolStatusZipFail]: "梱包に失敗: ",
+	[Key.toolStatusRerun]: "設定が変更されました。「新しい設定で再変換」を押してください",
+	[Key.toolStatusStale]: "このページは古い版です。Ctrl+F5 で強制再読み込みしてください",
+	[Key.toolCoreMissing]: "コアスクリプトの読み込みに失敗しました。Ctrl+F5 で強制再読み込みしてください",
+	[Key.toolZipWarn]:
+		"合計 {size}。梱包には追加のメモリが必要で、時間がかかることがあります。\n続行しますか？ 各行右側の「ダウンロード」で個別保存もできます。",
+	[Key.toolFail]: "失敗",
+	[Key.toolSkipped]: "スキップ",
 };

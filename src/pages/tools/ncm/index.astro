@@ -2,6 +2,8 @@
 import { Icon } from "astro-icon/components";
 
 import { getTool } from "../../../data/tools";
+import I18nKey from "../../../i18n/i18nKey";
+import { i18n } from "../../../i18n/translation";
 import MainGridLayout from "../../../layouts/MainGridLayout.astro";
 
 export const prerender = true;
@@ -9,7 +11,7 @@ export const prerender = true;
 const tool = getTool("ncm");
 ---
 
-<MainGridLayout title="NCM 转 FLAC">
+<MainGridLayout title={i18n(I18nKey.toolNcmName)}>
 	<script>
 		import("../../../scripts/right-sidebar-layout.js");
 	</script>
@@ -21,22 +23,32 @@ const tool = getTool("ncm");
 		>
 			<!-- 面包屑 -->
 			<div class="tool-crumb">
-				<a href="/tools/">工具</a>
+				<a href="/tools/" data-i18n={I18nKey.toolCrumbTools}
+					>{i18n(I18nKey.toolCrumbTools)}</a
+				>
 				<span class="sep">/</span>
-				<span class="cur">{tool?.name}</span>
+				<span class="cur" data-i18n={I18nKey.toolNcmName}
+					>{i18n(I18nKey.toolNcmName)}</span
+				>
 			</div>
 
 			<!-- 工具名 + 简介 -->
 			<div class="flex flex-col items-start justify-center mb-6">
 				<h1
 					class="text-4xl font-bold text-black/90 dark:text-white/90 mb-2 relative before:w-1 before:h-8 before:rounded-md before:bg-[var(--primary)] before:absolute before:top-1/2 before:-translate-y-1/2 before:-left-4"
+					data-i18n={I18nKey.toolNcmName}
 				>
-					{tool?.name}
+					{i18n(I18nKey.toolNcmName)}
 				</h1>
-				<p class="text-lg text-black/60 dark:text-white/60 mb-3">
-					{tool?.desc}
+				<p
+					class="text-lg text-black/60 dark:text-white/60 mb-3"
+					data-i18n={I18nKey.toolNcmDesc}
+				>
+					{i18n(I18nKey.toolNcmDesc)}
 				</p>
-				<p class="tool-intro">{tool?.intro}</p>
+				<p class="tool-intro" data-i18n={I18nKey.toolNcmIntro}>
+					{i18n(I18nKey.toolNcmIntro)}
+				</p>
 			</div>
 
 			<!-- ===== 转换器 ===== -->
@@ -55,11 +67,20 @@ const tool = getTool("ncm");
 						<path d="m7 9 5-5 5 5" />
 						<path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
 					</svg>
-					<div class="ncm-drop-t">把 .ncm 文件拖到这里</div>
+					<div class="ncm-drop-t" data-i18n={I18nKey.toolNcmDropTitle}>
+						{i18n(I18nKey.toolNcmDropTitle)}
+					</div>
 					<div class="ncm-drop-s">
-						或者<button type="button" class="ncm-link" id="ncmPick"
-							>点击选择本地文件</button
-						>· 支持一次选多个 · 全程在本站浏览器内解密, 文件不上传
+						<span data-i18n={I18nKey.toolOr}>{i18n(I18nKey.toolOr)}</span
+						><button
+							type="button"
+							class="ncm-link"
+							id="ncmPick"
+							data-i18n={I18nKey.toolPick}
+							>{i18n(I18nKey.toolPick)}</button
+						><span data-i18n={I18nKey.toolNcmDropSub}
+							>· {i18n(I18nKey.toolNcmDropSub)}</span
+						>
 					</div>
 					<input
 						type="file"
@@ -73,11 +94,15 @@ const tool = getTool("ncm");
 				<div class="ncm-opts">
 					<label class="ncm-opt">
 						<input type="checkbox" id="ncmLosslessOnly" />
-						<span>只保留无损 (跳过 MP3 / M4A 等有损源)</span>
+						<span data-i18n={I18nKey.toolNcmOptLossless}
+							>{i18n(I18nKey.toolNcmOptLossless)}</span
+						>
 					</label>
 					<label class="ncm-opt">
 						<input type="checkbox" id="ncmCover" />
-						<span>附带专辑封面 (每个音频同名 .jpg)</span>
+						<span data-i18n={I18nKey.toolNcmOptCover}
+							>{i18n(I18nKey.toolNcmOptCover)}</span
+						>
 					</label>
 				</div>
 
@@ -93,19 +118,24 @@ const tool = getTool("ncm");
 
 				<div class="ncm-out" id="ncmOut" hidden>
 					<button type="button" class="ncm-btn primary" id="ncmDownload">
-						下载压缩包
+						{i18n(I18nKey.toolZip)}
 					</button>
-					<button type="button" class="ncm-btn ghost" id="ncmClear">
-						清空列表
+					<button
+						type="button"
+						class="ncm-btn ghost"
+						id="ncmClear"
+						data-i18n={I18nKey.toolClear}
+					>
+						{i18n(I18nKey.toolClear)}
 					</button>
-					<span class="ncm-out-hint">也可以点每首右侧的「下载」单曲保存, 不打包</span>
+					<span class="ncm-out-hint" data-i18n={I18nKey.toolSingleHint}
+						>{i18n(I18nKey.toolSingleHint)}</span
+					>
 				</div>
 
 				<div class="ncm-foot">
 					<Icon name="material-symbols:shield-lock-outline-rounded" />
-					<span
-						>解密与打包都在你的浏览器内存里完成, 不联网、不上传、不留档; 仅请用于处理自己合法获得的本地文件。</span
-					>
+					<span data-i18n={I18nKey.toolNcmFoot}>{i18n(I18nKey.toolNcmFoot)}</span>
 				</div>
 			</div>
 		</div>
