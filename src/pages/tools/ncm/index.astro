@@ -16,7 +16,9 @@ const tool = getTool("ncm");
 	<div
 		class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32"
 	>
-		<div class="card-base z-10 px-5 sm:px-9 py-6 relative w-full">
+		<div
+			class="card-base z-10 px-5 sm:px-9 py-6 relative w-full text-black/90 dark:text-white/90"
+		>
 			<!-- 面包屑 -->
 			<div class="tool-crumb">
 				<a href="/tools/">工具</a>
@@ -139,6 +141,13 @@ const tool = getTool("ncm");
 	.ncm {
 		--ncm-line: color-mix(in srgb, currentColor 15%, transparent);
 		--ncm-soft: color-mix(in srgb, var(--primary) 11%, transparent);
+		/* 浅色底用深一档, 深色底用亮一档, 两种模式都要看得清 */
+		--ncm-good: #1f9d63;
+		--ncm-bad: #d64540;
+		--ncm-warn: #b8761f;
+	}
+
+	:root.dark .ncm {
 		--ncm-good: #3fbf7f;
 		--ncm-bad: #e5534b;
 		--ncm-warn: #d99a43;
@@ -334,6 +343,10 @@ const tool = getTool("ncm");
 		background: var(--primary);
 		border-color: var(--primary);
 		color: #fff;
+	}
+	/* 暗色模式下 --primary 更亮, 白字对比度不够, 与站内既有按钮约定一致改用深色字 */
+	:root.dark .ncm-btn.primary {
+		color: var(--deep-text);
 	}
 	.ncm-btn.primary:hover:not(:disabled) {
 		opacity: 0.88;

@@ -16,7 +16,9 @@ const tools = toolsData;
 	<div
 		class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32"
 	>
-		<div class="card-base z-10 px-5 sm:px-9 py-6 relative w-full">
+		<div
+			class="card-base z-10 px-5 sm:px-9 py-6 relative w-full text-black/90 dark:text-white/90"
+		>
 			<!-- 页面标题 -->
 			<div class="flex flex-col items-start justify-center mb-6">
 				<h1
@@ -25,7 +27,7 @@ const tools = toolsData;
 					工具
 				</h1>
 				<p class="text-lg text-black/60 dark:text-white/60">
-					一些自己顺手写的小工具 · 打开即用, 能纯本地跑的就纯本地跑
+					一些方便的小工具，打开即食
 				</p>
 			</div>
 
@@ -142,14 +144,21 @@ const tools = toolsData;
 		gap: 8px;
 	}
 
+	/* 纯本地徽章: 浅色底用深一档的绿, 深色底用亮一档的绿, 保证两种模式都看得清 */
 	.tool-pill {
 		font-style: normal;
 		font-size: 0.68rem;
 		font-weight: 500;
 		padding: 1px 8px;
 		border-radius: 999px;
+		color: #1f9d63;
+		border: 1px solid color-mix(in srgb, #1f9d63 45%, transparent);
+		background: color-mix(in srgb, #1f9d63 12%, transparent);
+	}
+
+	:root.dark .tool-pill {
 		color: #3fbf7f;
-		border: 1px solid color-mix(in srgb, #3fbf7f 45%, transparent);
+		border-color: color-mix(in srgb, #3fbf7f 45%, transparent);
 		background: color-mix(in srgb, #3fbf7f 12%, transparent);
 	}
 
