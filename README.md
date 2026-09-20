@@ -2,7 +2,7 @@
 
 > 私の小さな部屋へようこそ
 
-![yRlwAaa 首页](./docs/image/home.png)
+![yRlwAaa 首页](./docs/image/home.webp)
 
 [![站点](https://img.shields.io/badge/站点-yrlwa.top-8b9cff)](https://yrlwa.top/)
 [![Astro](https://img.shields.io/badge/Astro-6.1.2-orange)](https://astro.build/)

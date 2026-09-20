@@ -1,66 +1,62 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 460" width="1080" height="460" role="img" aria-label="工具箱工作流">
   <defs>
-    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#12141d"/>
-      <stop offset="55%" stop-color="#151824"/>
-      <stop offset="100%" stop-color="#181c2a"/>
+    <linearGradient id="line2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e79bb4"/>
+      <stop offset="60%" stop-color="#d98aa1"/>
+      <stop offset="100%" stop-color="#cfae7e"/>
     </linearGradient>
-    <linearGradient id="edge2" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#8f9dff"/>
-      <stop offset="100%" stop-color="#c6a4ff"/>
-    </linearGradient>
-    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#3b4468"/>
-      <stop offset="100%" stop-color="#4d5883"/>
+    <linearGradient id="flow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3a3631"/>
+      <stop offset="100%" stop-color="#4f4a43"/>
     </linearGradient>
     <filter id="soft2" x="-20%" y="-20%" width="140%" height="150%">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.50"/>
     </filter>
     <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4d5883"/>
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a4640"/>
     </marker>
     <style>
-      .c    { fill: #1a1e2b; stroke: #2b3040; stroke-width: 1; }
-      .ch   { fill: #1d2233; stroke: #39406a; stroke-width: 1; }
-      .cg   { fill: #12241d; stroke: #2b5a48; stroke-width: 1; }
+      .c    { fill: #1e2124; stroke: #303336; stroke-width: 1; }
+      .ch   { fill: #211f1b; stroke: #3d3830; stroke-width: 1; }
+      .cg   { fill: #18211d; stroke: #2d4a3c; stroke-width: 1; }
       .t    { font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; }
-      .h1   { font-size: 21px; font-weight: 700; fill: #eef1f9; }
-      .h2   { font-size: 15.5px; font-weight: 650; fill: #eef1f9; }
-      .p    { font-size: 12.5px; fill: #98a0bb; }
-      .m    { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11.5px; fill: #9fb0e0; }
-      .num  { font-size: 12px; font-weight: 700; fill: #1a1e2b; }
-      .ln2  { stroke: url(#line); stroke-width: 1.8; fill: none; }
+      .h1   { font-size: 21px; font-weight: 700; fill: #f1efec; }
+      .h2   { font-size: 15.5px; font-weight: 650; fill: #f1efec; }
+      .p    { font-size: 12.5px; fill: #a7a19a; }
+      .m    { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11.5px; fill: #b7ada2; }
+      .num  { font-size: 12px; font-weight: 700; fill: #fff; }
+      .ln2  { stroke: url(#flow); stroke-width: 1.8; fill: none; }
     </style>
   </defs>
 
-  <rect width="1080" height="460" rx="18" fill="url(#bg2)"/>
-  <rect x="0.5" y="0.5" width="1079" height="459" rx="18" fill="none" stroke="#262a38"/>
-  <rect x="0" y="0" width="1080" height="6" rx="3" fill="url(#edge2)"/>
+  <rect width="1080" height="460" rx="18" fill="#141517"/>
+  <rect x="0.5" y="0.5" width="1079" height="459" rx="18" fill="none" stroke="#2b2d30"/>
+  <rect x="0" y="0" width="1080" height="5" rx="2.5" fill="url(#line2)"/>
 
   <text x="40" y="52" class="t h1">工具箱是怎么跑起来的</text>
   <text x="40" y="76" class="t p">从把文件拖进去，到拿到成品，全程只在你的浏览器里完成</text>
 
   <!-- 四个步骤 -->
   <g filter="url(#soft2)"><rect x="40" y="110" width="212" height="104" rx="12" class="c"/></g>
-  <circle cx="68" cy="138" r="11" fill="#8f9dff"/><text x="68" y="142" class="t num" text-anchor="middle">1</text>
+  <circle cx="68" cy="138" r="11" fill="#e79bb4"/><text x="68" y="142" class="t num" text-anchor="middle">1</text>
   <text x="90" y="143" class="t h2">放入文件</text>
   <text x="60" y="172" class="t p">拖拽或点击选择</text>
   <text x="60" y="194" class="t p">支持一次多选</text>
 
   <g filter="url(#soft2)"><rect x="292" y="110" width="212" height="104" rx="12" class="ch"/></g>
-  <circle cx="320" cy="138" r="11" fill="#8f9dff"/><text x="320" y="142" class="t num" text-anchor="middle">2</text>
+  <circle cx="320" cy="138" r="11" fill="#cfae7e"/><text x="320" y="142" class="t num" text-anchor="middle">2</text>
   <text x="342" y="143" class="t h2">浏览器内解析</text>
   <text x="312" y="172" class="t m">ncm-core.js</text>
   <text x="312" y="194" class="t m">img-tool.js</text>
 
   <g filter="url(#soft2)"><rect x="544" y="110" width="212" height="104" rx="12" class="ch"/></g>
-  <circle cx="572" cy="138" r="11" fill="#8f9dff"/><text x="572" y="142" class="t num" text-anchor="middle">3</text>
+  <circle cx="572" cy="138" r="11" fill="#cfae7e"/><text x="572" y="142" class="t num" text-anchor="middle">3</text>
   <text x="594" y="143" class="t h2">逐行结果</text>
   <text x="564" y="172" class="t p">原始大小 → 成品大小</text>
   <text x="564" y="194" class="t p">合计与节省比例</text>
 
   <g filter="url(#soft2)"><rect x="796" y="110" width="244" height="104" rx="12" class="cg"/></g>
-  <circle cx="824" cy="138" r="11" fill="#63c9a2"/><text x="824" y="142" class="t num" text-anchor="middle">4</text>
+  <circle cx="824" cy="138" r="11" fill="#77b394"/><text x="824" y="142" class="t num" text-anchor="middle">4</text>
   <text x="846" y="143" class="t h2">两种拿法</text>
   <text x="816" y="172" class="t p">每行右侧「下载」取一个</text>
   <text x="816" y="194" class="t p">或「打包下载」出 zip</text>
@@ -71,7 +67,7 @@
 
   <!-- 两个工具 -->
   <g filter="url(#soft2)"><rect x="40" y="248" width="480" height="164" rx="12" class="c"/></g>
-  <rect x="40" y="248" width="4" height="164" rx="2" fill="#8f9dff"/>
+  <rect x="40" y="248" width="4" height="164" rx="2" fill="#e79bb4"/>
   <text x="62" y="280" class="t h2">NCM 转 FLAC　/tools/ncm/</text>
   <text x="62" y="306" class="t p">网易云下载文件外面那层壳拆掉，还原里面的原始音频</text>
   <text x="62" y="329" class="t m">AES-128-ECB → RC4 密钥盒 → 逐字节异或</text>
@@ -80,7 +76,7 @@
   <text x="62" y="397" class="t p">歌名与歌手从元数据里读出来当文件名</text>
 
   <g filter="url(#soft2)"><rect x="560" y="248" width="480" height="164" rx="12" class="c"/></g>
-  <rect x="560" y="248" width="4" height="164" rx="2" fill="#c6a4ff"/>
+  <rect x="560" y="248" width="4" height="164" rx="2" fill="#cfae7e"/>
   <text x="582" y="280" class="t h2">图片转换　/tools/image/</text>
   <text x="582" y="306" class="t p">jpg / png / gif / webp / avif / bmp / svg 批量转换</text>
   <text x="582" y="329" class="t m">createImageBitmap → canvas → toBlob</text>

@@ -1,38 +1,34 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 620" width="1080" height="620" role="img" aria-label="yrlwa.top 架构总览">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#12141d"/>
-      <stop offset="55%" stop-color="#151824"/>
-      <stop offset="100%" stop-color="#181c2a"/>
-    </linearGradient>
-    <linearGradient id="edge" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#8f9dff"/>
-      <stop offset="100%" stop-color="#c6a4ff"/>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e79bb4"/>
+      <stop offset="60%" stop-color="#d98aa1"/>
+      <stop offset="100%" stop-color="#cfae7e"/>
     </linearGradient>
     <filter id="soft" x="-20%" y="-20%" width="140%" height="150%">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.50"/>
     </filter>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4d5883"/>
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a4640"/>
     </marker>
     <style>
-      .card    { fill: #1a1e2b; stroke: #2b3040; stroke-width: 1; }
-      .card-hi { fill: #1d2233; stroke: #39406a; stroke-width: 1; }
-      .card-own{ fill: #12241d; stroke: #2b5a48; stroke-width: 1; }
+      .card    { fill: #1e2124; stroke: #303336; stroke-width: 1; }
+      .card-hi { fill: #211f1b; stroke: #3d3830; stroke-width: 1; }
+      .card-own{ fill: #18211d; stroke: #2d4a3c; stroke-width: 1; }
       .t   { font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; }
-      .h1  { font-size: 21px; font-weight: 700; fill: #eef1f9; }
-      .h2  { font-size: 16px; font-weight: 650; fill: #eef1f9; }
-      .p   { font-size: 12.5px; fill: #98a0bb; }
-      .m   { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11.5px; fill: #9fb0e0; }
-      .col { font-size: 12px; font-weight: 700; fill: #6d7694; letter-spacing: .12em; }
-      .ln  { stroke: #4d5883; stroke-width: 1.6; fill: none; }
-      .chip{ font-size: 11.5px; fill: #8aabf2; font-weight: 600; }
+      .h1  { font-size: 21px; font-weight: 700; fill: #f1efec; }
+      .h2  { font-size: 16px; font-weight: 650; fill: #f1efec; }
+      .p   { font-size: 12.5px; fill: #a7a19a; }
+      .m   { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11.5px; fill: #b7ada2; }
+      .col { font-size: 12px; font-weight: 700; fill: #7c766e; letter-spacing: .12em; }
+      .ln  { stroke: #4a4640; stroke-width: 1.6; fill: none; }
+      .chip{ font-size: 11.5px; fill: #e3a3b6; font-weight: 600; }
     </style>
   </defs>
 
-  <rect width="1080" height="620" rx="18" fill="url(#bg)"/>
-  <rect x="0.5" y="0.5" width="1079" height="619" rx="18" fill="none" stroke="#262a38"/>
-  <rect x="0" y="0" width="1080" height="6" rx="3" fill="url(#edge)"/>
+  <rect width="1080" height="620" rx="18" fill="#141517"/>
+  <rect x="0.5" y="0.5" width="1079" height="619" rx="18" fill="none" stroke="#2b2d30"/>
+  <rect x="0" y="0" width="1080" height="5" rx="2.5" fill="url(#line)"/>
 
   <text x="40" y="52" class="t h1">yrlwa.top 架构总览</text>
   <text x="40" y="76" class="t p">静态站点 + Cloudflare 边缘接口 + R2 存储 + 一台自建算力机</text>
@@ -54,7 +50,7 @@
   <g filter="url(#soft)">
     <rect x="40" y="256" width="250" height="128" rx="12" class="card-own"/>
   </g>
-  <rect x="40" y="256" width="4" height="128" rx="2" fill="#63c9a2"/>
+  <rect x="40" y="256" width="4" height="128" rx="2" fill="#77b394"/>
   <text x="60" y="286" class="t h2">纯前端工具箱</text>
   <text x="60" y="309" class="t p">/tools/ · 零依赖 · 零上传</text>
   <text x="60" y="330" class="t m">tool-kit.js · ncm-core.js</text>
@@ -73,6 +69,7 @@
   <g filter="url(#soft)">
     <rect x="360" y="132" width="290" height="104" rx="12" class="card-hi"/>
   </g>
+  <rect x="360" y="132" width="4" height="104" rx="2" fill="#cfae7e"/>
   <text x="380" y="162" class="t h2">静态站点</text>
   <text x="380" y="185" class="t p">Astro 6 构建产物 dist/</text>
   <text x="380" y="205" class="t p">public/_headers 缓存策略</text>
@@ -81,7 +78,7 @@
   <g filter="url(#soft)">
     <rect x="360" y="256" width="290" height="194" rx="12" class="card-hi"/>
   </g>
-  <rect x="360" y="256" width="4" height="194" rx="2" fill="url(#edge)"/>
+  <rect x="360" y="256" width="4" height="194" rx="2" fill="#cfae7e"/>
   <text x="380" y="286" class="t h2">Functions 边缘接口</text>
   <text x="380" y="310" class="t m">/api/chat</text>
   <text x="470" y="310" class="t p">站内 AI 助手</text>
@@ -129,7 +126,7 @@
   <path class="ln" d="M 650 400 C 690 400, 690 457, 714 457" marker-end="url(#arrow)"/>
 
   <!-- 底部说明 -->
-  <rect x="40" y="536" width="1000" height="52" rx="10" fill="#1a1e2b" stroke="#2b3040"/>
-  <circle cx="64" cy="562" r="5" fill="#63c9a2"/>
+  <rect x="40" y="536" width="1000" height="52" rx="10" fill="#1b1d1f" stroke="#2b2d30"/>
+  <circle cx="64" cy="562" r="5" fill="#77b394"/>
   <text x="80" y="567" class="t p">工具箱的一切运算都在浏览器内存里完成，不经过任何服务器；其余功能由 Cloudflare 边缘与自建算力机提供。</text>
 </svg>
