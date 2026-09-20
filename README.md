@@ -33,7 +33,7 @@
 
 ### 🧰 工具箱
 
-自己写的，**纯前端零依赖**：拖进去、点一下、拿走成品，文件从头到尾不离开浏览器，也不上传任何服务器。
+目前内置了两个小工具：ncm转flac转换器和图片压缩工具，**纯前端零依赖**：点击即可食用，文件从头到尾不离开浏览器，也不上传任何服务器。
 
 ![工具箱工作流](./docs/image/tools-workflow.svg)
 
@@ -255,7 +255,6 @@ password: "..."           # 配合 encrypted 使用
 | `pnpm update-bilibili` | 更新 B 站数据 |
 | `pnpm update-bangumi` | 更新 Bangumi 数据 |
 | `pnpm compress-fonts` | 字体子集压缩 |
-| `pnpm submit` | 向 IndexNow 提交站点 URL |
 | `pnpm sync-content` | 同步外部内容仓库（可选） |
 
 ---
@@ -269,8 +268,6 @@ password: "..."           # 配合 encrypted 使用
 **构建卡住或失败？** `pnpm build` 里 `VisitorStatsPro` 会在构建期请求统计 Worker，那个接口不通时整个构建会挂；同理 `fetch-weather`、`update-anime` 也都依赖外网。构建失败先看是不是这几个外部请求的锅。
 
 **ZIP 里的中文名乱码？** 打包用的存储模式 ZIP 已写入 UTF-8 文件名标志位，Windows 资源管理器与 `Expand-Archive` 都正常；老解压软件可能不认这个标志。
-
-**仓库里那套 Vercel / GitHub Pages 配置还算数吗？** 不算。`vercel.json`、`.github/workflows/deploy.yml` 都是历史遗留，实际部署路径只有 Cloudflare Pages 一条，改缓存和头规则看 `public/_headers`。
 
 ---
 
