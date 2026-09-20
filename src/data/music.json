@@ -263,6 +263,88 @@
           "file": "/music/audio/cloud-hairpin/鎖那 - 備忘録.flac"
         }
       ]
+    },
+    {
+      "id": "un-sentimental-spica",
+      "title": "(un) sentimental spica",
+      "artistId": "sana",
+      "cover": "/music/albums/un-sentimental-spica.webp",
+      "year": 2015,
+      "genre": "流行,日本",
+      "tracks": [
+        {
+          "id": "hanato-kuma",
+          "title": "花とクマ",
+          "duration": "",
+          "file": "/music/audio/un-sentimental-spica/鎖那 - 花とクマ.flac"
+        },
+        {
+          "id": "sukinauta",
+          "title": "すきなうた",
+          "duration": "",
+          "file": "/music/audio/un-sentimental-spica/鎖那 - すきなうた.flac"
+        },
+        {
+          "id": "sayonara-hananusubito-san",
+          "title": "さようなら、花泥棒さん (cover)",
+          "duration": "",
+          "file": "/music/audio/un-sentimental-spica/鎖那 - さようなら、花泥棒さん (cover).flac"
+        },
+        {
+          "id": "tenkouzenya",
+          "title": "転校前夜 (cover)",
+          "duration": "",
+          "file": "/music/audio/un-sentimental-spica/鎖那 - 転校前夜 (cover).flac"
+        },
+        {
+          "id": "kotonoha-clinic",
+          "title": "言の葉クリニック (cover)",
+          "duration": "",
+          "file": "/music/audio/un-sentimental-spica/鎖那 - 言の葉クリニック (cover).flac"
+        },
+        {
+          "id": "packet-hero",
+          "title": "パケットヒーロー (cover)",
+          "duration": "",
+          "file": "/music/audio/un-sentimental-spica/鎖那 - パケットヒーロー (cover).flac"
+        },
+        {
+          "id": "puzzle-girl",
+          "title": "パズルガール (cover)",
+          "duration": "",
+          "file": "/music/audio/un-sentimental-spica/鎖那 - パズルガール (cover).flac"
+        },
+        {
+          "id": "siawase",
+          "title": "siawase",
+          "duration": "",
+          "file": "/music/audio/un-sentimental-spica/鎖那 - siawase.flac"
+        },
+        {
+          "id": "datte-kimi-wa-taisetsu-na-hito",
+          "title": "だってキミは大切な人",
+          "duration": "",
+          "file": "/music/audio/un-sentimental-spica/鎖那 - だってキミは大切な人.flac"
+        },
+        {
+          "id": "cantabile",
+          "title": "cantabile (cover)",
+          "duration": "",
+          "file": "/music/audio/un-sentimental-spica/鎖那 - cantabile (cover).flac"
+        },
+        {
+          "id": "aruitemo-aruitemo",
+          "title": "歩いても歩いても、夜空は僕を追いかけてくる (cover)",
+          "duration": "",
+          "file": "/music/audio/un-sentimental-spica/鎖那 - 歩いても歩いても、夜空は僕を追いかけてくる (cover).flac"
+        },
+        {
+          "id": "little-fighter",
+          "title": "リトルファイター",
+          "duration": "",
+          "file": "/music/audio/un-sentimental-spica/鎖那 - リトルファイター.flac"
+        }
+      ]
     }
   ]
 }
