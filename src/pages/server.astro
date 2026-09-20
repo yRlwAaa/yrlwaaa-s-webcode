@@ -1,4 +1,6 @@
 ---
+import I18nKey from "../i18n/i18nKey";
+import { i18n } from "../i18n/translation";
 import MainGridLayout from "../layouts/MainGridLayout.astro";
 
 export const prerender = true;
@@ -7,7 +9,7 @@ export const prerender = true;
 const E5_API = "https://e5.yrlwa.top";
 ---
 
-<MainGridLayout title="服务器">
+<MainGridLayout title={i18n(I18nKey.serverTitle)}>
 	<script>
 		import("../scripts/right-sidebar-layout.js");
 	</script>
@@ -17,11 +19,15 @@ const E5_API = "https://e5.yrlwa.top";
 			<div class="flex flex-col items-start justify-center mb-6">
 				<h1
 					class="text-4xl font-bold text-black/90 dark:text-white/90 mb-2 relative before:w-1 before:h-8 before:rounded-md before:bg-[var(--primary)] before:absolute before:top-1/2 before:-translate-y-1/2 before:-left-4"
+					data-i18n={I18nKey.serverTitle}
 				>
-					服务器
+					{i18n(I18nKey.serverTitle)}
 				</h1>
-				<p class="text-lg text-black/60 dark:text-white/60">
-					E5 · P100 16G · 对话 AI / 画图 / 编译 · 资源实时监控
+				<p
+					class="text-lg text-black/60 dark:text-white/60"
+					data-i18n={I18nKey.serverSubtitle}
+				>
+					{i18n(I18nKey.serverSubtitle)}
 				</p>
 			</div>
 
@@ -266,54 +272,93 @@ const E5_API = "https://e5.yrlwa.top";
 			<div class="e5p" id="e5pRoot">
 				<div class="hd">
 					<span class="stat-chip"
-						><span class="dot" id="mDot"></span><span id="mTxt">读取中…</span></span
+						><span class="dot" id="mDot"></span><span
+							id="mTxt"
+							data-i18n={I18nKey.serverLoading}>{i18n(I18nKey.serverLoading)}</span
+						></span
 					>
 					<span class="stat-chip" id="srcChip" style="display:none"></span>
 					<span class="sp"></span>
-					<button class="quiet" id="wakeBtn">唤醒 E5</button>
-					<button class="quiet" id="allStop">全部停止</button>
+					<button class="quiet" id="wakeBtn" data-i18n={I18nKey.serverWake}
+						>{i18n(I18nKey.serverWake)}</button
+					>
+					<button class="quiet" id="allStop" data-i18n={I18nKey.serverStopAll}
+						>{i18n(I18nKey.serverStopAll)}</button
+					>
 				</div>
 
 				<div class="res">
-					<div class="cell"><div class="k">GPU 显存</div><div class="v" id="gpuTxt">–</div><div class="bk"><i id="gpuBar"></i></div></div>
-					<div class="cell"><div class="k">GPU 负载 / 温度</div><div class="v" id="utilTxt">–</div><div class="bk"><i id="utilBar"></i></div></div>
+					<div class="cell"><div class="k" data-i18n={I18nKey.serverGpuVram}>{i18n(I18nKey.serverGpuVram)}</div><div class="v" id="gpuTxt">–</div><div class="bk"><i id="gpuBar"></i></div></div>
+					<div class="cell"><div class="k" data-i18n={I18nKey.serverGpuUtil}>{i18n(I18nKey.serverGpuUtil)}</div><div class="v" id="utilTxt">–</div><div class="bk"><i id="utilBar"></i></div></div>
 					<div class="cell"><div class="k">CPU</div><div class="v" id="cpuTxt">–</div><div class="bk"><i id="cpuBar"></i></div></div>
-					<div class="cell"><div class="k">内存</div><div class="v" id="memTxt">–</div><div class="bk"><i id="memBar"></i></div></div>
-					<div class="disks" id="diskTxt">磁盘 —</div>
+					<div class="cell"><div class="k" data-i18n={I18nKey.serverMem}>{i18n(I18nKey.serverMem)}</div><div class="v" id="memTxt">–</div><div class="bk"><i id="memBar"></i></div></div>
+					<div class="disks" id="diskTxt">{i18n(I18nKey.serverDisk)} —</div>
 				</div>
 
 				<div class="rows">
 					<div class="row">
 						<div class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
 						<div class="mid">
-							<div class="tt">AI 对话 <span class="pill" id="tagChat">未运行</span></div>
-							<div class="ds">Qwen 27B · llama.cpp · 端口 11435 · 启动时自动停画图</div>
+							<div class="tt"><span data-i18n={I18nKey.serverServiceChat}
+									>{i18n(I18nKey.serverServiceChat)}</span
+								> <span class="pill" id="tagChat"
+									>{i18n(I18nKey.serverTagIdle)}</span
+								></div>
+							<div class="ds" data-i18n={I18nKey.serverChatDesc}>
+								{i18n(I18nKey.serverChatDesc)}
+							</div>
 						</div>
-						<div class="ops"><button class="act" id="btnChat">启动</button></div>
+						<div class="ops"><button class="act" id="btnChat"
+								>{i18n(I18nKey.serverStart)}</button
+							></div>
 					</div>
 					<div class="row">
 						<div class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg></div>
 						<div class="mid">
-							<div class="tt">画图 <span class="pill" id="tagDraw">未运行</span></div>
-							<div class="ds">SD WebUI · 端口 7860 · 启动时自动停对话</div>
+							<div class="tt"><span data-i18n={I18nKey.serverServiceDraw}
+									>{i18n(I18nKey.serverServiceDraw)}</span
+								> <span class="pill" id="tagDraw"
+									>{i18n(I18nKey.serverTagIdle)}</span
+								></div>
+							<div class="ds" data-i18n={I18nKey.serverDrawDesc}>
+								{i18n(I18nKey.serverDrawDesc)}
+							</div>
 						</div>
-						<div class="ops"><button class="act" id="btnDraw">启动</button></div>
+						<div class="ops"><button class="act" id="btnDraw"
+								>{i18n(I18nKey.serverStart)}</button
+							></div>
 					</div>
 					<div class="row">
 						<div class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
 						<div class="mid">
-							<div class="tt">编译 / 终端 <span class="pill" id="tagBuild">未配置</span></div>
-							<div class="ds">网页终端或 code-server · 在 E5-gpu-manager.py 填 COMPILE_URL 后启用</div>
+							<div class="tt"><span data-i18n={I18nKey.serverServiceBuild}
+									>{i18n(I18nKey.serverServiceBuild)}</span
+								> <span class="pill" id="tagBuild"
+									>{i18n(I18nKey.serverTagUnconfigured)}</span
+								></div>
+							<div class="ds" data-i18n={I18nKey.serverBuildDesc}>
+								{i18n(I18nKey.serverBuildDesc)}
+							</div>
 						</div>
-						<div class="ops"><button class="act" id="btnBuild" disabled>打开</button></div>
+						<div class="ops"><button
+								class="act"
+								id="btnBuild"
+								disabled
+								data-i18n={I18nKey.serverOpen}>{i18n(I18nKey.serverOpen)}</button
+							></div>
 					</div>
 					<div class="row nas">
 						<div class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/></svg></div>
 						<div class="mid">
-							<div class="tt">NAS 存储</div>
-							<div class="ds" id="nasDs">跳转群晖 DSM 管理文件</div>
+							<div class="tt" data-i18n={I18nKey.serverNasTitle}>
+								{i18n(I18nKey.serverNasTitle)}
+							</div>
+							<div class="ds" id="nasDs">{i18n(I18nKey.serverNasDesc)}</div>
 						</div>
-						<div class="ops"><button class="act" id="btnNas">打开 →</button></div>
+						<div class="ops"><button class="act" id="btnNas"
+								data-i18n={I18nKey.serverOpenArrow}
+								>{i18n(I18nKey.serverOpenArrow)}</button
+							></div>
 					</div>
 				</div>
 
@@ -326,6 +371,24 @@ const E5_API = "https://e5.yrlwa.top";
 			<script is:inline>
 				(function () {
 					"use strict";
+
+					/* ---------- 文案: 跟随站点语言(词条在 src/i18n/languages/*.ts) ---------- */
+					function t(key, fallback) {
+						try {
+							var lang = document.documentElement.getAttribute("lang") || "";
+							var d = window.I18N_DICTS || {};
+							var dict =
+								d[lang] || d[lang.toLowerCase()] || d[lang.split("_")[0]] || {};
+							if (dict[key]) return dict[key];
+						} catch (e) {}
+						return fallback;
+					}
+					function tf(key, fallback, vars) {
+						var s = t(key, fallback);
+						for (var k in vars) s = s.split("{" + k + "}").join(vars[k]);
+						return s;
+					}
+
 					var API = window.E5_API || "";
 					var e5Root = document.getElementById("e5pRoot");
 					function applyTheme() {
@@ -359,25 +422,25 @@ const E5_API = "https://e5.yrlwa.top";
 						return fetch(API + u, { headers: h })
 							.then(function (r) {
 								if (r.status === 401) { localStorage.removeItem("e5tok"); token = ""; }
-								return r.json().catch(function () { return { ok: false, msg: "响应异常" }; });
+								return r.json().catch(function () { return { ok: false, msg: t("serverErrBadResponse", "响应异常") }; });
 							})
-							.catch(function (e) { return { ok: false, msg: "无法连接(" + e.message + ")" }; });
+							.catch(function (e) { return { ok: false, msg: tf("serverErrConnect", "无法连接({msg})", { msg: e.message }) }; });
 					}
 					// 控制类操作: 需要口令(访客没有口令 → 只能看数据, 不能操作)
 					function askToken() {
-						var t = prompt("请输入控制口令(仅站主可用):");
-						if (t) { token = t.trim(); localStorage.setItem("e5tok", token); }
+						var v = prompt(t("serverAskToken", "请输入控制口令(仅站主可用):"));
+						if (v) { token = v.trim(); localStorage.setItem("e5tok", token); }
 						return token;
 					}
 					function control(u) {
-						if (!token) { if (!askToken()) return Promise.resolve({ ok: false, msg: "已取消: 需要口令" }); }
+						if (!token) { if (!askToken()) return Promise.resolve({ ok: false, msg: t("serverErrCancelled", "已取消: 需要口令") }); }
 						return fetch(API + u, { headers: { "X-Token": token } })
 							.then(function (r) {
 								if (r.status === 401) {
 									localStorage.removeItem("e5tok"); token = "";
-									if (!askToken()) return { ok: false, msg: "口令错误, 操作已取消" };
+									if (!askToken()) return { ok: false, msg: t("serverErrTokenCancelled", "口令错误, 操作已取消") };
 									return fetch(API + u, { headers: { "X-Token": token } }).then(function (r2) {
-										if (r2.status === 401) { localStorage.removeItem("e5tok"); token = ""; return { ok: false, msg: "口令错误" }; }
+										if (r2.status === 401) { localStorage.removeItem("e5tok"); token = ""; return { ok: false, msg: t("serverErrToken", "口令错误") }; }
 										return r2.json();
 									});
 								}
@@ -385,19 +448,24 @@ const E5_API = "https://e5.yrlwa.top";
 							})
 							.catch(function (e) {
 								// 隧道偶发丢包: 请求可能其实已经送达(E5 收到就会开始切换), 交给轮询确认
-								return { ok: false, unconfirmed: true, msg: "没收到确认(" + e.message + "), 稍后会自动刷新状态" };
+								return { ok: false, unconfirmed: true, msg: tf("serverErrNoConfirm", "没收到确认({msg}), 稍后会自动刷新状态", { msg: e.message }) };
 							});
 					}
-					function toast(t, err) { var m = $("msg"); m.textContent = t || ""; m.className = err ? "err" : ""; }
+					function toast(msg, err) { var m = $("msg"); m.textContent = msg || ""; m.className = err ? "err" : ""; }
 					function bar(id, p) { var el = $(id); if (el) el.style.width = Math.max(0, Math.min(100, p)) + "%"; }
-					var names = { chat: "对话AI运行中", draw: "画图中", idle: "空闲", both: "⚠ 冲突" };
+					var names = {
+						chat: t("serverStateChat", "对话AI运行中"),
+						draw: t("serverStateDraw", "画图中"),
+						idle: t("serverStateIdle", "空闲"),
+						both: t("serverStateConflict", "⚠ 冲突")
+					};
 					var pending = "";   // 正在等待完成的切换目标(用于完成时提示)
 					function render(d) {
 						var mode = d.mode || "idle";
 						var sw = d.switch || {};
 						var switching = !!sw.running;
 						if (switching) {
-							$("mTxt").textContent = (sw.phase || "正在切换…") +
+							$("mTxt").textContent = (sw.phase || t("serverSwitching", "正在切换…")) +
 								(sw.elapsed ? "  " + Math.round(sw.elapsed) + "s" : "");
 							$("mDot").className = "dot on";
 						} else {
@@ -405,7 +473,7 @@ const E5_API = "https://e5.yrlwa.top";
 							$("mDot").className = "dot " + (mode === "chat" || mode === "draw" ? "on" : "");
 						}
 						if (pending && !switching && sw.msg) {
-							if (sw.ok) toast("✅ " + sw.msg + " 点「进入 →」打开");
+							if (sw.ok) toast(tf("serverSwitchedOk", "✅ {msg} 点「进入 →」打开", { msg: sw.msg }));
 							else toast("❌ " + sw.msg, true);
 							pending = "";
 						}
@@ -413,46 +481,50 @@ const E5_API = "https://e5.yrlwa.top";
 						if (sc) {
 							var src = d.host || "";
 							if (d.gpu) src += (src ? " · " : "") + "GPU " + d.gpu.total_gb + "GB";
-							sc.textContent = src ? "数据源 " + src : "";
+							sc.textContent = src ? tf("serverDataSource", "数据源 {src}", { src: src }) : "";
 							sc.style.display = src ? "inline-flex" : "none";
 						}
 						var chat = d.services && d.services.chat, draw = d.services && d.services.draw, build = d.services && d.services.build;
-						$("tagChat").textContent = chat && chat.alive ? "运行中" : "未运行";
+						$("tagChat").textContent = chat && chat.alive ? t("serverTagRunning", "运行中") : t("serverTagIdle", "未运行");
 						$("tagChat").className = "pill" + (chat && chat.alive ? " run" : "");
-						$("tagDraw").textContent = draw && draw.alive ? "运行中" : "未运行";
+						$("tagDraw").textContent = draw && draw.alive ? t("serverTagRunning", "运行中") : t("serverTagIdle", "未运行");
 						$("tagDraw").className = "pill" + (draw && draw.alive ? " run" : "");
 						var bc = $("btnChat");
-						bc.textContent = chat && chat.alive ? "进入 →" : (switching && sw.mode === "chat" ? "启动中…" : "启动");
+						bc.textContent = chat && chat.alive
+							? t("serverEnter", "进入 →")
+							: (switching && sw.mode === "chat" ? t("serverStarting", "启动中…") : t("serverStart", "启动"));
 						bc.disabled = switching;
 						bc.onclick = function () {
 							if (chat && chat.alive) { window.open(chat.url, "_blank"); return; }
-							bc.disabled = true; toast("正在启动对话(会自动停画图), 约 1~3 分钟…");
+							bc.disabled = true; toast(t("serverChatStarting", "正在启动对话(会自动停画图), 约 1~3 分钟…"));
 							control("/api/switch?mode=chat").then(function (r) {
 								r = r || {};
-								if (r.accepted) { pending = "chat"; toast("已开始切换, 进度见上方状态"); }
+								if (r.accepted) { pending = "chat"; toast(t("serverSwitchStarted", "已开始切换, 进度见上方状态")); }
 								else if (r.unconfirmed) { pending = "chat"; toast(r.msg); }
-								else if (r.busy) { toast(r.msg || "已有切换在进行中, 请稍候"); }
-								else { toast(r.msg || "启动失败", !r.ok); }
+								else if (r.busy) { toast(r.msg || t("serverBusy", "已有切换在进行中, 请稍候")); }
+								else { toast(r.msg || t("serverStartFailed", "启动失败"), !r.ok); }
 								bc.disabled = false; refresh();
 							});
 						};
 						var bd = $("btnDraw");
-						bd.textContent = draw && draw.alive ? "进入 →" : (switching && sw.mode === "draw" ? "启动中…" : "启动");
+						bd.textContent = draw && draw.alive
+							? t("serverEnter", "进入 →")
+							: (switching && sw.mode === "draw" ? t("serverStarting", "启动中…") : t("serverStart", "启动"));
 						bd.disabled = switching;
 						bd.onclick = function () {
 							if (draw && draw.alive) { window.open(draw.url, "_blank"); return; }
-							bd.disabled = true; toast("正在启动画图(会自动停对话), 约 1~3 分钟…");
+							bd.disabled = true; toast(t("serverDrawStarting", "正在启动画图(会自动停对话), 约 1~3 分钟…"));
 							control("/api/switch?mode=draw").then(function (r) {
 								r = r || {};
-								if (r.accepted) { pending = "draw"; toast("已开始切换, 进度见上方状态"); }
+								if (r.accepted) { pending = "draw"; toast(t("serverSwitchStarted", "已开始切换, 进度见上方状态")); }
 								else if (r.unconfirmed) { pending = "draw"; toast(r.msg); }
-								else if (r.busy) { toast(r.msg || "已有切换在进行中, 请稍候"); }
-								else { toast(r.msg || "启动失败", !r.ok); }
+								else if (r.busy) { toast(r.msg || t("serverBusy", "已有切换在进行中, 请稍候")); }
+								else { toast(r.msg || t("serverStartFailed", "启动失败"), !r.ok); }
 								bd.disabled = false; refresh();
 							});
 						};
 						if (build) {
-							$("tagBuild").textContent = build.alive ? "就绪" : "未配置";
+							$("tagBuild").textContent = build.alive ? t("serverTagReady", "就绪") : t("serverTagUnconfigured", "未配置");
 							$("tagBuild").className = "pill" + (build.alive ? " run" : "");
 							var bb = $("btnBuild");
 							bb.disabled = !build.alive;
@@ -478,7 +550,7 @@ const E5_API = "https://e5.yrlwa.top";
 							bar("memBar", m.total_gb ? (m.used_gb / m.total_gb) * 100 : 0);
 						} else { $("memTxt").textContent = "—"; }
 						if (d.disks && d.disks.length) {
-							$("diskTxt").textContent = "磁盘  " + d.disks.map(function (x) {
+							$("diskTxt").textContent = t("serverDisk", "磁盘") + "  " + d.disks.map(function (x) {
 								return x.drive + " " + x.used_gb + " / " + x.total_gb + " GB";
 							}).join("   ·   ");
 						}
@@ -489,20 +561,20 @@ const E5_API = "https://e5.yrlwa.top";
 					function applyStats(d) {
 						if (d && d.ok) {
 							fails = 0;
-							if (offlineNotified) { offlineNotified = false; toast("数据源已恢复 ✅"); }
+							if (offlineNotified) { offlineNotified = false; toast(t("serverSourceRecovered", "数据源已恢复 ✅")); }
 							render(d);
 							return true;
 						}
 						fails++;
 						if (fails >= 3) {
-							$("mTxt").textContent = "数据源离线";
+							$("mTxt").textContent = t("serverSourceOffline", "数据源离线");
 							$("mDot").className = "dot";
 							if (!offlineNotified) {
 								offlineNotified = true;
-								toast(((d && d.msg) ? d.msg + " · " : "") + "数据源离线(隧道未运行或域名未解析)", true);
+								toast(((d && d.msg) ? d.msg + " · " : "") + t("serverSourceOfflineDetail", "数据源离线(隧道未运行或域名未解析)"), true);
 							}
-						} else if (!$("mTxt").textContent || $("mTxt").textContent === "读取中…") {
-							$("mTxt").textContent = "重试中…";
+						} else if (!$("mTxt").textContent || $("mTxt").textContent === t("serverLoading", "读取中…")) {
+							$("mTxt").textContent = t("serverRetrying", "重试中…");
 						}
 						return false;
 					}
@@ -519,33 +591,34 @@ const E5_API = "https://e5.yrlwa.top";
 						}).then(function () { busy = false; });
 					}
 					$("allStop").onclick = function () {
-						var b = this; b.disabled = true; toast("正在全部停止…");
+						var b = this; b.disabled = true; toast(t("serverStoppingAll", "正在全部停止…"));
 						control("/api/switch?mode=idle").then(function (r) {
 							r = r || {};
-							if (r.accepted) { pending = "idle"; toast("已开始停止, 稍后显存归零"); }
+							if (r.accepted) { pending = "idle"; toast(t("serverStopStarted", "已开始停止, 稍后显存归零")); }
 							else if (r.unconfirmed) { pending = "idle"; toast(r.msg); }
-							else if (r.busy) { toast(r.msg || "已有切换在进行中, 请稍候"); }
-							else { toast(r.msg || "操作失败", !r.ok); }
+							else if (r.busy) { toast(r.msg || t("serverBusy", "已有切换在进行中, 请稍候")); }
+							else { toast(r.msg || t("serverOpFailed", "操作失败"), !r.ok); }
 							b.disabled = false; setTimeout(refresh, 800);
 						});
 					};
 					$("wakeBtn").onclick = function () {
 						var b = this; b.disabled = true;
-						toast("已请 NAS 发送唤醒包, 正在等待 E5 上线…");
+						toast(t("serverWakeSent", "已请 NAS 发送唤醒包, 正在等待 E5 上线…"));
 						control("/api/wake").then(function (r) {
 							var ok = r && r.ok;
-							toast(ok ? "唤醒包已发出(需 E5 的 BIOS 开启 WoL), 大约 30~90 秒" :
-								"唤醒请求失败:检查 NAS 唤醒服务", !ok);
+							toast(ok
+								? t("serverWakeOk", "唤醒包已发出(需 E5 的 BIOS 开启 WoL), 大约 30~90 秒")
+								: t("serverWakeFail", "唤醒请求失败:检查 NAS 唤醒服务"), !ok);
 							var tries = 0;
-							var t = setInterval(function () {
+							var timer = setInterval(function () {
 								tries++;
 								jget("/api/stats").then(function (d) {
 									if (d && d.ok && d.mode && d.mode !== "idle") {
-										clearInterval(t); b.disabled = false;
-										toast("E5 已上线 ✅"); render(d);
+										clearInterval(timer); b.disabled = false;
+										toast(t("serverWakeOnline", "E5 已上线 ✅")); render(d);
 									} else if (tries >= 12) {
-										clearInterval(t); b.disabled = false;
-										toast("E5 仍未上线:可能 BIOS 未启用 WoL 或电源被断开");
+										clearInterval(timer); b.disabled = false;
+										toast(t("serverWakeTimeout", "E5 仍未上线:可能 BIOS 未启用 WoL 或电源被断开"));
 									}
 								});
 							}, 10000);

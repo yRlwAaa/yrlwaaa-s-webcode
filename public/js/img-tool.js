@@ -26,33 +26,6 @@
 	}
 	window.__imgToolState = { detach: null };
 
-	var root = document.getElementById("imgRoot");
-	if (!root) return;
-	var KIT = window.ToolKit;
-	if (!KIT) {
-		// 公共库没加载成功时不能默默无反应, 否则页面看起来就是"点了没动静"
-		var errEl = document.getElementById("imgStatus");
-		if (errEl) {
-			errEl.textContent = "公共库未加载成功, 请按 Ctrl+F5 强制刷新页面";
-			errEl.className = "img-status err";
-		}
-		return;
-	}
-	// 页面 HTML 与脚本版本对不上(Swup 页面缓存 / 浏览器缓存了旧页面)时明确提示, 避免"改了没生效"
-	var VER = "2";
-	if (window.__TOOL_VER && window.__TOOL_VER !== VER) {
-		var verEl = document.getElementById("imgStatus");
-		if (verEl) {
-			verEl.textContent =
-				"页面是旧版本(页面 v" +
-				window.__TOOL_VER +
-				" / 脚本 v" +
-				VER +
-				"), 请按 Ctrl+F5 强制刷新";
-			verEl.className = "img-status err";
-		}
-	}
-
 	/* ---------- 文案: 跟随站点语言(词条在 src/i18n/languages/*.ts) ---------- */
 	function t(key, fallback) {
 		try {
@@ -68,6 +41,35 @@
 		var s = t(key, fallback);
 		for (var k in vars) s = s.split("{" + k + "}").join(vars[k]);
 		return s;
+	}
+
+	var root = document.getElementById("imgRoot");
+	if (!root) return;
+	var KIT = window.ToolKit;
+	if (!KIT) {
+		// 公共库没加载成功时不能默默无反应, 否则页面看起来就是"点了没动静"
+		var errEl = document.getElementById("imgStatus");
+		if (errEl) {
+			errEl.textContent = t(
+				"toolKitMissing",
+				"公共库未加载成功, 请按 Ctrl+F5 强制刷新页面",
+			);
+			errEl.className = "img-status err";
+		}
+		return;
+	}
+	// 页面 HTML 与脚本版本对不上(Swup 页面缓存 / 浏览器缓存了旧页面)时明确提示, 避免"改了没生效"
+	var VER = "3";
+	if (window.__TOOL_VER && window.__TOOL_VER !== VER) {
+		var verEl = document.getElementById("imgStatus");
+		if (verEl) {
+			verEl.textContent = tf(
+				"toolStatusVerMismatch",
+				"页面是旧版本(页面 v{page} / 脚本 v{script}), 请按 Ctrl+F5 强制刷新",
+				{ page: window.__TOOL_VER, script: VER },
+			);
+			verEl.className = "img-status err";
+		}
 	}
 
 	var dropEl = document.getElementById("imgDrop");
@@ -224,13 +226,13 @@
 							},
 							function () {
 								URL.revokeObjectURL(url);
-								reject(new Error("读不到图片尺寸"));
+								reject(new Error(t("toolErrImgSize", "读不到图片尺寸")));
 							},
 						);
 						return;
 					}
 					URL.revokeObjectURL(url);
-					reject(new Error("读不到图片尺寸"));
+					reject(new Error(t("toolErrImgSize", "读不到图片尺寸")));
 					return;
 				}
 				resolve({
@@ -244,7 +246,7 @@
 			};
 			img.onerror = function () {
 				URL.revokeObjectURL(url);
-				reject(new Error("浏览器无法解码这个格式"));
+				reject(new Error(t("toolErrImgDecode", "浏览器无法解码这个格式")));
 			};
 			img.src = url;
 		});
@@ -309,7 +311,7 @@
 				}
 				var canvas = makeCanvas(tw, th);
 				var ctx = canvas.getContext("2d");
-				if (!ctx) throw new Error("取不到 canvas 上下文");
+				if (!ctx) throw new Error(t("toolErrCanvas", "取不到 canvas 上下文"));
 				// JPEG 不支持透明 → 先铺白底
 				if (opts.format === "jpeg") {
 					ctx.fillStyle = "#ffffff";
@@ -322,7 +324,11 @@
 				return toBlob(canvas, MIME[opts.format], quality).then(function (blob) {
 					if (!blob || blob.type !== MIME[opts.format]) {
 						throw new Error(
-							"当前浏览器不支持导出 " + LABEL[opts.format],
+							tf(
+								"toolErrNotSupported",
+								"当前浏览器不支持导出 {format}",
+								{ format: LABEL[opts.format] },
+							),
 						);
 					}
 					return done({
@@ -364,16 +370,33 @@
 		var fmt = (fmtSel && fmtSel.value) || "webp";
 		var lossless = fmt === "png";
 		if (qRange) qRange.disabled = lossless;
-		if (qVal) qVal.textContent = lossless ? "无损" : (qRange ? qRange.value : "80");
+		if (qVal)
+			qVal.textContent = lossless
+				? t("toolImgLossless", "无损")
+				: qRange
+					? qRange.value
+					: "80";
 		if (fmtHint) {
 			if (lossless) {
-				fmtHint.textContent = "PNG 为无损, 体积通常比 WebP 大; 适合截图/线稿/需要透明时";
+				fmtHint.textContent = t(
+					"toolImgHintPng",
+					"PNG 为无损, 体积通常比 WebP 大; 适合截图/线稿/需要透明时",
+				);
 			} else if (fmt === "jpeg") {
-				fmtHint.textContent = "JPEG 不支持透明, 透明区域会被填成白底";
+				fmtHint.textContent = t(
+					"toolImgHintJpeg",
+					"JPEG 不支持透明, 透明区域会被填成白底",
+				);
 			} else if (fmt === "webp") {
-				fmtHint.textContent = "WebP 兼顾体积与质量, 网页配图首选";
+				fmtHint.textContent = t(
+					"toolImgHintWebp",
+					"WebP 兼顾体积与质量, 网页配图首选",
+				);
 			} else {
-				fmtHint.textContent = "AVIF 体积最小, 但编码较慢且旧浏览器可能不支持";
+				fmtHint.textContent = t(
+					"toolImgHintAvif",
+					"AVIF 体积最小, 但编码较慢且旧浏览器可能不支持",
+				);
 			}
 		}
 	}
@@ -417,7 +440,10 @@
 		var it = items[index];
 		if (!it || it.state !== "done" || !it.blobData) return;
 		saveBlob(new Blob([it.blobData], { type: MIME[it.format] || "application/octet-stream" }), it.outName);
-		setStatus("已保存单张:" + it.outName, "ok");
+		setStatus(
+			tf("toolStatusSavedImg", "已保存单张: {name}", { name: it.outName }),
+			"ok",
+		);
 	}
 
 	// 压缩包改成点的时候才打包, 不点就不占内存
@@ -434,15 +460,17 @@
 		if (total > 1.5 * 1024 * 1024 * 1024) {
 			if (
 				!window.confirm(
-					"合计 " +
-						KIT.formatSize(total) +
-						", 打包会额外占一份内存, 可能很慢。\n确定继续吗? 也可以点每行右侧的「下载」单张保存。",
+					tf(
+						"toolZipWarn",
+						"合计 {size}, 打包会额外占一份内存, 可能很慢。\n确定继续吗? 也可以点每行右侧的「下载」单张保存。",
+						{ size: KIT.formatSize(total) },
+					),
 				)
 			) {
 				return;
 			}
 		}
-		setStatus("正在打包 " + entries.length + " 个文件…");
+		setStatus(tf("toolStatusZipping", "正在打包 {n} 个文件…", { n: entries.length }));
 		setTimeout(function () {
 			try {
 				var zip = KIT.zipStore(entries, new Date());
@@ -451,14 +479,17 @@
 					"images-" + KIT.stamp() + ".zip",
 				);
 				setStatus(
-					"已保存压缩包 · " +
-						entries.length +
-						" 张 · " +
-						KIT.formatSize(zip.size),
+					tf("toolStatusZipSavedImg", "已保存压缩包 · {n} 张 · {size}", {
+						n: entries.length,
+						size: KIT.formatSize(zip.size),
+					}),
 					"ok",
 				);
 			} catch (e) {
-				setStatus("打包失败:" + ((e && e.message) || e), "err");
+				setStatus(
+					t("toolStatusZipFail", "打包失败: ") + ((e && e.message) || e),
+					"err",
+				);
 			}
 		}, 0);
 	}
@@ -509,7 +540,11 @@
 					it.width +
 					"×" +
 					it.height +
-					(pct > 0 ? " · 省 " + pct + "%" : pct < 0 ? " · 增大 " + -pct + "%" : "");
+					(pct > 0
+						? tf("toolPctSaved", " · 省 {n}%", { n: pct })
+						: pct < 0
+							? tf("toolPctBigger", " · 增大 {n}%", { n: -pct })
+							: "");
 				okCount++;
 				inSize += it.srcSize;
 				outSize += it.outSize;
@@ -517,13 +552,20 @@
 				// 还没转换完也先把原始大小列出来
 				badge =
 					'<span class="img-badge dim">' +
-					esc(it.state === "wait" ? "排队中" : it.note || "处理中") +
+					esc(
+						it.state === "wait"
+							? t("toolStatusQueued", "排队中")
+							: it.note || t("toolStatusProcessing", "处理中"),
+					) +
 					"</span>";
 				note = esc(it.srcLabel) + " " + KIT.formatSize(it.srcSize);
 				pendCount++;
 			} else if (it.state === "fail") {
 				cls += " bad";
-				badge = '<span class="img-badge red">失败</span>';
+				badge =
+					'<span class="img-badge red">' +
+					esc(t("toolFail", "失败")) +
+					"</span>";
 				note =
 					esc(it.srcLabel) +
 					" " +
@@ -559,20 +601,22 @@
 			var savedPct = inSize > outSize ? Math.round((1 - outSize / inSize) * 100) : 0;
 			var text = "";
 			if (okCount > 0) {
-				text =
-					"共 " +
-					items.length +
-					" 张 · 输入 " +
-					KIT.formatSize(inSize) +
-					" → 输出 " +
-					KIT.formatSize(outSize) +
-					(savedPct > 0 ? " · 省 " + savedPct + "%" : "");
+				text = tf("toolSumInOutImg", "共 {n} 张 · 输入 {in} → 输出 {out}", {
+					n: items.length,
+					in: KIT.formatSize(inSize),
+					out: KIT.formatSize(outSize),
+				});
+				if (savedPct > 0) text += tf("toolPctSaved", " · 省 {n}%", { n: savedPct });
 			} else {
-				text = "共 " + items.length + " 张 · 输入合计 " + KIT.formatSize(inAll);
-				if (pendCount) text += " · 转换中…";
+				text = tf("toolSumInImg", "共 {n} 张 · 输入合计 {in}", {
+					n: items.length,
+					in: KIT.formatSize(inAll),
+				});
+				if (pendCount) text += t("toolSumConverting", " · 转换中…");
 			}
-			if (failCount) text += " · " + failCount + " 张失败";
-			if (okCount > 0 && pendCount) text += " · " + pendCount + " 张待处理";
+			if (failCount) text += tf("toolSumFailImg", " · {n} 张失败", { n: failCount });
+			if (okCount > 0 && pendCount)
+				text += tf("toolSumPendImg", " · {n} 张待处理", { n: pendCount });
 			sumEl.textContent = text;
 			sumEl.hidden = false;
 		}
@@ -613,14 +657,16 @@
 				srcSize: f.size,
 				srcLabel: String(f.type || "").replace("image/", "").toUpperCase() || "FILE",
 				state: "wait",
-				note: "排队中",
+				note: t("toolStatusQueued", "排队中"),
 			});
 			added++;
 		}
 		if (skipped) ignoredTotal += skipped;
 		if (!added) {
 			setStatus(
-				skipped ? "已忽略 " + skipped + " 个非图片文件" : "没有选择图片",
+				skipped
+					? tf("toolStatusIgnored", "已忽略 {n} 个非目标格式文件", { n: skipped })
+					: t("toolStatusNothing", "没有选择文件"),
 				"warn",
 			);
 			return;
@@ -646,9 +692,15 @@
 		for (var n = 0; n < total; n++) {
 			var it = pending[n];
 			it.state = "work";
-			it.note = "解码中…";
+			it.note = t("toolStatusDecoding", "解码中…");
 			setProgress(n, total);
-			setStatus("正在处理 " + (n + 1) + " / " + total + " · " + it.label);
+			setStatus(
+				tf("toolStatusWorking", "正在处理 {done} / {total} · {name}", {
+					done: n + 1,
+					total: total,
+					name: it.label,
+				}),
+			);
 			renderList();
 			await tick();
 
@@ -668,7 +720,7 @@
 				it.stale = false;
 			} catch (err) {
 				it.state = "fail";
-				it.note = (err && err.message) || "转换失败";
+				it.note = (err && err.message) || t("toolErrConvert", "转换失败");
 			}
 			renderList();
 			await tick();
@@ -685,14 +737,21 @@
 		renderList();
 
 		if (!count) {
-			setStatus("没有可输出的图片", "warn");
+			setStatus(t("toolStatusNoOutputImg", "没有可输出的图片"), "warn");
 			return;
 		}
 		setStatus(
-			"已完成 " +
-				count +
-				" 张 · 点每行右侧「下载」单独保存, 或点下方打包下载" +
-				(ignoredTotal ? " · 已忽略 " + ignoredTotal + " 个非图片文件" : ""),
+			tf(
+				"toolStatusDoneImg",
+				"已完成 {n} 张 · 点每行右侧「下载」单个保存, 或点下方打包下载",
+				{ n: count },
+			) +
+				(ignoredTotal
+					? " · " +
+						tf("toolStatusIgnored", "已忽略 {n} 个非目标格式文件", {
+							n: ignoredTotal,
+						})
+					: ""),
 			"ok",
 		);
 		setTimeout(function () {
@@ -777,7 +836,10 @@
 		if (hasDone) {
 			stale = true;
 			rerunBtn.hidden = false;
-			setStatus("设置已更改, 点「按新设置重新转换」重跑", "warn");
+			setStatus(
+				t("toolStatusRerun", "设置已更改, 点「按新设置重新转换」重跑"),
+				"warn",
+			);
 		}
 	}
 	on(fmtSel, "change", markStale);
@@ -853,7 +915,9 @@
 				var v = opts[i].value;
 				if (!supported[v]) {
 					opts[i].disabled = true;
-					opts[i].textContent = opts[i].textContent.replace(" (不可用)", "") + " (不可用)";
+					var unavail = t("toolImgUnavailable", " (不可用)");
+					opts[i].textContent =
+						opts[i].textContent.replace(unavail, "").trimEnd() + unavail;
 				}
 			}
 			// 默认选 WebP, 不支持就退到 PNG

@@ -426,6 +426,9 @@
 				bitrate: info.bitrate || 0,
 				duration: info.duration || 0,
 				format: fmt.format,
+				// 供页面脚本查词条用的稳定标识(flac/mp3/ogg/m4a/wav/bin);
+				// formatLabel 是中文兜底文案, 纯计算模块不依赖 DOM/i18n
+				formatKey: fmt.format,
 				formatLabel: fmt.label,
 				lossless: !!fmt.lossless,
 				ext: fmt.ext,

@@ -19,33 +19,6 @@
 	}
 	window.__ncmToolState = { detach: null };
 
-	var root = document.getElementById("ncmRoot");
-	if (!root) return;
-	var CORE = window.NCMCore;
-	if (!CORE) {
-		// 核心脚本没加载成功时不能默默无反应, 否则页面看起来就是"点了没动静"
-		var errEl = document.getElementById("ncmStatus");
-		if (errEl) {
-			errEl.textContent = "核心脚本未加载成功, 请按 Ctrl+F5 强制刷新页面";
-			errEl.className = "ncm-status err";
-		}
-		return;
-	}
-	// 页面 HTML 与脚本版本对不上(Swup 页面缓存 / 浏览器缓存了旧页面)时明确提示, 避免"改了没生效"
-	var VER = "2";
-	if (window.__TOOL_VER && window.__TOOL_VER !== VER) {
-		var verEl = document.getElementById("ncmStatus");
-		if (verEl) {
-			verEl.textContent =
-				"页面是旧版本(页面 v" +
-				window.__TOOL_VER +
-				" / 脚本 v" +
-				VER +
-				"), 请按 Ctrl+F5 强制刷新";
-			verEl.className = "ncm-status err";
-		}
-	}
-
 	/* ---------- 文案: 跟随站点语言(词条在 src/i18n/languages/*.ts) ---------- */
 	function t(key, fallback) {
 		try {
@@ -61,6 +34,59 @@
 		var s = t(key, fallback);
 		for (var k in vars) s = s.split("{" + k + "}").join(vars[k]);
 		return s;
+	}
+
+	var root = document.getElementById("ncmRoot");
+	if (!root) return;
+	var CORE = window.NCMCore;
+	if (!CORE) {
+		// 核心脚本没加载成功时不能默默无反应, 否则页面看起来就是"点了没动静"
+		var errEl = document.getElementById("ncmStatus");
+		if (errEl) {
+			errEl.textContent = t(
+				"toolCoreMissing",
+				"核心脚本未加载成功, 请按 Ctrl+F5 强制刷新页面",
+			);
+			errEl.className = "ncm-status err";
+		}
+		return;
+	}
+	// 页面 HTML 与脚本版本对不上(Swup 页面缓存 / 浏览器缓存了旧页面)时明确提示, 避免"改了没生效"
+	var VER = "3";
+	if (window.__TOOL_VER && window.__TOOL_VER !== VER) {
+		var verEl = document.getElementById("ncmStatus");
+		if (verEl) {
+			verEl.textContent = tf(
+				"toolStatusVerMismatch",
+				"页面是旧版本(页面 v{page} / 脚本 v{script}), 请按 Ctrl+F5 强制刷新",
+				{ page: window.__TOOL_VER, script: VER },
+			);
+			verEl.className = "ncm-status err";
+		}
+	}
+
+	/* ---------- 音频格式标签: 由 ncm-core 的 info.formatKey 映射到词条 ---------- */
+	// 旧版 ncm-core(浏览器缓存)可能没有 formatKey, 此时回落到它给的中文 label
+	var FMT_KEYS = {
+		flac: "toolFmtFlac",
+		mp3: "toolFmtMp3",
+		ogg: "toolFmtOgg",
+		m4a: "toolFmtM4a",
+		wav: "toolFmtWav",
+		bin: "toolFmtBin",
+	};
+	var FMT_FALLBACK = {
+		flac: "FLAC 无损",
+		mp3: "MP3 有损",
+		ogg: "OGG",
+		m4a: "M4A",
+		wav: "WAV",
+		bin: "未知格式",
+	};
+	function fmtLabel(formatKey, fallbackLabel) {
+		var key = FMT_KEYS[formatKey];
+		if (!key) return fallbackLabel || t("toolFmtBin", "未知格式");
+		return t(key, FMT_FALLBACK[formatKey]);
 	}
 
 	var dropEl = document.getElementById("ncmDrop");
@@ -149,7 +175,10 @@
 			inAll += r.srcSize || 0;
 			if (r.state === "done") {
 				cls += r.lossless ? " ok" : " ok lossy";
-				badge = '<span class="ncm-badge">' + esc(r.formatLabel) + "</span>";
+				badge =
+					'<span class="ncm-badge">' +
+					esc(fmtLabel(r.formatKey, r.formatLabel)) +
+					"</span>";
 				var pct = r.srcSize
 					? Math.round((1 - r.size / r.srcSize) * 100)
 					: 0;
@@ -159,7 +188,11 @@
 					"  →  " +
 					(r.outName ? esc(r.outName) + " · " : "") +
 					CORE.formatSize(r.size) +
-					(pct > 1 ? " · 省 " + pct + "%" : pct < -1 ? " · 大 " + -pct + "%" : "");
+					(pct > 1
+						? tf("toolPctSaved", " · 省 {n}%", { n: pct })
+						: pct < -1
+							? tf("toolPctBigger", " · 增大 {n}%", { n: -pct })
+							: "");
 				usable++;
 				usableSize += r.size;
 				inUsedSize += r.srcSize;
@@ -184,7 +217,7 @@
 				// 还没解密完也先把原始大小列出来
 				badge =
 					'<span class="ncm-badge dim">' +
-					esc(r.note === "排队中" ? "排队中" : r.note || "处理中") +
+					esc(r.note || t("toolStatusProcessing", "处理中")) +
 					"</span>";
 				note = "NCM " + CORE.formatSize(r.srcSize);
 				pendCount++;
@@ -219,20 +252,22 @@
 					: 0;
 			var text = "";
 			if (usable > 0) {
-				text =
-					"共 " +
-					results.length +
-					" 首 · 输入 " +
-					CORE.formatSize(inUsedSize) +
-					" → 输出 " +
-					CORE.formatSize(usableSize) +
-					(savedPct > 0 ? " · 省 " + savedPct + "%" : "");
+				text = tf("toolSumInOutNcm", "共 {n} 首 · 输入 {in} → 输出 {out}", {
+					n: results.length,
+					in: CORE.formatSize(inUsedSize),
+					out: CORE.formatSize(usableSize),
+				});
+				if (savedPct > 0) text += tf("toolPctSaved", " · 省 {n}%", { n: savedPct });
 			} else {
-				text = "共 " + results.length + " 首 · 输入合计 " + CORE.formatSize(inAll);
-				if (pendCount) text += " · 解密中…";
+				text = tf("toolSumInNcm", "共 {n} 首 · 输入合计 {in}", {
+					n: results.length,
+					in: CORE.formatSize(inAll),
+				});
+				if (pendCount) text += t("toolSumDecrypting", " · 解密中…");
 			}
-			if (failCount) text += " · " + failCount + " 首失败";
-			if (usable > 0 && pendCount) text += " · " + pendCount + " 首待处理";
+			if (failCount) text += tf("toolSumFailNcm", " · {n} 首失败", { n: failCount });
+			if (usable > 0 && pendCount)
+				text += tf("toolSumPendNcm", " · {n} 首待处理", { n: pendCount });
 			sumEl.textContent = text;
 			sumEl.hidden = false;
 		}
@@ -315,7 +350,7 @@
 				r.base + "." + (r.coverExt || "jpg"),
 			);
 		}
-		setStatus("已保存:" + r.outName, "ok");
+		setStatus(tf("toolStatusSaved", "已保存: {name}", { name: r.outName }), "ok");
 	}
 
 	// 压缩包改成点的时候才打包, 不点就不占内存
@@ -336,15 +371,17 @@
 		if (total > 1.5 * 1024 * 1024 * 1024) {
 			if (
 				!window.confirm(
-					"合计 " +
-						CORE.formatSize(total) +
-						", 打包会额外占一份内存, 可能很慢。\n确定继续吗? 也可以点每首右侧的「下载」单独保存。",
+					tf(
+						"toolZipWarn",
+						"合计 {size}, 打包会额外占一份内存, 可能很慢。\n确定继续吗? 也可以点每首右侧的「下载」单个保存。",
+						{ size: CORE.formatSize(total) },
+					),
 				)
 			) {
 				return;
 			}
 		}
-		setStatus("正在打包 " + entries.length + " 个文件…");
+		setStatus(tf("toolStatusZipping", "正在打包 {n} 个文件…", { n: entries.length }));
 		setTimeout(function () {
 			try {
 				var zip = CORE.zipStore(entries, new Date());
@@ -353,14 +390,17 @@
 					zipName(),
 				);
 				setStatus(
-					"已保存压缩包 · " +
-						entries.length +
-						" 个文件 · " +
-						CORE.formatSize(zip.size),
+					tf("toolStatusZipSaved", "已保存压缩包 · {n} 个文件 · {size}", {
+						n: entries.length,
+						size: CORE.formatSize(zip.size),
+					}),
 					"ok",
 				);
 			} catch (e) {
-				setStatus("打包失败:" + ((e && e.message) || e), "err");
+				setStatus(
+					t("toolStatusZipFail", "打包失败: ") + ((e && e.message) || e),
+					"err",
+				);
 			}
 		}, 0);
 	}
@@ -376,10 +416,13 @@
 			else ignored++;
 		}
 		if (ignored > 0) {
-			setStatus("已忽略 " + ignored + " 个非 .ncm 文件", "warn");
+			setStatus(
+				tf("toolStatusIgnored", "已忽略 {n} 个非目标格式文件", { n: ignored }),
+				"warn",
+			);
 		}
 		if (!files.length) {
-			if (!ignored) setStatus("没有选择文件", "warn");
+			if (!ignored) setStatus(t("toolStatusNothing", "没有选择文件"), "warn");
 			return;
 		}
 
@@ -394,7 +437,7 @@
 				label: files[k].name,
 				srcSize: files[k].size || 0,
 				state: "work",
-				note: "排队中",
+				note: t("toolStatusQueued", "排队中"),
 			});
 		}
 		renderList();
@@ -402,28 +445,38 @@
 		for (var n = 0; n < files.length; n++) {
 			var file = files[n];
 			var rec = results[startIndex + n];
-			rec.note = "读取文件…";
+			rec.note = t("toolStatusReading", "读取文件…");
 			setProgress(n, files.length);
 			setStatus(
-				"正在处理 " + (n + 1) + " / " + files.length + " · " + file.name,
+				tf("toolStatusWorking", "正在处理 {done} / {total} · {name}", {
+					done: n + 1,
+					total: files.length,
+					name: file.name,
+				}),
 			);
 			renderList();
 			await tick();
 
 			try {
 				var buffer = await file.arrayBuffer();
-				rec.note = "解密中…";
+				rec.note = t("toolStatusDecrypting", "解密中…");
 				renderList();
 				await tick();
 
 				var decoded = CORE.decryptNcm(buffer);
 				var info = decoded.info;
 				if (info.format === "bin") {
-					throw new Error("还原出的音频格式无法识别");
+					throw new Error(
+						t("toolErrUnknownFormat", "还原出的音频格式无法识别"),
+					);
 				}
 				if (onlyLossless && !info.lossless) {
 					rec.state = "skip";
-					rec.note = "有损音频(" + info.formatLabel + "), 按设置跳过";
+					rec.note = tf(
+						"toolNcmSkip",
+						"有损音频({format}), 按设置跳过",
+						{ format: fmtLabel(info.formatKey, info.formatLabel) },
+					);
 					renderList();
 					continue;
 				}
@@ -433,6 +486,7 @@
 				rec.coverExt = info.coverExt || "jpg";
 				rec.size = decoded.audio.length;
 				rec.lossless = info.lossless;
+				rec.formatKey = info.formatKey;
 				rec.formatLabel = info.formatLabel;
 				rec.base = buildOutputName(
 					info,
@@ -442,7 +496,7 @@
 				rec.withCover = withCover;
 			} catch (err) {
 				rec.state = "fail";
-				rec.note = (err && err.message) || "解密失败";
+				rec.note = (err && err.message) || t("toolErrDecrypt", "解密失败");
 			}
 			renderList();
 			await tick();
@@ -459,13 +513,15 @@
 		renderList();
 
 		if (!count) {
-			setStatus("没有可输出的音频文件", "warn");
+			setStatus(t("toolStatusNoOutputNcm", "没有可输出的音频文件"), "warn");
 			return;
 		}
 		setStatus(
-			"已完成 " +
-				count +
-				" 首 · 点每首右侧「下载」单独保存, 或点下方打包下载",
+			tf(
+				"toolStatusDoneNcm",
+				"已完成 {n} 首 · 点每首右侧「下载」单个保存, 或点下方打包下载",
+				{ n: count },
+			),
 			"ok",
 		);
 		setTimeout(function () {

@@ -2,6 +2,8 @@
 	import Icon from "@iconify/svelte";
 	import { onDestroy, onMount } from "svelte";
 
+	import I18nKey from "@i18n/i18nKey";
+	import { i18n } from "@i18n/translation";
 	import type { MusicPlayerState } from "@/stores/musicPlayerStore";
 	import { musicPlayerStore } from "@/stores/musicPlayerStore";
 
@@ -12,10 +14,13 @@
 		musicPlayerStore.toggleExpanded();
 	}
 
-	$: currentSongTitle = state.currentSong?.title || "音乐控制中心";
-	$: ariaLabel = state.isExpanded
-		? `收起音乐控制中心：${currentSongTitle}`
-		: `打开音乐控制中心：${currentSongTitle}`;
+	$: currentSongTitle =
+		state.currentSong?.title || i18n(I18nKey.musicFabDefaultTitle);
+	$: ariaLabel = (
+		state.isExpanded
+			? i18n(I18nKey.musicFabClose)
+			: i18n(I18nKey.musicFabOpen)
+	).replace("{title}", currentSongTitle);
 	$: statusIcon = state.isLoading
 		? "svg-spinners:90-ring-with-bg"
 		: "material-symbols:music-note-rounded";
