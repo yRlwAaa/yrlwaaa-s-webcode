@@ -35,7 +35,10 @@
 
 目前内置了两个小工具：ncm转flac转换器和图片压缩工具，**纯前端零依赖**：点击即可食用，文件从头到尾不离开浏览器，也不上传任何服务器。
 
-![工具箱工作流](./docs/image/tools-workflow.svg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./docs/image/tools-workflow-dark.svg">
+  <img alt="工具箱工作流" src="./docs/image/tools-workflow.svg">
+</picture>
 
 **① NCM 转 FLAC** —— `/tools/ncm/`
 
@@ -122,7 +125,10 @@ jpg / png / gif / webp / avif / bmp / svg → WebP / PNG / JPEG / AVIF，可选*
 
 ## 🏗️ 架构
 
-![架构图](./docs/image/architecture.svg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./docs/image/architecture-dark.svg">
+  <img alt="yrlwa.top 架构图" src="./docs/image/architecture.svg">
+</picture>
 
 | 层 | 用什么 |
 |:--|:--|
