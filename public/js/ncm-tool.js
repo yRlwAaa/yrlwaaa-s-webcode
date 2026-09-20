@@ -31,6 +31,20 @@
 		}
 		return;
 	}
+	// 页面 HTML 与脚本版本对不上(Swup 页面缓存 / 浏览器缓存了旧页面)时明确提示, 避免"改了没生效"
+	var VER = "2";
+	if (window.__TOOL_VER && window.__TOOL_VER !== VER) {
+		var verEl = document.getElementById("ncmStatus");
+		if (verEl) {
+			verEl.textContent =
+				"页面是旧版本(页面 v" +
+				window.__TOOL_VER +
+				" / 脚本 v" +
+				VER +
+				"), 请按 Ctrl+F5 强制刷新";
+			verEl.className = "ncm-status err";
+		}
+	}
 
 	var dropEl = document.getElementById("ncmDrop");
 	var inputEl = document.getElementById("ncmInput");
@@ -207,7 +221,7 @@
 		if (usable > 0) {
 			outEl.hidden = false;
 			dlBtn.textContent =
-				"下载压缩包 (" + usable + " 首 · " + CORE.formatSize(usableSize) + ")";
+				"打包下载 (" + usable + " 首 · " + CORE.formatSize(usableSize) + ")";
 			dlBtn.disabled = false;
 		} else {
 			outEl.hidden = true;

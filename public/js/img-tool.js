@@ -38,6 +38,20 @@
 		}
 		return;
 	}
+	// 页面 HTML 与脚本版本对不上(Swup 页面缓存 / 浏览器缓存了旧页面)时明确提示, 避免"改了没生效"
+	var VER = "2";
+	if (window.__TOOL_VER && window.__TOOL_VER !== VER) {
+		var verEl = document.getElementById("imgStatus");
+		if (verEl) {
+			verEl.textContent =
+				"页面是旧版本(页面 v" +
+				window.__TOOL_VER +
+				" / 脚本 v" +
+				VER +
+				"), 请按 Ctrl+F5 强制刷新";
+			verEl.className = "img-status err";
+		}
+	}
 
 	var dropEl = document.getElementById("imgDrop");
 	var inputEl = document.getElementById("imgInput");
@@ -548,7 +562,7 @@
 			outEl.hidden = false;
 			var saved = inSize > outSize ? Math.round((1 - outSize / inSize) * 100) : 0;
 			dlBtn.textContent =
-				"下载压缩包 (" +
+				"打包下载 (" +
 				okCount +
 				" 张 · " +
 				KIT.formatSize(outSize) +
