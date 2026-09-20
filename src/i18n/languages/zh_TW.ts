@@ -460,6 +460,47 @@ export const zh_TW: Translation = {
 	[Key.toolImgFoot]:
 		"解碼與編碼都在你的瀏覽器裡完成，不連網、不上傳。注意：iPhone 的 HEIC/HEIF 瀏覽器解不了，請先在手機上匯出為 JPG；動圖 GIF 只會取第一幀。",
 
+	// 工具 · 去浮水印
+	[Key.toolWmName]: "去浮水印",
+	[Key.toolWmDesc]:
+		"框選浮水印區域，用周圍像素把它補掉；全程在本站瀏覽器內處理，不上傳",
+	[Key.toolWmIntro]:
+		"在圖片上把浮水印框住，放開就交給修復演算法 —— 用選取周圍的像素一點一點把這塊補齊（影像修補 inpainting）。它對壓在純色、漸層或簡單紋理上的浮水印效果最好；如果浮水印是一大塊實心色塊、底下原本是什麼已經看不出來，那是補不回來的。可以一次框多個區域；每次修復都從原圖重新計算，反覆點不會越修越糊。輸出保持原格式與原解析度，全程在本站瀏覽器內完成，圖片不會上傳到任何伺服器。",
+	[Key.toolWmTags]: "圖片|去浮水印|純本機",
+	[Key.toolWmDropTitle]: "把圖片拖到這裡",
+	[Key.toolWmDropSub]: "一次一張 · 全程在本站瀏覽器內處理，不上傳",
+	[Key.toolWmLoadHint]:
+		"載入後在浮水印上按住滑鼠拖曳即可框選，可以框選多個區域。",
+	[Key.toolWmStart]: "開始修復",
+	[Key.toolWmUndo]: "復原上一步",
+	[Key.toolWmClearSel]: "清除選取",
+	[Key.toolWmReset]: "重設",
+	[Key.toolWmBefore]: "修復前",
+	[Key.toolWmAfter]: "修復後",
+	[Key.toolWmDownload]: "下載修復後的圖片",
+	[Key.toolWmFoot]:
+		"載入、修復與匯出都在你的瀏覽器裡完成，不連網、不上傳、不留檔。請僅用於處理自己擁有權利或已獲得授權的圖片 —— 去除他人作品上的浮水印可能構成侵權。",
+	[Key.toolWmSuffix]: "已修復",
+	[Key.toolWmRegions]: "待修復區域：{n} 個",
+	[Key.toolWmRegionsNone]: "還沒有選取，請在圖片上框選浮水印",
+	[Key.toolWmStatusLoaded]:
+		"已載入 {name} · {w}×{h}，在浮水印上按住拖曳即可框選",
+	[Key.toolWmStatusWorking]: "正在修復… {p}%",
+	[Key.toolWmStatusDone]: "已修復，可下載 · 用時 {s}s",
+	[Key.toolWmStatusNoSel]: "這一步沒有選取，請先框選浮水印",
+	[Key.toolWmStatusRegionAdded]:
+		"已新增選取（{n} 個），可以繼續框選，或點「開始修復」",
+	[Key.toolWmStatusTooSmall]: "選取太小了，請把浮水印完整框住再放開",
+	[Key.toolWmStatusAllMasked]:
+		"選取覆蓋了整張圖片，沒有可參考的像素，請把選取改小",
+	[Key.toolWmStatusUndone]: "已復原上一步",
+	[Key.toolWmStatusCleared]: "已清除全部選取",
+	[Key.toolWmStatusReset]: "已重設為原圖",
+	[Key.toolWmStatusSaved]: "已儲存：{name}",
+	[Key.toolWmErrLoad]: "圖片載入失敗",
+	[Key.toolWmErrInpaint]: "修復失敗：",
+	[Key.toolWmErrExport]: "匯出失敗，瀏覽器無法編碼這個格式",
+
 	[Key.toolStatusQueued]: "排隊中",
 	[Key.toolStatusReading]: "讀取檔案…",
 	[Key.toolStatusDecrypting]: "解密中…",

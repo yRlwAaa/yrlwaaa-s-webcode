@@ -49,6 +49,16 @@ export const toolsData: ToolItem[] = [
 		icon: "material-symbols:image",
 		local: true,
 	},
+	{
+		id: "watermark",
+		nameKey: I18nKey.toolWmName,
+		descKey: I18nKey.toolWmDesc,
+		introKey: I18nKey.toolWmIntro,
+		tagsKey: I18nKey.toolWmTags,
+		url: "/tools/watermark/",
+		icon: "material-symbols:auto-fix-high",
+		local: true,
+	},
 ];
 
 export function getTool(id: string): ToolItem | undefined {

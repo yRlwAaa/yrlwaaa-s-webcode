@@ -475,6 +475,48 @@ export const en: Translation = {
 	[Key.toolImgFoot]:
 		"Decoding and encoding happen in your browser: no network, no upload. Note: browsers cannot decode iPhone HEIC/HEIF — export as JPG on the phone first. Animated GIFs keep only the first frame.",
 
+	[Key.toolWmName]: "Watermark Remover",
+	[Key.toolWmDesc]:
+		"Box the watermark and let inpainting fill it back in — runs entirely in your browser, nothing is uploaded",
+	[Key.toolWmIntro]:
+		"Box the watermark on the image and release: the pixels underneath are reconstructed from their surroundings (image inpainting). It works best on marks sitting on flat or gently varying backgrounds — sky, walls, gradient fills — while large solid blocks that hide real detail cannot be recovered. You can select several areas at once, and every repair starts from the original image, so running it twice never smears the result. Output keeps the original format and resolution. Everything happens inside this page; nothing is uploaded to any server.",
+	[Key.toolWmTags]: "Image|Inpainting|Runs locally",
+	[Key.toolWmDropTitle]: "Drop an image here",
+	[Key.toolWmDropSub]:
+		"One image at a time · processed entirely in your browser, nothing is uploaded",
+	[Key.toolWmLoadHint]:
+		"Once the image loads, hold and drag on it to box the watermark — you can box several areas.",
+	[Key.toolWmStart]: "Start repairing",
+	[Key.toolWmUndo]: "Undo",
+	[Key.toolWmClearSel]: "Clear selection",
+	[Key.toolWmReset]: "Reset",
+	[Key.toolWmBefore]: "Before",
+	[Key.toolWmAfter]: "After",
+	[Key.toolWmDownload]: "Download the repaired image",
+	[Key.toolWmFoot]:
+		"Loading, repairing and exporting all happen in your browser: no network, no upload, nothing stored. Please only use it on images you own the rights to or have been authorised to edit — removing a watermark from someone else's work may infringe their rights.",
+	[Key.toolWmSuffix]: "repaired",
+	[Key.toolWmRegions]: "Areas to repair: {n}",
+	[Key.toolWmRegionsNone]: "No selection yet — box the watermark on the image",
+	[Key.toolWmStatusLoaded]:
+		"Loaded {name} · {w}×{h} — hold and drag on the watermark to box it",
+	[Key.toolWmStatusWorking]: "Repairing… {p}%",
+	[Key.toolWmStatusDone]: "Repaired — ready to download · took {s}s",
+	[Key.toolWmStatusNoSel]: "Nothing is selected — box the watermark first",
+	[Key.toolWmStatusRegionAdded]:
+		"{n} area(s) selected — keep selecting, or hit “Start repairing”",
+	[Key.toolWmStatusTooSmall]:
+		"That selection is too small — box the whole watermark, then release",
+	[Key.toolWmStatusAllMasked]:
+		"The selection covers the whole image, so there is nothing left to sample from — please make it smaller",
+	[Key.toolWmStatusUndone]: "Undone",
+	[Key.toolWmStatusCleared]: "Selection cleared",
+	[Key.toolWmStatusReset]: "Reset to the original image",
+	[Key.toolWmStatusSaved]: "Saved: {name}",
+	[Key.toolWmErrLoad]: "Could not load the image",
+	[Key.toolWmErrInpaint]: "Repair failed: ",
+	[Key.toolWmErrExport]: "Export failed — this browser cannot encode that format",
+
 	[Key.toolStatusQueued]: "Queued",
 	[Key.toolStatusReading]: "Reading file…",
 	[Key.toolStatusDecrypting]: "Decrypting…",

@@ -460,6 +460,47 @@ export const zh_CN: Translation = {
 	[Key.toolImgFoot]:
 		"解码与编码都在你的浏览器里完成, 不联网、不上传。注意: iPhone 的 HEIC/HEIF 浏览器解不了, 请先在手机上导出为 JPG; 动图 GIF 只会取第一帧。",
 
+	// 工具 · 去水印
+	[Key.toolWmName]: "去水印",
+	[Key.toolWmDesc]:
+		"框选水印区域, 用周围像素把它补掉; 全程在本站浏览器内处理, 不上传",
+	[Key.toolWmIntro]:
+		"在图上把水印框住, 松手就交给修复算法 —— 用选区周围的像素一点点把这块补齐(图像修补 inpainting)。它对压在纯色、渐变或简单纹理上的水印效果最好; 如果水印是一大块实心色块、底下原本是什么已经看不出来, 那是补不回来的。可以一次框多个区域; 每次修复都从原图重新算, 反复点不会越修越糊。输出保持原格式与原分辨率, 全程在本站浏览器内完成, 图片不会上传到任何服务器。",
+	[Key.toolWmTags]: "图片|去水印|纯本地",
+	[Key.toolWmDropTitle]: "把图片拖到这里",
+	[Key.toolWmDropSub]: "一次一张 · 全程在本站浏览器内处理, 不上传",
+	[Key.toolWmLoadHint]:
+		"载入后在水印上按住鼠标拖动即可框选, 可以框选多个区域。",
+	[Key.toolWmStart]: "开始修复",
+	[Key.toolWmUndo]: "撤销上一步",
+	[Key.toolWmClearSel]: "清除选区",
+	[Key.toolWmReset]: "重置",
+	[Key.toolWmBefore]: "修复前",
+	[Key.toolWmAfter]: "修复后",
+	[Key.toolWmDownload]: "下载修复后的图片",
+	[Key.toolWmFoot]:
+		"载入、修复与导出都在你的浏览器里完成, 不联网、不上传、不留档。请仅用于处理自己拥有权利或已获得授权的图片 —— 去除他人作品上的水印可能构成侵权。",
+	[Key.toolWmSuffix]: "已修复",
+	[Key.toolWmRegions]: "待修复区域: {n} 个",
+	[Key.toolWmRegionsNone]: "还没有选区, 在图上框选水印",
+	[Key.toolWmStatusLoaded]:
+		"已载入 {name} · {w}×{h}, 在水印上按住拖动即可框选",
+	[Key.toolWmStatusWorking]: "正在修复… {p}%",
+	[Key.toolWmStatusDone]: "已修复, 可下载 · 用时 {s}s",
+	[Key.toolWmStatusNoSel]: "这一步没有选区, 请先框选水印",
+	[Key.toolWmStatusRegionAdded]:
+		"已添加选区 ({n} 个), 可以继续框选, 或点「开始修复」",
+	[Key.toolWmStatusTooSmall]: "选区太小了, 请把水印完整框住再松手",
+	[Key.toolWmStatusAllMasked]:
+		"选区覆盖了整张图片, 没有可参考的像素, 请把选区改小",
+	[Key.toolWmStatusUndone]: "已撤销上一步",
+	[Key.toolWmStatusCleared]: "已清除全部选区",
+	[Key.toolWmStatusReset]: "已重置为原图",
+	[Key.toolWmStatusSaved]: "已保存: {name}",
+	[Key.toolWmErrLoad]: "图片载入失败",
+	[Key.toolWmErrInpaint]: "修复失败: ",
+	[Key.toolWmErrExport]: "导出失败, 浏览器无法编码这个格式",
+
 	// 工具页运行时状态({x} 为占位符)
 	[Key.toolStatusQueued]: "排队中",
 	[Key.toolStatusReading]: "读取文件…",

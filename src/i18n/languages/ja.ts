@@ -477,6 +477,49 @@ export const ja: Translation = {
 	[Key.toolImgFoot]:
 		"デコードとエンコードはブラウザ内で完結します。通信も送信もありません。注意: iPhone の HEIC/HEIF はブラウザでデコードできないため、先にスマホ側で JPG に書き出してください。アニメ GIF は 1 フレーム目のみ取り出します。",
 
+	// ツール · 透かし除去
+	[Key.toolWmName]: "透かし除去",
+	[Key.toolWmDesc]:
+		"透かしを囲むと周囲のピクセルで埋めます。すべてブラウザ内で処理し、アップロードしません",
+	[Key.toolWmIntro]:
+		"画像上で透かしを囲んで離すと、その下のピクセルを周囲から復元します（画像インペインティング）。単色・グラデーション・素直なテクスチャの上に乗った透かしほどよく効きます。逆に、大きなベタ塗りの塊で元の絵が完全に隠れている場合は復元できません。複数の範囲をまとめて囲めますし、修復は毎回「元の画像」から計算し直すので、何度押しても滲んでいくことはありません。出力は元の形式と解像度のまま。処理はすべてこのページ内で完結し、画像はどこにも送信されません。",
+	[Key.toolWmTags]: "画像|透かし除去|ローカル処理",
+	[Key.toolWmDropTitle]: "ここに画像をドロップ",
+	[Key.toolWmDropSub]: "一度に1枚 · すべてこのページ内で処理、アップロードはしません",
+	[Key.toolWmLoadHint]:
+		"読み込んだら、透かしの上でドラッグして囲んでください。複数箇所を選べます。",
+	[Key.toolWmStart]: "修復を開始",
+	[Key.toolWmUndo]: "元に戻す",
+	[Key.toolWmClearSel]: "選択をクリア",
+	[Key.toolWmReset]: "リセット",
+	[Key.toolWmBefore]: "修復前",
+	[Key.toolWmAfter]: "修復後",
+	[Key.toolWmDownload]: "修復後の画像をダウンロード",
+	[Key.toolWmFoot]:
+		"読み込み・修復・書き出しはすべてブラウザ内で完結します。通信も送信もなく、どこにも保存しません。自分が権利を持つ画像、または加工を許可された画像にのみお使いください —— 他人の作品から透かしを消す行為は権利侵害になり得ます。",
+	[Key.toolWmSuffix]: "修復済み",
+	[Key.toolWmRegions]: "修復する範囲: {n} 箇所",
+	[Key.toolWmRegionsNone]: "まだ選択がありません。画像上で透かしを囲んでください",
+	[Key.toolWmStatusLoaded]:
+		"{name} を読み込みました · {w}×{h} — 透かしの上でドラッグして囲んでください",
+	[Key.toolWmStatusWorking]: "修復中… {p}%",
+	[Key.toolWmStatusDone]: "修復しました。ダウンロードできます · {s} 秒",
+	[Key.toolWmStatusNoSel]:
+		"この手順には選択がありません。先に透かしを囲んでください",
+	[Key.toolWmStatusRegionAdded]:
+		"{n} 箇所を選択しました。続けて囲むか、「修復を開始」を押してください",
+	[Key.toolWmStatusTooSmall]:
+		"選択が小さすぎます。透かし全体を囲んでから指を離してください",
+	[Key.toolWmStatusAllMasked]:
+		"選択が画像全体を覆っています。参照できるピクセルがないため、範囲を小さくしてください",
+	[Key.toolWmStatusUndone]: "元に戻しました",
+	[Key.toolWmStatusCleared]: "すべての選択をクリアしました",
+	[Key.toolWmStatusReset]: "元の画像に戻しました",
+	[Key.toolWmStatusSaved]: "保存しました: {name}",
+	[Key.toolWmErrLoad]: "画像を読み込めませんでした",
+	[Key.toolWmErrInpaint]: "修復に失敗しました: ",
+	[Key.toolWmErrExport]: "書き出しに失敗しました。この形式はエンコードできません",
+
 	[Key.toolStatusQueued]: "待機中",
 	[Key.toolStatusReading]: "ファイルを読み込み中…",
 	[Key.toolStatusDecrypting]: "復号中…",

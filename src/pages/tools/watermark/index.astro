@@ -1,0 +1,486 @@
+---
+import { Icon } from "astro-icon/components";
+
+import { getTool } from "../../../data/tools";
+import I18nKey from "../../../i18n/i18nKey";
+import { i18n } from "../../../i18n/translation";
+import MainGridLayout from "../../../layouts/MainGridLayout.astro";
+
+export const prerender = true;
+
+const tool = getTool("watermark");
+---
+
+<MainGridLayout title={i18n(I18nKey.toolWmName)}>
+	<script>
+		import("../../../scripts/right-sidebar-layout.js");
+	</script>
+	<div
+		class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32"
+	>
+		<div
+			class="card-base z-10 px-5 sm:px-9 py-6 relative w-full text-black/90 dark:text-white/90"
+		>
+			<!-- 面包屑 -->
+			<div class="tool-crumb">
+				<a href="/tools/" data-i18n={I18nKey.toolCrumbTools}
+					>{i18n(I18nKey.toolCrumbTools)}</a
+				>
+				<span class="sep">/</span>
+				<span class="cur" data-i18n={I18nKey.toolWmName}
+					>{i18n(I18nKey.toolWmName)}</span
+				>
+			</div>
+
+			<!-- 工具名 + 简介 -->
+			<div class="flex flex-col items-start justify-center mb-6">
+				<h1
+					class="text-4xl font-bold text-black/90 dark:text-white/90 mb-2 relative before:w-1 before:h-8 before:rounded-md before:bg-[var(--primary)] before:absolute before:top-1/2 before:-translate-y-1/2 before:-left-4"
+					data-i18n={I18nKey.toolWmName}
+				>
+					{i18n(I18nKey.toolWmName)}
+				</h1>
+				<p
+					class="text-lg text-black/60 dark:text-white/60 mb-3"
+					data-i18n={I18nKey.toolWmDesc}
+				>
+					{i18n(I18nKey.toolWmDesc)}
+				</p>
+				<p class="tool-intro" data-i18n={I18nKey.toolWmIntro}>
+					{i18n(I18nKey.toolWmIntro)}
+				</p>
+			</div>
+
+			<!-- ===== 去水印 ===== -->
+			<div class="wm-tool" id="wmRoot">
+				<div class="wm-drop" id="wmDrop">
+					<svg
+						class="wm-drop-ico"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.6"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path d="M4 4h6M4 4v6M20 20h-6M20 20v-6"></path>
+						<path
+							d="M13 3.5 3.5 13a1.5 1.5 0 0 0 0 2.1l5.4 5.4a1.5 1.5 0 0 0 2.1 0L20.5 11"
+						></path>
+						<path d="M15 12.5 11.5 9"></path>
+					</svg>
+					<div class="wm-drop-t" data-i18n={I18nKey.toolWmDropTitle}>
+						{i18n(I18nKey.toolWmDropTitle)}
+					</div>
+					<div class="wm-drop-s">
+						<span data-i18n={I18nKey.toolOr}
+							>{i18n(I18nKey.toolOr)}</span
+						><button
+							type="button"
+							class="wm-link"
+							id="wmPick"
+							data-i18n={I18nKey.toolPick}
+							>{i18n(I18nKey.toolPick)}</button
+						><span data-i18n={I18nKey.toolWmDropSub}
+							>· {i18n(I18nKey.toolWmDropSub)}</span
+						>
+					</div>
+					<input type="file" id="wmInput" accept="image/*" hidden />
+				</div>
+
+				<div class="wm-hint" data-i18n={I18nKey.toolWmLoadHint}>
+					{i18n(I18nKey.toolWmLoadHint)}
+				</div>
+
+				<!-- 载入后才出现 -->
+				<div class="wm-editor" id="wmEditor" hidden>
+					<div class="wm-stage" id="wmStage">
+						<canvas class="wm-canvas" id="wmCanvas"></canvas>
+						<canvas class="wm-overlay" id="wmOverlay"></canvas>
+					</div>
+
+					<div class="wm-bar-row">
+						<span class="wm-regions" id="wmRegions"></span>
+					</div>
+
+					<div class="wm-actions">
+						<button
+							type="button"
+							class="wm-btn primary"
+							id="wmStart"
+							data-i18n={I18nKey.toolWmStart}
+							>{i18n(I18nKey.toolWmStart)}</button
+						>
+						<button
+							type="button"
+							class="wm-btn"
+							id="wmUndo"
+							data-i18n={I18nKey.toolWmUndo}
+							>{i18n(I18nKey.toolWmUndo)}</button
+						>
+						<button
+							type="button"
+							class="wm-btn"
+							id="wmClearSel"
+							data-i18n={I18nKey.toolWmClearSel}
+							>{i18n(I18nKey.toolWmClearSel)}</button
+						>
+						<button
+							type="button"
+							class="wm-btn ghost"
+							id="wmReset"
+							data-i18n={I18nKey.toolWmReset}
+							>{i18n(I18nKey.toolWmReset)}</button
+						>
+					</div>
+
+					<div class="wm-bar" id="wmBarWrap" hidden>
+						<i id="wmBar"></i>
+					</div>
+
+					<div class="wm-status" id="wmStatus"></div>
+
+					<div class="wm-out" id="wmOut" hidden>
+						<div class="wm-tabs">
+							<button
+								type="button"
+								class="wm-tab active"
+								id="wmBefore"
+								data-i18n={I18nKey.toolWmBefore}
+								>{i18n(I18nKey.toolWmBefore)}</button
+							>
+							<button
+								type="button"
+								class="wm-tab"
+								id="wmAfter"
+								disabled
+								data-i18n={I18nKey.toolWmAfter}
+								>{i18n(I18nKey.toolWmAfter)}</button
+							>
+						</div>
+						<button
+							type="button"
+							class="wm-btn primary"
+							id="wmDownload"
+							data-i18n={I18nKey.toolWmDownload}
+							>{i18n(I18nKey.toolWmDownload)}</button
+						>
+					</div>
+				</div>
+
+				<div class="wm-foot">
+					<Icon name="material-symbols:shield-lock-outline-rounded" />
+					<span data-i18n={I18nKey.toolWmFoot}
+						>{i18n(I18nKey.toolWmFoot)}</span
+					>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 公共库 + 核心算法 + 页面交互 (普通脚本, Swup 切换后会重新执行)
+	     ?v= 是给浏览器/CDN 换新的: 改了 js 就要把这里和脚本里的 VER 一起 +1 -->
+	<script is:inline>
+		window.__TOOL_VER = "1";
+	</script>
+	<script is:inline src="/js/tool-kit.js?v=2"></script>
+	<script is:inline src="/js/watermark-core.js?v=1"></script>
+	<script is:inline src="/js/watermark-tool.js?v=1"></script>
+</MainGridLayout>
+
+<style is:global>
+	.tool-crumb {
+		display: flex;
+		align-items: center;
+		gap: 7px;
+		font-size: 0.82rem;
+		margin-bottom: 14px;
+		color: color-mix(in srgb, currentColor 55%, transparent);
+	}
+	.tool-crumb a {
+		color: var(--primary);
+		text-decoration: none;
+	}
+	.tool-crumb a:hover {
+		text-decoration: underline;
+	}
+
+	.tool-intro {
+		font-size: 0.88rem;
+		line-height: 1.75;
+		max-width: 62rem;
+		color: color-mix(in srgb, currentColor 62%, transparent);
+	}
+
+	/* ---------- 去水印 ---------- */
+	.wm-tool {
+		--wm-line: color-mix(in srgb, currentColor 15%, transparent);
+		--wm-soft: color-mix(in srgb, var(--primary) 11%, transparent);
+		/* 浅色底用深一档, 深色底用亮一档, 两种模式都要看得清 */
+		--wm-good: #1f9d63;
+		--wm-bad: #d64540;
+		--wm-warn: #b8761f;
+	}
+
+	:root.dark .wm-tool {
+		--wm-good: #3fbf7f;
+		--wm-bad: #e5534b;
+		--wm-warn: #d99a43;
+	}
+
+	.wm-drop {
+		border: 1.5px dashed color-mix(in srgb, currentColor 26%, transparent);
+		border-radius: var(--radius-large);
+		padding: 34px 20px;
+		text-align: center;
+		cursor: pointer;
+		background: color-mix(in srgb, currentColor 4%, transparent);
+		transition:
+			border-color 0.18s ease,
+			background 0.18s ease;
+	}
+	.wm-drop:hover,
+	.wm-drop.over {
+		border-color: var(--primary);
+		background: var(--wm-soft);
+	}
+	.wm-drop-ico {
+		width: 34px;
+		height: 34px;
+		color: var(--primary);
+		margin-bottom: 10px;
+	}
+	.wm-drop-t {
+		font-size: 1.02rem;
+		font-weight: 600;
+		margin-bottom: 6px;
+	}
+	.wm-drop-s {
+		font-size: 0.8rem;
+		line-height: 1.7;
+		color: color-mix(in srgb, currentColor 55%, transparent);
+	}
+	.wm-link {
+		border: 0;
+		background: none;
+		padding: 0 4px;
+		font: inherit;
+		color: var(--primary);
+		cursor: pointer;
+		text-decoration: underline;
+	}
+
+	.wm-hint {
+		margin: 9px 2px 0;
+		font-size: 0.74rem;
+		line-height: 1.6;
+		color: color-mix(in srgb, currentColor 48%, transparent);
+	}
+
+	/* hidden 会被 display:flex/grid 覆盖掉, 所以每个隐藏容器都要补一条 */
+	.wm-editor[hidden],
+	.wm-out[hidden],
+	.wm-bar[hidden] {
+		display: none;
+	}
+
+	.wm-editor {
+		display: flex;
+		flex-direction: column;
+		margin-top: 14px;
+	}
+
+	/* 画布按容器缩放显示, 但内部像素尺寸 = 原图尺寸 */
+	.wm-stage {
+		position: relative;
+		display: block;
+		margin: 0 auto;
+		width: fit-content;
+		max-width: 100%;
+		line-height: 0;
+		border-radius: var(--radius-large);
+		overflow: hidden;
+		border: 1px solid var(--wm-line);
+		/* 透明图/浅色图都看得见边界 */
+		background: repeating-conic-gradient(
+				rgba(128, 128, 128, 0.18) 0% 25%,
+				rgba(128, 128, 128, 0.06) 0% 50%
+			)
+			50% / 18px 18px;
+	}
+	.wm-canvas {
+		display: block;
+		width: auto;
+		height: auto;
+		max-width: 100%;
+		max-height: 68vh;
+		cursor: crosshair;
+		/* 触摸拖动框选时不要顺带滚动页面 */
+		touch-action: none;
+	}
+	/* 遮罩层: 只负责画半透明红框, 不吃事件 */
+	.wm-overlay {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		max-width: none;
+		max-height: none;
+		pointer-events: none;
+		touch-action: none;
+	}
+
+	.wm-bar-row {
+		margin: 11px 2px 0;
+		font-size: 0.78rem;
+		color: color-mix(in srgb, currentColor 62%, transparent);
+	}
+	.wm-regions {
+		font-variant-numeric: tabular-nums;
+	}
+
+	.wm-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		margin-top: 12px;
+	}
+
+	.wm-bar {
+		height: 4px;
+		border-radius: 99px;
+		margin: 14px 2px 0;
+		background: color-mix(in srgb, currentColor 12%, transparent);
+		overflow: hidden;
+	}
+	.wm-bar i {
+		display: block;
+		height: 100%;
+		width: 0;
+		border-radius: 99px;
+		background: var(--primary);
+		transition: width 0.2s ease;
+	}
+
+	.wm-status {
+		margin: 11px 2px 0;
+		font-size: 0.82rem;
+		min-height: 1.2em;
+		color: color-mix(in srgb, currentColor 62%, transparent);
+	}
+	.wm-status.ok {
+		color: var(--wm-good);
+	}
+	.wm-status.warn {
+		color: var(--wm-warn);
+	}
+	.wm-status.err {
+		color: var(--wm-bad);
+	}
+
+	.wm-out {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 12px;
+		margin-top: 14px;
+	}
+	.wm-tabs {
+		display: inline-flex;
+		border: 1px solid var(--wm-line);
+		border-radius: 10px;
+		overflow: hidden;
+	}
+	.wm-tab {
+		font-family: inherit;
+		font-size: 0.8rem;
+		font-weight: 550;
+		padding: 8px 16px;
+		border: 0;
+		background: transparent;
+		color: color-mix(in srgb, currentColor 62%, transparent);
+		cursor: pointer;
+		transition: background 0.15s ease;
+	}
+	.wm-tab + .wm-tab {
+		border-left: 1px solid var(--wm-line);
+	}
+	.wm-tab:hover:not(:disabled) {
+		background: var(--wm-soft);
+	}
+	.wm-tab.active {
+		background: var(--wm-soft);
+		color: var(--primary);
+	}
+	.wm-tab:disabled {
+		opacity: 0.45;
+		cursor: not-allowed;
+	}
+
+	.wm-btn {
+		font-family: inherit;
+		font-size: 0.88rem;
+		font-weight: 550;
+		padding: 9px 20px;
+		border-radius: 11px;
+		cursor: pointer;
+		border: 1px solid var(--wm-line);
+		background: transparent;
+		color: var(--primary);
+		transition:
+			background 0.18s ease,
+			opacity 0.18s ease;
+	}
+	.wm-btn:hover:not(:disabled) {
+		background: var(--wm-soft);
+	}
+	.wm-btn.primary {
+		background: var(--primary);
+		border-color: var(--primary);
+		color: #fff;
+	}
+	/* 暗色模式下 --primary 更亮, 白字对比度不够, 与站内既有按钮约定一致改用深色字 */
+	:root.dark .wm-btn.primary {
+		color: var(--deep-text);
+	}
+	.wm-btn.primary:hover:not(:disabled) {
+		opacity: 0.88;
+	}
+	.wm-btn.ghost {
+		color: color-mix(in srgb, currentColor 60%, transparent);
+	}
+	.wm-btn:disabled {
+		opacity: 0.45;
+		cursor: not-allowed;
+	}
+
+	.wm-foot {
+		display: flex;
+		align-items: flex-start;
+		gap: 7px;
+		margin-top: 16px;
+		font-size: 0.74rem;
+		line-height: 1.6;
+		color: color-mix(in srgb, currentColor 45%, transparent);
+	}
+	.wm-foot svg {
+		flex: 0 0 auto;
+		width: 15px;
+		height: 15px;
+		margin-top: 2px;
+	}
+
+	@media (max-width: 560px) {
+		.wm-drop {
+			padding: 26px 14px;
+		}
+		.wm-canvas {
+			max-height: 56vh;
+		}
+		.wm-btn {
+			padding: 8px 15px;
+			font-size: 0.82rem;
+		}
+	}
+</style>
