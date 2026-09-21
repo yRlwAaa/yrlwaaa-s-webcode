@@ -1,4 +1,4 @@
-import I18nKey from "../i18n/i18nKey";
+﻿import I18nKey from "../i18n/i18nKey";
 
 /**
  * 工具箱数据
@@ -57,7 +57,7 @@ export const toolsData: ToolItem[] = [
 		tagsKey: I18nKey.toolWmTags,
 		url: "/tools/watermark/",
 		icon: "material-symbols:auto-fix-high",
-		local: true,
+		local: false,
 	},
 ];
 

@@ -1,4 +1,4 @@
-import Key from "../i18nKey";
+﻿import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const zh_CN: Translation = {
@@ -466,7 +466,7 @@ export const zh_CN: Translation = {
 		"框选水印区域, 用周围像素把它补掉; 全程在本站浏览器内处理, 不上传",
 	[Key.toolWmIntro]:
 		"在图上把水印框住, 松手就交给修复算法 —— 用选区周围的像素一点点把这块补齐(图像修补 inpainting)。它对压在纯色、渐变或简单纹理上的水印效果最好; 如果水印是一大块实心色块、底下原本是什么已经看不出来, 那是补不回来的。可以一次框多个区域; 每次修复都从原图重新算, 反复点不会越修越糊。输出保持原格式与原分辨率, 全程在本站浏览器内完成, 图片不会上传到任何服务器。",
-	[Key.toolWmTags]: "图片|去水印|纯本地",
+	[Key.toolWmTags]: "图片|去水印|本地 + E5 AI",
 	[Key.toolWmDropTitle]: "把图片拖到这里",
 	[Key.toolWmDropSub]: "一次一张 · 全程在本站浏览器内处理, 不上传",
 	[Key.toolWmLoadHint]:

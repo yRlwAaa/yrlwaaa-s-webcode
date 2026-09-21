@@ -1,4 +1,4 @@
-import Key from "../i18nKey";
+﻿import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const ja: Translation = {
@@ -483,7 +483,7 @@ export const ja: Translation = {
 		"透かしを囲むと周囲のピクセルで埋めます。すべてブラウザ内で処理し、アップロードしません",
 	[Key.toolWmIntro]:
 		"画像上で透かしを囲んで離すと、その下のピクセルを周囲から復元します（画像インペインティング）。単色・グラデーション・素直なテクスチャの上に乗った透かしほどよく効きます。逆に、大きなベタ塗りの塊で元の絵が完全に隠れている場合は復元できません。複数の範囲をまとめて囲めますし、修復は毎回「元の画像」から計算し直すので、何度押しても滲んでいくことはありません。出力は元の形式と解像度のまま。処理はすべてこのページ内で完結し、画像はどこにも送信されません。",
-	[Key.toolWmTags]: "画像|透かし除去|ローカル処理",
+	[Key.toolWmTags]: "画像|透かし除去|ローカル + E5 AI",
 	[Key.toolWmDropTitle]: "ここに画像をドロップ",
 	[Key.toolWmDropSub]: "一度に1枚 · すべてこのページ内で処理、アップロードはしません",
 	[Key.toolWmLoadHint]:

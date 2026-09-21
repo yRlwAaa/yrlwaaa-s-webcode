@@ -1,4 +1,4 @@
-import Key from "../i18nKey";
+﻿import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const zh_TW: Translation = {
@@ -466,7 +466,7 @@ export const zh_TW: Translation = {
 		"框選浮水印區域，用周圍像素把它補掉；全程在本站瀏覽器內處理，不上傳",
 	[Key.toolWmIntro]:
 		"在圖片上把浮水印框住，放開就交給修復演算法 —— 用選取周圍的像素一點一點把這塊補齊（影像修補 inpainting）。它對壓在純色、漸層或簡單紋理上的浮水印效果最好；如果浮水印是一大塊實心色塊、底下原本是什麼已經看不出來，那是補不回來的。可以一次框多個區域；每次修復都從原圖重新計算，反覆點不會越修越糊。輸出保持原格式與原解析度，全程在本站瀏覽器內完成，圖片不會上傳到任何伺服器。",
-	[Key.toolWmTags]: "圖片|去浮水印|純本機",
+	[Key.toolWmTags]: "圖片|去浮水印|本地 + E5 AI",
 	[Key.toolWmDropTitle]: "把圖片拖到這裡",
 	[Key.toolWmDropSub]: "一次一張 · 全程在本站瀏覽器內處理，不上傳",
 	[Key.toolWmLoadHint]:

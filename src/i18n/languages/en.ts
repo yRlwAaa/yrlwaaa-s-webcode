@@ -1,4 +1,4 @@
-import Key from "../i18nKey";
+﻿import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const en: Translation = {
@@ -480,7 +480,7 @@ export const en: Translation = {
 		"Box the watermark and let inpainting fill it back in — runs entirely in your browser, nothing is uploaded",
 	[Key.toolWmIntro]:
 		"Box the watermark on the image and release: the pixels underneath are reconstructed from their surroundings (image inpainting). It works best on marks sitting on flat or gently varying backgrounds — sky, walls, gradient fills — while large solid blocks that hide real detail cannot be recovered. You can select several areas at once, and every repair starts from the original image, so running it twice never smears the result. Output keeps the original format and resolution. Everything happens inside this page; nothing is uploaded to any server.",
-	[Key.toolWmTags]: "Image|Inpainting|Runs locally",
+	[Key.toolWmTags]: "Image|Watermark|Local + E5 AI",
 	[Key.toolWmDropTitle]: "Drop an image here",
 	[Key.toolWmDropSub]:
 		"One image at a time · processed entirely in your browser, nothing is uploaded",
