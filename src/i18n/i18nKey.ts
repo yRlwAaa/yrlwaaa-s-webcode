@@ -454,6 +454,8 @@ enum I18nKey {
 	toolWmDropSub = "toolWmDropSub",
 	toolWmLoadHint = "toolWmLoadHint",
 	toolWmStart = "toolWmStart",
+	toolWmLocalFallback = "toolWmLocalFallback",
+	toolWmLocalNote = "toolWmLocalNote",
 	toolWmUndo = "toolWmUndo",
 	toolWmClearSel = "toolWmClearSel",
 	toolWmReset = "toolWmReset",

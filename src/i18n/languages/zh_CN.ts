@@ -1,4 +1,4 @@
-﻿import Key from "../i18nKey";
+import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const zh_CN: Translation = {
@@ -471,7 +471,10 @@ export const zh_CN: Translation = {
 	[Key.toolWmDropSub]: "一次一张 · 全程在本站浏览器内处理, 不上传",
 	[Key.toolWmLoadHint]:
 		"载入后在水印上按住鼠标拖动即可框选, 可以框选多个区域。",
-	[Key.toolWmStart]: "开始修复",
+	[Key.toolWmStart]: "本地修复",
+	[Key.toolWmLocalFallback]: "离线兜底: 本地修复(效果一般)",
+	[Key.toolWmLocalNote]:
+		"不联网时的备选算法, 结果通常不如 AI 自然; E5 在线时请优先用上面的 AI 去水印。",
 	[Key.toolWmUndo]: "撤销上一步",
 	[Key.toolWmClearSel]: "清除选区",
 	[Key.toolWmReset]: "重置",
@@ -505,7 +508,7 @@ export const zh_CN: Translation = {
 	[Key.toolWmAiWorking]: "E5 处理中… {s}s",
 	[Key.toolWmAiProbing]: "正在检测 E5 修复服务…",
 	[Key.toolWmAiReady]: "E5 在线 · 由 IOPaint/LaMa 处理, 记得先框选水印",
-	[Key.toolWmAiOffline]: "E5 离线 · 可改用本地修复",
+	[Key.toolWmAiOffline]: "E5 离线 · 可展开下方「离线兜底」用本地修复",
 	[Key.toolWmAiNoImage]: "请先载入图片: AI 修复需要原图和遮罩",
 	[Key.toolWmAiNoSel]: "请先框选水印区域: AI 修复需要遮罩",
 	[Key.toolWmAiTooLarge]:

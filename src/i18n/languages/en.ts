@@ -1,4 +1,4 @@
-﻿import Key from "../i18nKey";
+import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const en: Translation = {
@@ -486,7 +486,10 @@ export const en: Translation = {
 		"One image at a time · processed entirely in your browser, nothing is uploaded",
 	[Key.toolWmLoadHint]:
 		"Once the image loads, hold and drag on it to box the watermark — you can box several areas.",
-	[Key.toolWmStart]: "Start repairing",
+	[Key.toolWmStart]: "Local repair",
+	[Key.toolWmLocalFallback]: "Offline fallback: local repair (basic quality)",
+	[Key.toolWmLocalNote]:
+		"A fallback algorithm for when there is no connection; results are usually less natural than AI. Prefer the AI removal above while E5 is online.",
 	[Key.toolWmUndo]: "Undo",
 	[Key.toolWmClearSel]: "Clear selection",
 	[Key.toolWmReset]: "Reset",
@@ -522,7 +525,7 @@ export const en: Translation = {
 	[Key.toolWmAiProbing]: "Checking the E5 repair service…",
 	[Key.toolWmAiReady]:
 		"E5 online · handled by IOPaint/LaMa — select the watermark first",
-	[Key.toolWmAiOffline]: "E5 offline · local repair still works",
+	[Key.toolWmAiOffline]: "E5 offline · expand “Offline fallback” below to use local repair",
 	[Key.toolWmAiNoImage]:
 		"Load an image first: AI repair needs the original and a mask",
 	[Key.toolWmAiNoSel]: "Select the watermark area first: AI repair needs a mask",

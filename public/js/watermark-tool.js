@@ -74,7 +74,7 @@
 		return;
 	}
 	// 页面 HTML 与脚本版本对不上(Swup 页面缓存 / 浏览器缓存了旧页面)时明确提示
-	var VER = "2";
+	var VER = "3";
 	var verWarn = "";
 	if (window.__TOOL_VER && window.__TOOL_VER !== VER) {
 		verWarn = tf(
@@ -94,6 +94,7 @@
 	var overlay = document.getElementById("wmOverlay");
 	var regionsEl = document.getElementById("wmRegions");
 	var startBtn = document.getElementById("wmStart");
+	var fallbackEl = document.getElementById("wmFallback");
 	var undoBtn = document.getElementById("wmUndo");
 	var clearSelBtn = document.getElementById("wmClearSel");
 	var resetBtn = document.getElementById("wmReset");
@@ -646,6 +647,33 @@
 		aiNote.textContent = text || "";
 		aiNote.className = "wm-ai-note" + (kind ? " " + kind : "");
 	}
+	// 记住探活结果而不是记住文案: 切语言时按当前状态重新取词条
+	var aiNoteState = "probe"; // probe | ready | offline
+	function renderAiNote() {
+		if (aiNoteState === "ready") {
+			setAiNote(
+				t(
+					"toolWmAiReady",
+					"E5 在线 · 由 IOPaint/LaMa 处理, 记得先框选水印",
+				),
+				"ok",
+			);
+			return;
+		}
+		if (aiNoteState === "offline") {
+			setAiNote(
+				t(
+					"toolWmAiOffline",
+					"E5 离线 · 可展开下方「离线兜底」用本地修复",
+				),
+				"warn",
+			);
+			// 离线时把兜底折叠块展开, 否则用户会以为这个工具坏了
+			if (fallbackEl) fallbackEl.open = true;
+			return;
+		}
+		setAiNote(t("toolWmAiProbing", "正在检测 E5 修复服务…"));
+	}
 	// 页面加载时探活: /api/inpaint 是 Cloudflare 函数, 它去问 E5 的 services.inpaint
 	function probeAi() {
 		var settled = false;
@@ -656,18 +684,12 @@
 			aiProbed = true;
 			aiAlive = !!alive;
 			syncAi();
-			setAiNote(
-				aiAlive
-					? t(
-							"toolWmAiReady",
-							"E5 在线 · 由 IOPaint/LaMa 处理, 记得先框选水印",
-						)
-					: t("toolWmAiOffline", "E5 离线 · 可改用本地修复"),
-				aiAlive ? "ok" : "warn",
-			);
+			aiNoteState = aiAlive ? "ready" : "offline";
+			renderAiNote();
 		}
 		syncAi();
-		setAiNote(t("toolWmAiProbing", "正在检测 E5 修复服务…"));
+		aiNoteState = "probe";
+		renderAiNote();
 		// 隧道偶发卡住时不能让按钮一直转, 8 秒没结果就按离线处理
 		var guard = setTimeout(function () {
 			finish(false);
@@ -748,7 +770,15 @@
 			return;
 		}
 		if (!aiAlive) {
-			setStatus(t("toolWmAiOffline", "E5 离线 · 可改用本地修复"), "warn");
+			aiNoteState = "offline";
+			renderAiNote();
+			setStatus(
+				t(
+					"toolWmAiOffline",
+					"E5 离线 · 可展开下方「离线兜底」用本地修复",
+				),
+				"warn",
+			);
 			return;
 		}
 		if (!regions.length) {
@@ -1016,6 +1046,13 @@
 	}
 	window.addEventListener("dragover", stopWin);
 	window.addEventListener("drop", stopWin);
+
+	// 站点切换语言时, 脚本写进去的动态文案(按钮/提示)要跟着换
+	on(document, "i18n:changed", function () {
+		updateRegions();
+		syncAi();
+		renderAiNote();
+	});
 
 	window.__wmToolState = {
 		detach: function () {

@@ -1,4 +1,4 @@
-﻿import Key from "../i18nKey";
+import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const zh_TW: Translation = {
@@ -471,7 +471,10 @@ export const zh_TW: Translation = {
 	[Key.toolWmDropSub]: "一次一張 · 全程在本站瀏覽器內處理，不上傳",
 	[Key.toolWmLoadHint]:
 		"載入後在浮水印上按住滑鼠拖曳即可框選，可以框選多個區域。",
-	[Key.toolWmStart]: "開始修復",
+	[Key.toolWmStart]: "本機修復",
+	[Key.toolWmLocalFallback]: "離線備援：本機修復（效果一般）",
+	[Key.toolWmLocalNote]:
+		"不連線時的替代演算法，結果通常不如 AI 自然；E5 上線時請優先使用上方的 AI 去浮水印。",
 	[Key.toolWmUndo]: "復原上一步",
 	[Key.toolWmClearSel]: "清除選取",
 	[Key.toolWmReset]: "重設",
@@ -505,7 +508,7 @@ export const zh_TW: Translation = {
 	[Key.toolWmAiWorking]: "E5 處理中… {s}s",
 	[Key.toolWmAiProbing]: "正在偵測 E5 修復服務…",
 	[Key.toolWmAiReady]: "E5 上線 · 由 IOPaint/LaMa 處理，記得先框選浮水印",
-	[Key.toolWmAiOffline]: "E5 離線 · 可改用本機修復",
+	[Key.toolWmAiOffline]: "E5 離線 · 可展開下方「離線備援」使用本機修復",
 	[Key.toolWmAiNoImage]: "請先載入圖片：AI 修復需要原圖和遮罩",
 	[Key.toolWmAiNoSel]: "請先框選浮水印區域：AI 修復需要遮罩",
 	[Key.toolWmAiTooLarge]:

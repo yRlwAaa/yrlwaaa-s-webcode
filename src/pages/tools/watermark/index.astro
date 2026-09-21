@@ -92,9 +92,13 @@ const tool = getTool("watermark");
 					{i18n(I18nKey.toolWmLoadHint)}
 				</div>
 
-				<!-- AI 去水印(E5 · IOPaint/LaMa): 未载入图片时也可见; E5 离线自动置灰, 本地修复不受影响 -->
+				<!-- 主操作: E5 上的 IOPaint/LaMa, 效果最好, 是默认路径 -->
 				<div class="wm-ai" id="wmAiRow">
-					<button type="button" class="wm-btn primary" id="wmAiRun"
+					<button
+						type="button"
+						class="wm-btn primary wm-btn-lg"
+						id="wmAiRun"
+						data-i18n={I18nKey.toolWmAiRun}
 						>{i18n(I18nKey.toolWmAiRun)}</button
 					>
 					<span class="wm-ai-note" id="wmAiNote"></span>
@@ -112,13 +116,6 @@ const tool = getTool("watermark");
 					</div>
 
 					<div class="wm-actions">
-						<button
-							type="button"
-							class="wm-btn primary"
-							id="wmStart"
-							data-i18n={I18nKey.toolWmStart}
-							>{i18n(I18nKey.toolWmStart)}</button
-						>
 						<button
 							type="button"
 							class="wm-btn"
@@ -141,6 +138,25 @@ const tool = getTool("watermark");
 							>{i18n(I18nKey.toolWmReset)}</button
 						>
 					</div>
+
+					<!-- 本地修复: 只在 E5 不可用时兜底, 默认收起, 避免和 AI 抢主操作 -->
+					<details class="wm-fallback" id="wmFallback">
+						<summary data-i18n={I18nKey.toolWmLocalFallback}
+							>{i18n(I18nKey.toolWmLocalFallback)}</summary
+						>
+						<div class="wm-fallback-body">
+							<p class="wm-fallback-note" data-i18n={I18nKey.toolWmLocalNote}
+								>{i18n(I18nKey.toolWmLocalNote)}</p
+							>
+							<button
+								type="button"
+								class="wm-btn"
+								id="wmStart"
+								data-i18n={I18nKey.toolWmStart}
+								>{i18n(I18nKey.toolWmStart)}</button
+							>
+						</div>
+					</details>
 
 					<div class="wm-bar" id="wmBarWrap" hidden>
 						<i id="wmBar"></i>
@@ -189,11 +205,11 @@ const tool = getTool("watermark");
 	<!-- 公共库 + 核心算法 + 页面交互 (普通脚本, Swup 切换后会重新执行)
 	     ?v= 是给浏览器/CDN 换新的: 改了 js 就要把这里和脚本里的 VER 一起 +1 -->
 	<script is:inline>
-		window.__TOOL_VER = "2";
+		window.__TOOL_VER = "3";
 	</script>
 	<script is:inline src="/js/tool-kit.js?v=2"></script>
 	<script is:inline src="/js/watermark-core.js?v=1"></script>
-	<script is:inline src="/js/watermark-tool.js?v=2"></script>
+	<script is:inline src="/js/watermark-tool.js?v=3"></script>
 </MainGridLayout>
 
 <style is:global>
@@ -285,13 +301,60 @@ const tool = getTool("watermark");
 		color: color-mix(in srgb, currentColor 48%, transparent);
 	}
 
-	/* ---------- AI 去水印(E5) ---------- */
+	/* ---------- AI 去水印(E5): 主操作 ---------- */
 	.wm-ai {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
 		gap: 10px;
 		margin: 12px 2px 0;
+	}
+	.wm-btn-lg {
+		font-size: 0.95rem;
+		padding: 11px 22px;
+	}
+
+	/* ---------- 本地修复: 离线兜底, 默认收起 ---------- */
+	.wm-fallback {
+		margin: 12px 0 0;
+		border-radius: 12px;
+		border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+		background: color-mix(in srgb, currentColor 4%, transparent);
+		overflow: hidden;
+	}
+	.wm-fallback > summary {
+		cursor: pointer;
+		padding: 10px 14px;
+		font-size: 0.8rem;
+		color: color-mix(in srgb, currentColor 62%, transparent);
+		list-style: none;
+	}
+	.wm-fallback > summary::-webkit-details-marker {
+		display: none;
+	}
+	.wm-fallback > summary::before {
+		content: "▸ ";
+		display: inline-block;
+		transition: transform 0.15s ease;
+	}
+	.wm-fallback[open] > summary::before {
+		content: "▾ ";
+	}
+	.wm-fallback > summary:hover {
+		color: color-mix(in srgb, currentColor 85%, transparent);
+	}
+	.wm-fallback-body {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		align-items: flex-start;
+		padding: 0 14px 14px;
+	}
+	.wm-fallback-note {
+		margin: 0;
+		font-size: 0.76rem;
+		line-height: 1.6;
+		color: color-mix(in srgb, currentColor 50%, transparent);
 	}
 	.wm-ai-note {
 		font-size: 0.76rem;

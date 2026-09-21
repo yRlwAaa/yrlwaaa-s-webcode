@@ -1,4 +1,4 @@
-﻿import Key from "../i18nKey";
+import Key from "../i18nKey";
 import type { Translation } from "../translation";
 
 export const ja: Translation = {
@@ -488,7 +488,10 @@ export const ja: Translation = {
 	[Key.toolWmDropSub]: "一度に1枚 · すべてこのページ内で処理、アップロードはしません",
 	[Key.toolWmLoadHint]:
 		"読み込んだら、透かしの上でドラッグして囲んでください。複数箇所を選べます。",
-	[Key.toolWmStart]: "修復を開始",
+	[Key.toolWmStart]: "ローカル修復",
+	[Key.toolWmLocalFallback]: "オフライン代替：ローカル修復（品質は控えめ）",
+	[Key.toolWmLocalNote]:
+		"接続がないときの代替アルゴリズムです。仕上がりは通常 AI に劣るため、E5 がオンラインなら上の AI 除去を優先してください。",
 	[Key.toolWmUndo]: "元に戻す",
 	[Key.toolWmClearSel]: "選択をクリア",
 	[Key.toolWmReset]: "リセット",
@@ -525,7 +528,7 @@ export const ja: Translation = {
 	[Key.toolWmAiProbing]: "E5 の修復サービスを確認中…",
 	[Key.toolWmAiReady]:
 		"E5 オンライン · IOPaint/LaMa が処理します。先に透かしを選択してください",
-	[Key.toolWmAiOffline]: "E5 オフライン · ローカル修復は利用できます",
+	[Key.toolWmAiOffline]: "E5 オフライン · 下の「オフライン代替」を開くとローカル修復が使えます",
 	[Key.toolWmAiNoImage]:
 		"先に画像を読み込んでください: AI 修復には元画像とマスクが必要です",
 	[Key.toolWmAiNoSel]: "先に透かしを選択してください: AI 修復にはマスクが必要です",
