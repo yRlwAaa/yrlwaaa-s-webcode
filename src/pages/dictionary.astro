@@ -1,0 +1,1982 @@
+---
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+
+export const prerender = true;
+---
+
+<MainGridLayout
+	title="英语词典"
+	description="中英双语词典：英美音标发音、词性释义、双语例句、词形变化、词组搭配、同义词与真题例句。"
+>
+	<div id="dict-app" class="dict-app">
+		<div class="d-panel card-base">
+			<div class="d-head">
+				<div class="d-head-text">
+					<h1 class="d-title">英语词典</h1>
+					<p class="d-sub">中文释义 · 英美音标 · 双语例句 · 词形变化 · 词组搭配</p>
+				</div>
+			</div>
+
+			<div class="d-search">
+				<div class="d-input-box">
+					<span class="d-input-icon" aria-hidden="true">🔍</span>
+					<input
+						id="d-input"
+						class="d-input"
+						type="text"
+						placeholder="输入英语单词或短语，回车查询…"
+						autocomplete="off"
+						autocapitalize="off"
+						autocorrect="off"
+						spellcheck="false"
+						aria-label="查询单词"
+					/>
+					<button id="d-clear" class="d-clear" type="button" hidden aria-label="清空">✕</button>
+					<div id="d-suggest" class="d-suggest" hidden role="listbox"></div>
+				</div>
+				<button id="d-go" class="d-go" type="button">查询</button>
+			</div>
+
+			<div class="d-tabs" id="d-tabs">
+				<button class="d-tab is-active" type="button" data-view="search">查词</button>
+				<button class="d-tab" type="button" data-view="history">
+					历史记录<i class="d-tab-n" data-count="history">0</i>
+				</button>
+				<button class="d-tab" type="button" data-view="fav">
+					生词本<i class="d-tab-n" data-count="fav">0</i>
+				</button>
+			</div>
+		</div>
+
+		<div id="d-body" class="d-body"></div>
+	</div>
+</MainGridLayout>
+
+<style is:global>
+	.dict-app {
+		--d-fg: #1f2328;
+		--d-fg-2: rgba(31, 35, 40, 0.66);
+		--d-fg-3: rgba(31, 35, 40, 0.44);
+		--d-bg: var(--card-bg, #ffffff);
+		--d-soft: rgba(31, 35, 40, 0.04);
+		--d-soft-2: rgba(31, 35, 40, 0.07);
+		--d-line: var(--line-divider, rgba(31, 35, 40, 0.1));
+		--d-accent: var(--primary, #4a90d9);
+		--d-accent-soft: color-mix(in srgb, var(--d-accent) 12%, transparent);
+		--d-radius: var(--radius-large, 14px);
+		--d-shadow: 0 2px 14px rgba(0, 0, 0, 0.06);
+
+		display: flex;
+		flex-direction: column;
+		gap: 18px;
+		width: 100%;
+		color: var(--d-fg);
+	}
+
+	html.dark .dict-app,
+	.dark .dict-app,
+	html[data-theme="dark"] .dict-app {
+		--d-fg: #e9ecf1;
+		--d-fg-2: rgba(233, 236, 241, 0.68);
+		--d-fg-3: rgba(233, 236, 241, 0.45);
+		--d-soft: rgba(255, 255, 255, 0.05);
+		--d-soft-2: rgba(255, 255, 255, 0.09);
+		--d-line: var(--line-divider, rgba(255, 255, 255, 0.12));
+		--d-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+	}
+
+	.dict-app .d-panel {
+		padding: 20px 22px 16px;
+		box-shadow: var(--d-shadow);
+	}
+
+	/* ---------- 头部 ---------- */
+	.d-head {
+		margin-bottom: 14px;
+	}
+	.d-title {
+		margin: 0;
+		font-size: 1.6rem;
+		font-weight: 700;
+		line-height: 1.3;
+	}
+	.d-sub {
+		margin: 4px 0 0;
+		font-size: 0.85rem;
+		color: var(--d-fg-3);
+	}
+
+	/* ---------- 搜索 ---------- */
+	.d-search {
+		display: flex;
+		gap: 10px;
+		align-items: stretch;
+	}
+	.d-input-box {
+		position: relative;
+		flex: 1 1 auto;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 0 12px;
+		border: 1.5px solid var(--d-line);
+		border-radius: 12px;
+		background: var(--d-soft);
+		transition: border-color 0.18s ease, background 0.18s ease;
+	}
+	.d-input-box:focus-within {
+		border-color: var(--d-accent);
+		background: var(--d-bg);
+	}
+	.d-input-icon {
+		font-size: 0.95rem;
+		opacity: 0.55;
+		flex: 0 0 auto;
+	}
+	.d-input {
+		flex: 1 1 auto;
+		min-width: 0;
+		padding: 12px 0;
+		border: 0;
+		outline: 0;
+		background: transparent;
+		color: var(--d-fg);
+		font-size: 1rem;
+	}
+	.d-input::placeholder {
+		color: var(--d-fg-3);
+	}
+	.d-clear {
+		flex: 0 0 auto;
+		width: 24px;
+		height: 24px;
+		border: 0;
+		border-radius: 50%;
+		background: var(--d-soft-2);
+		color: var(--d-fg-2);
+		font-size: 0.7rem;
+		cursor: pointer;
+		line-height: 1;
+	}
+	.d-clear:hover {
+		background: var(--d-accent-soft);
+		color: var(--d-accent);
+	}
+	.d-go {
+		flex: 0 0 auto;
+		padding: 0 24px;
+		border: 0;
+		border-radius: 12px;
+		background: var(--d-accent);
+		color: #fff;
+		font-size: 0.95rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: opacity 0.18s ease;
+	}
+	.d-go:hover {
+		opacity: 0.86;
+	}
+
+	/* ---------- 联想下拉 ---------- */
+	.d-suggest {
+		position: absolute;
+		z-index: 40;
+		top: calc(100% + 6px);
+		left: -1.5px;
+		right: -1.5px;
+		max-height: 330px;
+		overflow-y: auto;
+		padding: 6px;
+		border: 1px solid var(--d-line);
+		border-radius: 12px;
+		background: var(--d-bg);
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+	}
+	html.dark .d-suggest {
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+	}
+	.d-sg {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		padding: 8px 10px;
+		border-radius: 8px;
+		cursor: pointer;
+	}
+	.d-sg.is-active,
+	.d-sg:hover {
+		background: var(--d-accent-soft);
+	}
+	.d-sg-word {
+		font-size: 0.95rem;
+		font-weight: 600;
+	}
+	.d-sg-exp {
+		font-size: 0.76rem;
+		color: var(--d-fg-3);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	/* ---------- 标签页 ---------- */
+	.d-tabs {
+		display: flex;
+		gap: 6px;
+		margin-top: 14px;
+		border-top: 1px solid var(--d-line);
+		padding-top: 12px;
+	}
+	.d-tab {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 6px 14px;
+		border: 1px solid transparent;
+		border-radius: 999px;
+		background: transparent;
+		color: var(--d-fg-2);
+		font-size: 0.85rem;
+		cursor: pointer;
+		transition: all 0.16s ease;
+	}
+	.d-tab:hover {
+		background: var(--d-soft);
+	}
+	.d-tab.is-active {
+		background: var(--d-accent-soft);
+		border-color: color-mix(in srgb, var(--d-accent) 35%, transparent);
+		color: var(--d-accent);
+		font-weight: 600;
+	}
+	.d-tab-n {
+		font-style: normal;
+		font-size: 0.72rem;
+		padding: 0 6px;
+		border-radius: 999px;
+		background: var(--d-soft-2);
+		color: var(--d-fg-2);
+	}
+	.d-tab.is-active .d-tab-n {
+		background: color-mix(in srgb, var(--d-accent) 22%, transparent);
+		color: var(--d-accent);
+	}
+
+	/* ---------- 结果区 ---------- */
+	.d-body {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+	.d-sec {
+		padding: 18px 22px;
+		box-shadow: var(--d-shadow);
+	}
+	.d-sec-title {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin: 0 0 12px;
+		font-size: 0.92rem;
+		font-weight: 700;
+		color: var(--d-fg-2);
+		letter-spacing: 0.02em;
+	}
+	.d-sec-title::before {
+		content: "";
+		width: 3px;
+		height: 14px;
+		border-radius: 2px;
+		background: var(--d-accent);
+	}
+	.d-sec-badge {
+		font-size: 0.72rem;
+		font-weight: 500;
+		padding: 1px 8px;
+		border-radius: 999px;
+		background: var(--d-soft-2);
+		color: var(--d-fg-3);
+	}
+
+	/* ---------- 词头 ---------- */
+	.d-word-top {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 12px;
+	}
+	.d-word {
+		margin: 0;
+		font-size: 2.1rem;
+		font-weight: 700;
+		line-height: 1.15;
+		word-break: break-word;
+	}
+	.d-star-btn {
+		margin-left: auto;
+		padding: 5px 14px;
+		border: 1px solid var(--d-line);
+		border-radius: 999px;
+		background: transparent;
+		color: var(--d-fg-2);
+		font-size: 0.82rem;
+		cursor: pointer;
+		transition: all 0.16s ease;
+	}
+	.d-star-btn:hover {
+		border-color: var(--d-accent);
+		color: var(--d-accent);
+	}
+	.d-star-btn.is-on {
+		background: #fff7e0;
+		border-color: #f0b429;
+		color: #b7791f;
+	}
+	html.dark .d-star-btn.is-on {
+		background: rgba(240, 180, 41, 0.16);
+		color: #f0b429;
+	}
+
+	.d-phonetics {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-top: 12px;
+	}
+	.d-voice {
+		display: inline-flex;
+		align-items: center;
+		gap: 7px;
+		padding: 5px 13px;
+		border: 1px solid var(--d-line);
+		border-radius: 999px;
+		background: var(--d-soft);
+		color: var(--d-fg-2);
+		font-size: 0.85rem;
+		cursor: pointer;
+		transition: all 0.16s ease;
+	}
+	.d-voice:hover {
+		border-color: var(--d-accent);
+		background: var(--d-accent-soft);
+		color: var(--d-accent);
+	}
+	.d-voice-flag {
+		font-size: 0.95rem;
+	}
+	.d-voice-phone {
+		font-family: "Times New Roman", Georgia, serif;
+	}
+
+	.d-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		margin-top: 12px;
+	}
+	.d-tag {
+		padding: 2px 10px;
+		border-radius: 6px;
+		font-size: 0.72rem;
+		font-weight: 600;
+		background: var(--d-soft-2);
+		color: var(--d-fg-2);
+	}
+	.d-tag[data-tone="exam"] {
+		background: rgba(52, 144, 220, 0.14);
+		color: #2b7fc4;
+	}
+	.d-tag[data-tone="level"] {
+		background: rgba(226, 122, 63, 0.16);
+		color: #c25e20;
+	}
+	html.dark .d-tag[data-tone="exam"] {
+		color: #7fb8ea;
+	}
+	html.dark .d-tag[data-tone="level"] {
+		color: #f0a878;
+	}
+
+	/* ---------- 释义 ---------- */
+	.d-tr {
+		display: flex;
+		gap: 12px;
+		padding: 9px 0;
+		border-bottom: 1px dashed var(--d-line);
+	}
+	.d-tr:last-child {
+		border-bottom: 0;
+		padding-bottom: 0;
+	}
+	.d-tr:first-child {
+		padding-top: 0;
+	}
+	.d-pos {
+		flex: 0 0 auto;
+		min-width: 62px;
+		padding-top: 2px;
+		font-size: 0.8rem;
+		font-weight: 700;
+		color: var(--d-accent);
+	}
+	.d-pos-cn {
+		display: block;
+		font-size: 0.68rem;
+		font-weight: 400;
+		color: var(--d-fg-3);
+	}
+	.d-tr-text {
+		flex: 1 1 auto;
+		font-size: 0.98rem;
+		line-height: 1.75;
+	}
+
+	/* ---------- 词形变化 ---------- */
+	.d-forms {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+	.d-form {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 5px 12px;
+		border-radius: 8px;
+		background: var(--d-soft);
+		border: 1px solid var(--d-line);
+		font-size: 0.82rem;
+	}
+	.d-form-name {
+		color: var(--d-fg-3);
+		font-size: 0.74rem;
+	}
+	.d-form-value {
+		font-weight: 600;
+		color: var(--d-accent);
+		cursor: pointer;
+	}
+	.d-form-value:hover {
+		text-decoration: underline;
+	}
+
+	/* ---------- 例句 ---------- */
+	.d-sent {
+		padding: 10px 0;
+		border-bottom: 1px dashed var(--d-line);
+	}
+	.d-sent:last-child {
+		border-bottom: 0;
+		padding-bottom: 0;
+	}
+	.d-sent:first-child {
+		padding-top: 0;
+	}
+	.d-sent-en {
+		display: flex;
+		align-items: flex-start;
+		gap: 8px;
+		font-size: 0.96rem;
+		line-height: 1.7;
+	}
+	.d-sent-en b {
+		color: var(--d-accent);
+		font-weight: 700;
+	}
+	.d-sent-play {
+		flex: 0 0 auto;
+		margin-top: 2px;
+		width: 24px;
+		height: 24px;
+		border: 1px solid var(--d-line);
+		border-radius: 50%;
+		background: var(--d-soft);
+		color: var(--d-fg-2);
+		font-size: 0.68rem;
+		cursor: pointer;
+		line-height: 1;
+		transition: all 0.16s ease;
+	}
+	.d-sent-play:hover {
+		border-color: var(--d-accent);
+		color: var(--d-accent);
+	}
+	.d-sent-zh {
+		margin-top: 4px;
+		padding-left: 32px;
+		font-size: 0.9rem;
+		line-height: 1.7;
+		color: var(--d-fg-2);
+	}
+	.d-sent-src {
+		margin-top: 4px;
+		padding-left: 32px;
+		font-size: 0.74rem;
+		color: var(--d-fg-3);
+	}
+
+	/* ---------- 柯林斯 ---------- */
+	.d-starline {
+		color: #f0b429;
+		font-size: 0.9rem;
+		letter-spacing: 2px;
+	}
+	.d-col {
+		padding: 10px 0;
+		border-bottom: 1px dashed var(--d-line);
+	}
+	.d-col:last-child {
+		border-bottom: 0;
+		padding-bottom: 0;
+	}
+	.d-col:first-child {
+		padding-top: 0;
+	}
+	.d-col-head {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-bottom: 5px;
+	}
+	.d-col-pos {
+		padding: 1px 8px;
+		border-radius: 5px;
+		background: var(--d-soft-2);
+		font-size: 0.72rem;
+		font-weight: 700;
+		color: var(--d-fg-2);
+	}
+	.d-col-tips {
+		font-size: 0.74rem;
+		color: var(--d-fg-3);
+	}
+	.d-col-tran {
+		font-size: 0.94rem;
+		line-height: 1.72;
+	}
+	.d-col-ex {
+		margin-top: 6px;
+		padding-left: 12px;
+		border-left: 2px solid var(--d-line);
+		font-size: 0.86rem;
+		line-height: 1.65;
+	}
+	.d-col-ex .zh {
+		color: var(--d-fg-2);
+	}
+
+	/* ---------- 通用列表 ---------- */
+	.d-list {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+	.d-list-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 8px;
+		font-size: 0.92rem;
+		line-height: 1.7;
+	}
+	.d-list-key {
+		font-weight: 600;
+		color: var(--d-accent);
+		cursor: pointer;
+	}
+	.d-list-key:hover {
+		text-decoration: underline;
+	}
+	.d-list-plain {
+		font-weight: 600;
+		color: var(--d-fg);
+	}
+	.d-list-val {
+		color: var(--d-fg-2);
+	}
+	.d-chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+	}
+	.d-chip {
+		padding: 3px 11px;
+		border: 1px solid var(--d-line);
+		border-radius: 999px;
+		background: var(--d-soft);
+		font-size: 0.82rem;
+		color: var(--d-fg);
+		cursor: pointer;
+		transition: all 0.16s ease;
+	}
+	.d-chip:hover {
+		border-color: var(--d-accent);
+		color: var(--d-accent);
+		background: var(--d-accent-soft);
+	}
+	.d-note {
+		font-size: 0.88rem;
+		line-height: 1.8;
+		color: var(--d-fg-2);
+		white-space: pre-wrap;
+	}
+
+	/* ---------- 列表页 ---------- */
+	.d-rows {
+		display: flex;
+		flex-direction: column;
+	}
+	.d-row {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 11px 2px;
+		border-bottom: 1px dashed var(--d-line);
+	}
+	.d-row:last-child {
+		border-bottom: 0;
+	}
+	.d-row-main {
+		flex: 1 1 auto;
+		min-width: 0;
+		cursor: pointer;
+	}
+	.d-row-word {
+		font-size: 1rem;
+		font-weight: 600;
+	}
+	.d-row-brief {
+		margin-top: 2px;
+		font-size: 0.8rem;
+		color: var(--d-fg-3);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.d-row-del {
+		flex: 0 0 auto;
+		width: 28px;
+		height: 28px;
+		border: 1px solid transparent;
+		border-radius: 8px;
+		background: transparent;
+		color: var(--d-fg-3);
+		cursor: pointer;
+		line-height: 1;
+	}
+	.d-row-del:hover {
+		border-color: var(--d-line);
+		background: var(--d-soft);
+		color: #e5484d;
+	}
+
+	/* ---------- 状态 ---------- */
+	.d-empty {
+		padding: 34px 22px;
+		text-align: center;
+		box-shadow: var(--d-shadow);
+	}
+	.d-empty-icon {
+		font-size: 2rem;
+	}
+	.d-empty-title {
+		margin: 10px 0 4px;
+		font-size: 1.02rem;
+		font-weight: 600;
+	}
+	.d-empty-desc {
+		font-size: 0.86rem;
+		color: var(--d-fg-3);
+	}
+	.d-reco {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 7px;
+		margin-top: 16px;
+	}
+	.d-err {
+		padding: 26px 22px;
+		text-align: center;
+		box-shadow: var(--d-shadow);
+	}
+	.d-err-msg {
+		font-size: 0.96rem;
+		margin-bottom: 12px;
+	}
+	.d-btn {
+		padding: 7px 18px;
+		border: 1px solid var(--d-line);
+		border-radius: 10px;
+		background: var(--d-soft);
+		color: var(--d-fg);
+		font-size: 0.86rem;
+		cursor: pointer;
+		transition: all 0.16s ease;
+	}
+	.d-btn:hover {
+		border-color: var(--d-accent);
+		color: var(--d-accent);
+	}
+	.d-btn-primary {
+		background: var(--d-accent);
+		border-color: var(--d-accent);
+		color: #fff;
+	}
+	.d-btn-primary:hover {
+		color: #fff;
+		opacity: 0.86;
+	}
+
+	/* ---------- 骨架屏 ---------- */
+	.d-skel {
+		padding: 22px;
+		box-shadow: var(--d-shadow);
+	}
+	.d-skel-line {
+		height: 13px;
+		margin-bottom: 11px;
+		border-radius: 7px;
+		background: linear-gradient(
+			90deg,
+			var(--d-soft) 25%,
+			var(--d-soft-2) 37%,
+			var(--d-soft) 63%
+		);
+		background-size: 400% 100%;
+		animation: d-shimmer 1.25s ease infinite;
+	}
+	@keyframes d-shimmer {
+		0% {
+			background-position: 100% 50%;
+		}
+		100% {
+			background-position: 0 50%;
+		}
+	}
+
+	.d-toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 10px;
+		margin-bottom: 12px;
+	}
+	.d-toolbar-title {
+		font-size: 0.92rem;
+		font-weight: 700;
+		color: var(--d-fg-2);
+	}
+
+	@media (max-width: 620px) {
+		.dict-app .d-panel {
+			padding: 16px 14px 12px;
+		}
+		.d-search {
+			flex-wrap: wrap;
+		}
+		.d-go {
+			padding: 0 18px;
+			height: 44px;
+			flex: 1 1 100%;
+		}
+		.d-sec,
+		.d-skel {
+			padding: 15px 14px;
+		}
+		.d-word {
+			font-size: 1.7rem;
+		}
+		.d-star-btn {
+			margin-left: 0;
+		}
+		.d-pos {
+			min-width: 52px;
+		}
+		.d-tabs {
+			overflow-x: auto;
+		}
+	}
+</style>
+
+<script>
+	/* ============================================================
+	 * 英语词典页面
+	 * 数据来自同源 /api/dict（Cloudflare Function 代理并规范化），
+	 * 失败时回退到公开的 dictionaryapi.dev + 机器翻译。
+	 * ============================================================ */
+
+	const HISTORY_KEY = "dict:history:v1";
+	const FAV_KEY = "dict:favorites:v1";
+	const MAX_HISTORY = 40;
+
+	const HOME_WORDS = [
+		"hello",
+		"abandon",
+		"beautiful",
+		"computer",
+		"decision",
+		"effort",
+		"freedom",
+		"genius",
+		"knowledge",
+		"language",
+		"memory",
+		"nature",
+		"opinion",
+		"quality",
+		"reason",
+		"science",
+		"travel",
+		"wonder",
+	];
+
+	const POS_CN = {
+		n: "名词",
+		v: "动词",
+		vt: "及物动词",
+		vi: "不及物动词",
+		adj: "形容词",
+		adv: "副词",
+		prep: "介词",
+		pron: "代词",
+		conj: "连词",
+		int: "感叹词",
+		interj: "感叹词",
+		num: "数词",
+		art: "冠词",
+		aux: "助动词",
+		abbr: "缩写",
+		det: "限定词",
+		modal: "情态动词",
+		pl: "复数",
+		sing: "单数",
+		suff: "后缀",
+		pref: "前缀",
+		u: "不可数",
+		c: "可数",
+	};
+
+	const POS_ABBR = {
+		noun: "n.",
+		verb: "v.",
+		adjective: "adj.",
+		adverb: "adv.",
+		preposition: "prep.",
+		pronoun: "pron.",
+		conjunction: "conj.",
+		interjection: "int.",
+		determiner: "det.",
+		exclamation: "int.",
+		numeral: "num.",
+		article: "art.",
+	};
+
+	/* ------------------------------------------------------------
+	 * 工具
+	 * ---------------------------------------------------------- */
+
+	function esc(value) {
+		return String(value === null || value === undefined ? "" : value)
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;")
+			.replace(/'/g, "&#39;");
+	}
+
+	function toArray(value) {
+		if (value === null || value === undefined) return [];
+		return Array.isArray(value) ? value : [value];
+	}
+
+	function posLabel(pos) {
+		const key = String(pos || "")
+			.replace(/[.\s]/g, "")
+			.toLowerCase();
+		return POS_CN[key] || "";
+	}
+
+	function posBadge(pos) {
+		const text = String(pos || "").trim();
+		if (!text) return '<span class="d-pos"></span>';
+		const cn = posLabel(text);
+		return (
+			'<span class="d-pos">' +
+			esc(text) +
+			(cn ? '<span class="d-pos-cn">' + esc(cn) + "</span>" : "") +
+			"</span>"
+		);
+	}
+
+	function section(title, inner, badge) {
+		if (!inner) return "";
+		return (
+			'<section class="d-sec card-base">' +
+			'<h2 class="d-sec-title">' +
+			esc(title) +
+			(badge ? '<span class="d-sec-badge">' + esc(badge) + "</span>" : "") +
+			"</h2>" +
+			inner +
+			"</section>"
+		);
+	}
+
+	function readStore(key, fallback) {
+		try {
+			const raw = localStorage.getItem(key);
+			if (!raw) return fallback;
+			const parsed = JSON.parse(raw);
+			return parsed === null || parsed === undefined ? fallback : parsed;
+		} catch (error) {
+			return fallback;
+		}
+	}
+
+	function writeStore(key, value) {
+		try {
+			localStorage.setItem(key, JSON.stringify(value));
+		} catch (error) {
+			/* 隐私模式下写入失败可忽略 */
+		}
+	}
+
+	/* ------------------------------------------------------------
+	 * 数据访问
+	 * ---------------------------------------------------------- */
+
+	function timeoutSignal(ms) {
+		if (typeof AbortSignal !== "undefined" && AbortSignal.timeout) return AbortSignal.timeout(ms);
+		const controller = new AbortController();
+		setTimeout(() => controller.abort(), ms);
+		return controller.signal;
+	}
+
+	async function fetchJson(url, ms) {
+		const res = await fetch(url, { signal: timeoutSignal(ms || 12000), headers: { Accept: "application/json" } });
+		let body = null;
+		try {
+			body = await res.json();
+		} catch (error) {
+			body = null;
+		}
+		return { status: res.status, ok: res.ok, body };
+	}
+
+	async function lookup(word) {
+		let primaryError = null;
+		try {
+			const res = await fetchJson("/api/dict?q=" + encodeURIComponent(word));
+			if (res.body && typeof res.body === "object") {
+				if (res.body.ok) return res.body;
+				if (res.body.error === "not_found") return res.body;
+			}
+			primaryError = new Error("bad_response");
+		} catch (error) {
+			primaryError = error;
+		}
+		return await fallbackLookup(word, primaryError);
+	}
+
+	/** 代理不可用时的兜底：公开英文词典 + 机器翻译 */
+	async function fallbackLookup(word, primaryError) {
+		try {
+			const res = await fetchJson(
+				"https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(word)
+			);
+			if (!res.ok || !Array.isArray(res.body) || !res.body.length) {
+				return { ok: false, error: "not_found", query: word };
+			}
+			const entry = res.body[0];
+			const phonetics = toArray(entry.phonetics);
+			const ukVoice = phonetics.find((p) => p && p.audio && /-uk\.mp3/i.test(p.audio));
+			const usVoice = phonetics.find((p) => p && p.audio && /-us\.mp3/i.test(p.audio));
+			const anyVoice = phonetics.find((p) => p && p.audio);
+			const translations = [];
+			const ee = [];
+			const sentences = [];
+			toArray(entry.meanings).forEach((meaning) => {
+				const abbr = POS_ABBR[String(meaning.partOfSpeech || "").toLowerCase()] || meaning.partOfSpeech || "";
+				const defs = [];
+				toArray(meaning.definitions).forEach((def) => {
+					if (!def || !def.definition) return;
+					defs.push(def.definition);
+					translations.push({ pos: abbr, text: def.definition });
+					if (def.example && sentences.length < 6) {
+						sentences.push({ en: def.example, zh: "", source: "", audio: "" });
+					}
+				});
+				if (defs.length) {
+					ee.push({
+						pos: abbr,
+						defs: defs.slice(0, 5),
+						similar: toArray(meaning.synonyms).slice(0, 6),
+					});
+				}
+			});
+			const zhGuess = await machineTranslate(word);
+			return {
+				ok: true,
+				query: word,
+				word: entry.word || word,
+				ukPhone: (phonetics.find((p) => p && p.text) || {}).text || entry.phonetic || "",
+				usPhone: "",
+				ukVoice: (ukVoice || anyVoice || {}).audio || "",
+				usVoice: (usVoice || {}).audio || "",
+				examTypes: [],
+				level: "",
+				translations,
+				forms: [],
+				collins: null,
+				ee,
+				sentences,
+				mediaSentences: [],
+				authSentences: [],
+				phrases: [],
+				synonyms: [],
+				relWords: [],
+				webTrans: [],
+				examSentences: [],
+				etym: "",
+				aiDefinition: "",
+				degraded: true,
+				zhGuess: zhGuess || "",
+				reason: primaryError ? String(primaryError.message || primaryError) : "",
+			};
+		} catch (error) {
+			return { ok: false, error: "network", query: word };
+		}
+	}
+
+	async function machineTranslate(text) {
+		try {
+			const res = await fetchJson(
+				"https://api.mymemory.translated.net/get?langpair=en|zh-CN&q=" + encodeURIComponent(text),
+				8000
+			);
+			const translated = res.body && res.body.responseData && res.body.responseData.translatedText;
+			return typeof translated === "string" ? translated : "";
+		} catch (error) {
+			return "";
+		}
+	}
+
+	async function fetchSuggest(query) {
+		try {
+			const res = await fetchJson("/api/dict?type=suggest&q=" + encodeURIComponent(query), 8000);
+			if (res.body && res.body.ok && Array.isArray(res.body.entries)) return res.body.entries;
+		} catch (error) {
+			/* 联想失败静默处理 */
+		}
+		return [];
+	}
+
+	/* ------------------------------------------------------------
+	 * 渲染
+	 * ---------------------------------------------------------- */
+
+	function renderLoading(word) {
+		const line = '<div class="d-skel-line"></div>';
+		return (
+			'<div class="d-skel card-base">' +
+			'<div class="d-skel-line" style="width:38%;height:28px"></div>' +
+			'<div class="d-skel-line" style="width:52%"></div>' +
+			line +
+			'<div class="d-skel-line" style="width:92%"></div>' +
+			'<div class="d-skel-line" style="width:78%"></div>' +
+			'<div class="d-skel-line" style="width:86%"></div>' +
+			"</div>" +
+			'<div class="d-skel card-base">' +
+			line +
+			'<div class="d-skel-line" style="width:88%"></div>' +
+			'<div class="d-skel-line" style="width:64%"></div>' +
+			"</div>"
+		);
+	}
+
+	function renderEmpty() {
+		const chips = HOME_WORDS.map(
+			(w) => '<button class="d-chip" type="button" data-action="query" data-word="' + esc(w) + '">' + esc(w) + "</button>"
+		).join("");
+		return (
+			'<div class="d-empty card-base">' +
+			'<div class="d-empty-icon">📖</div>' +
+			'<p class="d-empty-title">查一个单词试试</p>' +
+			'<p class="d-empty-desc">输入单词或短语后回车；支持音标发音、双语例句、词组搭配与词形变化。</p>' +
+			'<div class="d-reco">' +
+			chips +
+			"</div>" +
+			"</div>"
+		);
+	}
+
+	function renderError(word, message) {
+		return (
+			'<div class="d-err card-base">' +
+			'<p class="d-err-msg">⚠️ ' +
+			esc(message || "查询失败，请稍后重试") +
+			"</p>" +
+			'<button class="d-btn d-btn-primary" type="button" data-action="query" data-word="' +
+			esc(word) +
+			'">重试</button>' +
+			"</div>"
+		);
+	}
+
+	function renderNotFound(word, entries) {
+		const reco = toArray(entries);
+		const inner = reco.length
+			? '<div class="d-reco">' +
+				reco
+					.map(
+						(item) =>
+							'<button class="d-chip" type="button" data-action="query" data-word="' +
+							esc(item.word) +
+							'" title="' +
+							esc(item.explain || "") +
+							'">' +
+							esc(item.word) +
+							"</button>"
+					)
+					.join("") +
+				"</div>"
+			: "";
+		return (
+			'<div class="d-empty card-base">' +
+			'<div class="d-empty-icon">🤔</div>' +
+			'<p class="d-empty-title">没有找到「' +
+			esc(word) +
+			"」</p>" +
+			'<p class="d-empty-desc">' +
+			(reco.length ? "你是不是想找：" : "请检查拼写，或换一个单词试试。") +
+			"</p>" +
+			inner +
+			"</div>"
+		);
+	}
+
+	function renderPhonetics(data) {
+		const parts = [];
+		if (data.ukPhone || data.ukVoice) {
+			parts.push(
+				'<button class="d-voice" type="button" data-action="voice" data-url="' +
+					esc(data.ukVoice) +
+					'" data-say="' +
+					esc(data.word) +
+					'" data-lang="en-GB">' +
+					'<span class="d-voice-flag">🇬🇧</span><span class="d-voice-phone">' +
+					esc(data.ukPhone ? "/" + data.ukPhone + "/" : "英式发音") +
+					"</span> 🔊</button>"
+			);
+		}
+		if (data.usPhone || data.usVoice) {
+			parts.push(
+				'<button class="d-voice" type="button" data-action="voice" data-url="' +
+					esc(data.usVoice) +
+					'" data-say="' +
+					esc(data.word) +
+					'" data-lang="en-US">' +
+					'<span class="d-voice-flag">🇺🇸</span><span class="d-voice-phone">' +
+					esc(data.usPhone ? "/" + data.usPhone + "/" : "美式发音") +
+					"</span> 🔊</button>"
+			);
+		}
+		if (!parts.length) return "";
+		return '<div class="d-phonetics">' + parts.join("") + "</div>";
+	}
+
+	function renderTags(data) {
+		const tags = [];
+		toArray(data.examTypes).forEach((t) => {
+			tags.push('<span class="d-tag" data-tone="exam">' + esc(t) + "</span>");
+		});
+		if (data.level) tags.push('<span class="d-tag" data-tone="level">' + esc(data.level) + "</span>");
+		if (data.degraded) tags.push('<span class="d-tag">精简模式</span>');
+		if (!tags.length) return "";
+		return '<div class="d-tags">' + tags.join("") + "</div>";
+	}
+
+	function renderHead(data, isFav) {
+		const word = data.word || data.query || "";
+		const top =
+			'<div class="d-word-top">' +
+			'<h1 class="d-word">' +
+			esc(word) +
+			"</h1>" +
+			'<button class="d-star-btn' +
+			(isFav ? " is-on" : "") +
+			'" type="button" data-action="fav" data-word="' +
+			esc(word) +
+			'">' +
+			(isFav ? "★ 已收藏" : "☆ 收藏") +
+			"</button>" +
+			"</div>";
+		const brief = {
+			word: word,
+			phone: data.ukPhone || data.usPhone || "",
+			brief: toArray(data.translations)
+				.slice(0, 2)
+				.map((t) => (t.pos ? t.pos + " " : "") + t.text)
+				.join("；")
+				.slice(0, 120),
+		};
+		return (
+			'<section class="d-sec card-base" data-brief="' +
+			esc(JSON.stringify(brief)) +
+			'">' +
+			top +
+			renderPhonetics(data) +
+			renderTags(data) +
+			(data.degraded
+				? '<p class="d-empty-desc" style="margin:10px 0 0">代理接口不可用，以下为公开词典的英文释义' +
+					(data.zhGuess ? "（参考中文：" + esc(data.zhGuess) + "）" : "") +
+					"。</p>"
+				: "") +
+			"</section>"
+		);
+	}
+
+	function renderTranslations(data) {
+		const items = toArray(data.translations);
+		if (!items.length) return "";
+		const inner = items
+			.map(
+				(item) =>
+					'<div class="d-tr">' +
+					posBadge(item.pos) +
+					'<div class="d-tr-text">' +
+					esc(item.text) +
+					"</div></div>"
+			)
+			.join("");
+		return section("释义", inner, items.length + " 条");
+	}
+
+	function renderForms(data) {
+		const items = toArray(data.forms);
+		if (!items.length) return "";
+		const inner =
+			'<div class="d-forms">' +
+			items
+				.map(
+					(item) =>
+						'<span class="d-form"><span class="d-form-name">' +
+						esc(item.name) +
+						'</span><span class="d-form-value" data-action="query" data-word="' +
+						esc(item.value) +
+						'">' +
+						esc(item.value) +
+						"</span></span>"
+				)
+				.join("") +
+			"</div>";
+		return section("词形变化", inner);
+	}
+
+	function renderCollins(data) {
+		const collins = data.collins;
+		if (!collins || !toArray(collins.entries).length) return "";
+		const stars = "★".repeat(Math.max(0, Math.min(5, collins.star))) + "☆".repeat(Math.max(0, 5 - collins.star));
+		const inner = toArray(collins.entries)
+			.map((entry) => {
+				const head =
+					'<div class="d-col-head">' +
+					(entry.pos ? '<span class="d-col-pos">' + esc(entry.pos) + "</span>" : "") +
+					(entry.posTips ? '<span class="d-col-tips">' + esc(entry.posTips) + "</span>" : "") +
+					"</div>";
+				const ex = toArray(entry.examples)
+					.map(
+						(x) =>
+							'<div class="d-col-ex">' +
+							esc(x.en) +
+							(x.zh ? '<div class="zh">' + esc(x.zh) + "</div>" : "") +
+							"</div>"
+					)
+					.join("");
+				return '<div class="d-col">' + head + '<div class="d-col-tran">' + esc(entry.tran) + "</div>" + ex + "</div>";
+			})
+			.join("");
+		return section("柯林斯星级释义", inner, stars);
+	}
+
+	function renderEe(data) {
+		const items = toArray(data.ee);
+		if (!items.length) return "";
+		const inner = items
+			.map((group) => {
+				const defs = toArray(group.defs)
+					.map((d) => '<div class="d-tr-text" style="padding:2px 0">' + esc(d) + "</div>")
+					.join("");
+				const sim = toArray(group.similar);
+				const chips = sim.length
+					? '<div class="d-chips" style="margin-top:6px">' +
+						sim
+							.map(
+								(w) =>
+									'<button class="d-chip" type="button" data-action="query" data-word="' + esc(w) + '">' + esc(w) + "</button>"
+							)
+							.join("") +
+						"</div>"
+					: "";
+				return '<div class="d-col"><div class="d-col-head">' + posBadge(group.pos) + "</div>" + defs + chips + "</div>";
+			})
+			.join("");
+		return section("英英释义", inner);
+	}
+
+	function renderSentences(data) {
+		const items = toArray(data.sentences);
+		if (!items.length) return "";
+		const inner = items
+			.map((item, index) => {
+				const play = item.audio
+					? '<button class="d-sent-play" type="button" data-action="voice" data-url="' +
+						esc(item.audio) +
+						'" data-say="' +
+						esc(item.en) +
+						'" aria-label="朗读例句">▶</button>'
+					: '<button class="d-sent-play" type="button" data-action="say" data-say="' +
+						esc(item.en) +
+						'" aria-label="朗读例句">▶</button>';
+				return (
+					'<div class="d-sent">' +
+					'<div class="d-sent-en">' +
+					play +
+					"<span>" +
+					esc(item.en) +
+					"</span></div>" +
+					(item.zh ? '<div class="d-sent-zh">' + esc(item.zh) + "</div>" : "") +
+					(item.source ? '<div class="d-sent-src">— ' + esc(item.source) + "</div>" : "") +
+					"</div>"
+				);
+			})
+			.join("");
+		return section("双语例句", inner, items.length + " 句");
+	}
+
+	function renderMediaSentences(data) {
+		const items = toArray(data.mediaSentences);
+		if (!items.length) return "";
+		const inner = items
+			.map((item) => {
+				const play = item.audio
+					? '<button class="d-sent-play" type="button" data-action="voice" data-url="' +
+						esc(item.audio) +
+						'" data-say="' +
+						esc(item.en) +
+						'" aria-label="播放原声">▶</button>'
+					: "";
+				const src = [item.source, item.name].filter(Boolean).join(" · ");
+				return (
+					'<div class="d-sent">' +
+					'<div class="d-sent-en">' +
+					play +
+					"<span>" +
+					esc(item.en) +
+					"</span></div>" +
+					(src ? '<div class="d-sent-src">— ' + esc(src) + "</div>" : "") +
+					"</div>"
+				);
+			})
+			.join("");
+		return section("原声例句", inner, items.length + " 句");
+	}
+
+	function renderAuthSentences(data) {
+		const items = toArray(data.authSentences);
+		if (!items.length) return "";
+		const inner = items
+			.map((item) => {
+				const play = item.audio
+					? '<button class="d-sent-play" type="button" data-action="voice" data-url="' +
+						esc(item.audio) +
+						'" data-say="' +
+						esc(item.en) +
+						'" aria-label="播放例句">▶</button>'
+					: "";
+				return (
+					'<div class="d-sent"><div class="d-sent-en">' +
+					play +
+					"<span>" +
+					esc(item.en) +
+					"</span></div>" +
+					(item.source ? '<div class="d-sent-src">— ' + esc(item.source) + "</div>" : "") +
+					"</div>"
+				);
+			})
+			.join("");
+		return section("权威例句", inner, items.length + " 句");
+	}
+
+	function renderPhrases(data) {
+		const items = toArray(data.phrases);
+		if (!items.length) return "";
+		const inner =
+			'<div class="d-list">' +
+			items
+				.map(
+					(item) =>
+						'<div class="d-list-row"><span class="d-list-key" data-action="query" data-word="' +
+						esc(item.en) +
+						'">' +
+						esc(item.en) +
+						'</span><span class="d-list-val">' +
+						esc(item.zh) +
+						"</span></div>"
+				)
+				.join("") +
+			"</div>";
+		return section("词组短语", inner, items.length + " 条");
+	}
+
+	function renderSynonyms(data) {
+		const items = toArray(data.synonyms);
+		if (!items.length) return "";
+		const inner = items
+			.map((group) => {
+				const chips =
+					'<div class="d-chips">' +
+					toArray(group.words)
+						.map(
+							(w) =>
+								'<button class="d-chip" type="button" data-action="query" data-word="' + esc(w) + '">' + esc(w) + "</button>"
+						)
+						.join("") +
+					"</div>";
+				const head = group.pos || group.tran ? posBadge(group.pos) + (group.tran ? '<span class="d-col-tips">' + esc(group.tran) + "</span>" : "") : "";
+				return '<div class="d-col">' + (head ? '<div class="d-col-head">' + head + "</div>" : "") + chips + "</div>";
+			})
+			.join("");
+		return section("同义词", inner);
+	}
+
+	function renderRelWords(data) {
+		const items = toArray(data.relWords);
+		if (!items.length) return "";
+		const inner = items
+			.map((group) => {
+				const rows = toArray(group.words)
+					.map(
+						(w) =>
+							'<div class="d-list-row"><span class="d-list-key" data-action="query" data-word="' +
+							esc(w.word) +
+							'">' +
+							esc(w.word) +
+							'</span><span class="d-list-val">' +
+							esc(w.tran) +
+							"</span></div>"
+					)
+					.join("");
+				return '<div class="d-col">' + (group.pos ? '<div class="d-col-head">' + posBadge(group.pos) + "</div>" : "") + rows + "</div>";
+			})
+			.join("");
+		return section("同根词 / 派生词", inner);
+	}
+
+	function renderExamSentences(data) {
+		const items = toArray(data.examSentences);
+		if (!items.length) return "";
+		const inner = items
+			.map(
+				(item) =>
+					'<div class="d-sent"><div class="d-sent-en"><span>' +
+					esc(item.en) +
+					"</span></div>" +
+					(item.zh ? '<div class="d-sent-zh">' + esc(item.zh) + "</div>" : "") +
+					(item.source ? '<div class="d-sent-src">— ' + esc(item.source) + "</div>" : "") +
+					"</div>"
+			)
+			.join("");
+		return section("真题例句", inner, items.length + " 句");
+	}
+
+	function renderWebTrans(data) {
+		const items = toArray(data.webTrans);
+		if (!items.length) return "";
+		const inner = items
+			.map(
+				(item) =>
+					'<div class="d-list-row"><span class="d-list-plain">' +
+					esc(item.key) +
+					'</span><span class="d-list-val">' +
+					esc(toArray(item.values).join("；")) +
+					"</span></div>"
+			)
+			.join("");
+		return section("网络释义", '<div class="d-list">' + inner + "</div>");
+	}
+
+	function renderEtym(data) {
+		if (!data.etym) return "";
+		return section("词源", '<div class="d-note">' + esc(data.etym) + "</div>");
+	}
+
+	function renderAi(data) {
+		if (!data.aiDefinition) return "";
+		return section("AI 释义", '<div class="d-note">' + esc(data.aiDefinition) + "</div>");
+	}
+
+	function renderEntry(data, favorites) {
+		const word = data.word || data.query || "";
+		const isFav = Object.prototype.hasOwnProperty.call(favorites, word.toLowerCase());
+		return (
+			renderHead(data, isFav) +
+			renderTranslations(data) +
+			renderForms(data) +
+			renderCollins(data) +
+			renderSentences(data) +
+			renderMediaSentences(data) +
+			renderAuthSentences(data) +
+			renderPhrases(data) +
+			renderSynonyms(data) +
+			renderRelWords(data) +
+			renderExamSentences(data) +
+			renderWebTrans(data) +
+			renderEtym(data) +
+			renderAi(data)
+		);
+	}
+
+	/* ------------------------------------------------------------
+	 * 页面初始化
+	 * ---------------------------------------------------------- */
+
+	function initDictPage() {
+		const app = document.getElementById("dict-app");
+		if (!app || app.dataset.ready === "1") return;
+		app.dataset.ready = "1";
+
+		const input = app.querySelector("#d-input");
+		const clearBtn = app.querySelector("#d-clear");
+		const goBtn = app.querySelector("#d-go");
+		const suggestBox = app.querySelector("#d-suggest");
+		const body = app.querySelector("#d-body");
+		const tabs = app.querySelector("#d-tabs");
+
+		if (!input || !body || !suggestBox) return;
+
+		const state = {
+			view: "search",
+			word: "",
+			suggestItems: [],
+			suggestIndex: -1,
+			suggestTimer: 0,
+			seq: 0,
+			audio: null,
+		};
+
+		/* ---------- 存储 ---------- */
+
+		function getHistory() {
+			const value = readStore(HISTORY_KEY, []);
+			return Array.isArray(value) ? value : [];
+		}
+
+		function getFavorites() {
+			const value = readStore(FAV_KEY, {});
+			return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+		}
+
+		function favoriteRows() {
+			const favorites = getFavorites();
+			return Object.keys(favorites)
+				.map((key) => favorites[key])
+				.filter(Boolean)
+				.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+		}
+
+		function updateCounts() {
+			const historyCount = getHistory().length;
+			const favCount = favoriteRows().length;
+			app.querySelectorAll('[data-count="history"]').forEach((el) => (el.textContent = String(historyCount)));
+			app.querySelectorAll('[data-count="fav"]').forEach((el) => (el.textContent = String(favCount)));
+		}
+
+		function pushHistory(entry) {
+			if (!entry || !entry.word) return;
+			const word = entry.word;
+			const rows = getHistory().filter((item) => item.word.toLowerCase() !== word.toLowerCase());
+			rows.unshift({ word, phone: entry.phone || "", brief: entry.brief || "", ts: Date.now() });
+			writeStore(HISTORY_KEY, rows.slice(0, MAX_HISTORY));
+			updateCounts();
+		}
+
+		function removeHistory(word) {
+			const rows = getHistory().filter((item) => item.word.toLowerCase() !== String(word).toLowerCase());
+			writeStore(HISTORY_KEY, rows);
+			updateCounts();
+		}
+
+		/* ---------- 视图 ---------- */
+
+		function setView(view) {
+			state.view = view;
+			tabs.querySelectorAll(".d-tab").forEach((tab) => {
+				tab.classList.toggle("is-active", tab.getAttribute("data-view") === view);
+			});
+			if (view === "history") {
+				body.innerHTML = renderList("历史记录", getHistory(), "还没有查询记录");
+			} else if (view === "fav") {
+				body.innerHTML = renderList("生词本", favoriteRows(), "生词本还是空的，查词时点「☆ 收藏」");
+			} else if (state.word) {
+				runLookup(state.word);
+			} else {
+				body.innerHTML = renderEmpty();
+			}
+		}
+
+		function renderList(title, rows, emptyText) {
+			const toolbar =
+				'<div class="d-toolbar"><span class="d-toolbar-title">' +
+				esc(title) +
+				"</span>" +
+				(rows.length ? '<button class="d-btn" type="button" data-action="clear-list">全部清空</button>' : "") +
+				"</div>";
+			if (!rows.length) {
+				return (
+					'<div class="d-empty card-base">' +
+					toolbar +
+					'<div class="d-empty-icon">🗂️</div>' +
+					'<p class="d-empty-title">' +
+					esc(emptyText) +
+					"</p>" +
+					"</div>"
+				);
+			}
+			const inner = rows
+				.map(
+					(item) =>
+						'<div class="d-row">' +
+						'<div class="d-row-main" data-action="query" data-word="' +
+						esc(item.word) +
+						'">' +
+						'<div class="d-row-word">' +
+						esc(item.word) +
+						(item.phone ? '<span class="d-row-brief" style="margin-left:8px">/' + esc(item.phone) + "/</span>" : "") +
+						"</div>" +
+						'<div class="d-row-brief">' +
+						esc(item.brief || "") +
+						"</div></div>" +
+						'<button class="d-row-del" type="button" data-action="remove-row" data-word="' +
+						esc(item.word) +
+						'" aria-label="删除">✕</button>' +
+						"</div>"
+				)
+				.join("");
+			return '<section class="d-sec card-base">' + toolbar + '<div class="d-rows">' + inner + "</div></section>";
+		}
+
+		/* ---------- 查询 ---------- */
+
+		function setWord(word) {
+			state.word = word;
+			input.value = word;
+			clearBtn.hidden = !word;
+			syncUrl(word);
+		}
+
+		function syncUrl(word) {
+			try {
+				const url = new URL(window.location.href);
+				if (word) url.searchParams.set("q", word);
+				else url.searchParams.delete("q");
+				window.history.replaceState({}, "", url.toString());
+			} catch (error) {
+				/* 忽略 */
+			}
+		}
+
+		async function runLookup(rawWord) {
+			const word = String(rawWord || "").trim();
+			hideSuggest();
+			if (!word) {
+				body.innerHTML = renderEmpty();
+				return;
+			}
+
+			state.view = "search";
+			tabs.querySelectorAll(".d-tab").forEach((tab) => {
+				tab.classList.toggle("is-active", tab.getAttribute("data-view") === "search");
+			});
+
+			setWord(word);
+			const seq = ++state.seq;
+			body.innerHTML = renderLoading(word);
+
+			const data = await lookup(word);
+			if (seq !== state.seq) return;
+
+			if (data && data.ok) {
+				const favorites = getFavorites();
+				body.innerHTML = renderEntry(data, favorites);
+				const head = body.querySelector("[data-brief]");
+				let brief = null;
+				if (head) {
+					try {
+						brief = JSON.parse(head.getAttribute("data-brief") || "null");
+					} catch (error) {
+						brief = null;
+					}
+				}
+				pushHistory(brief || { word, phone: data.ukPhone || "", brief: "" });
+				return;
+			}
+
+			if (data && data.error === "not_found") {
+				const entries = await fetchSuggest(word);
+				if (seq !== state.seq) return;
+				body.innerHTML = renderNotFound(word, entries);
+				return;
+			}
+
+			body.innerHTML = renderError(word, "查询失败，可能是网络或接口暂时不可用。");
+		}
+
+		/* ---------- 联想 ---------- */
+
+		function hideSuggest() {
+			suggestBox.hidden = true;
+			suggestBox.innerHTML = "";
+			state.suggestItems = [];
+			state.suggestIndex = -1;
+		}
+
+		function showSuggest(entries) {
+			if (!entries.length) {
+				hideSuggest();
+				return;
+			}
+			state.suggestItems = entries;
+			state.suggestIndex = -1;
+			suggestBox.innerHTML = entries
+				.map(
+					(item, index) =>
+						'<div class="d-sg" data-index="' +
+						index +
+						'" data-word="' +
+						esc(item.word) +
+						'" role="option">' +
+						'<span class="d-sg-word">' +
+						esc(item.word) +
+						"</span>" +
+						(item.explain ? '<span class="d-sg-exp">' + esc(item.explain) + "</span>" : "") +
+						"</div>"
+				)
+				.join("");
+			suggestBox.hidden = false;
+		}
+
+		function moveSuggest(delta) {
+			if (suggestBox.hidden || !state.suggestItems.length) return false;
+			const total = state.suggestItems.length;
+			let index = state.suggestIndex + delta;
+			if (index < 0) index = total - 1;
+			if (index >= total) index = 0;
+			state.suggestIndex = index;
+			suggestBox.querySelectorAll(".d-sg").forEach((el, i) => {
+				el.classList.toggle("is-active", i === index);
+			});
+			const active = suggestBox.querySelector(".d-sg.is-active");
+			if (active && active.scrollIntoView) active.scrollIntoView({ block: "nearest" });
+			return true;
+		}
+
+		function scheduleSuggest() {
+			const query = input.value.trim();
+			window.clearTimeout(state.suggestTimer);
+			if (query.length < 2 || !/^[a-zA-Z' -]+$/.test(query)) {
+				hideSuggest();
+				return;
+			}
+			state.suggestTimer = window.setTimeout(async () => {
+				const entries = await fetchSuggest(query);
+				if (input.value.trim() !== query) return;
+				showSuggest(entries);
+			}, 220);
+		}
+
+		/* ---------- 发音 ---------- */
+
+		function speak(text, lang) {
+			if (!text || typeof window.speechSynthesis === "undefined") return;
+			try {
+				const utter = new SpeechSynthesisUtterance(text);
+				utter.lang = lang || "en-US";
+				utter.rate = 0.92;
+				window.speechSynthesis.cancel();
+				window.speechSynthesis.speak(utter);
+			} catch (error) {
+				/* 忽略 */
+			}
+		}
+
+		function playAudio(url, say, lang) {
+			if (!url) {
+				speak(say, lang);
+				return;
+			}
+			try {
+				if (state.audio) {
+					state.audio.pause();
+					state.audio.currentTime = 0;
+				}
+				const audio = new Audio(url);
+				state.audio = audio;
+				audio.addEventListener("error", () => speak(say, lang), { once: true });
+				const played = audio.play();
+				if (played && typeof played.catch === "function") {
+					played.catch(() => speak(say, lang));
+				}
+			} catch (error) {
+				speak(say, lang);
+			}
+		}
+
+		/* ---------- 收藏 ---------- */
+
+		function toggleFavorite(word) {
+			if (!word) return;
+			const favorites = getFavorites();
+			const key = word.toLowerCase();
+			if (Object.prototype.hasOwnProperty.call(favorites, key)) {
+				delete favorites[key];
+			} else {
+				const history = getHistory().find((item) => item.word.toLowerCase() === key);
+				favorites[key] = {
+					word,
+					phone: (history && history.phone) || "",
+					brief: (history && history.brief) || "",
+					ts: Date.now(),
+				};
+			}
+			writeStore(FAV_KEY, favorites);
+			updateCounts();
+			const button = body.querySelector('[data-action="fav"]');
+			if (button) {
+				const on = Object.prototype.hasOwnProperty.call(favorites, key);
+				button.classList.toggle("is-on", on);
+				button.textContent = on ? "★ 已收藏" : "☆ 收藏";
+			}
+		}
+
+		/* ---------- 事件 ---------- */
+
+		goBtn.addEventListener("click", () => runLookup(input.value));
+
+		clearBtn.addEventListener("click", () => {
+			input.value = "";
+			clearBtn.hidden = true;
+			hideSuggest();
+			input.focus();
+			state.word = "";
+			syncUrl("");
+			body.innerHTML = renderEmpty();
+		});
+
+		input.addEventListener("input", () => {
+			clearBtn.hidden = !input.value;
+			scheduleSuggest();
+		});
+
+		input.addEventListener("keydown", (event) => {
+			if (event.key === "ArrowDown") {
+				if (moveSuggest(1)) event.preventDefault();
+				return;
+			}
+			if (event.key === "ArrowUp") {
+				if (moveSuggest(-1)) event.preventDefault();
+				return;
+			}
+			if (event.key === "Escape") {
+				hideSuggest();
+				return;
+			}
+			if (event.key === "Enter") {
+				event.preventDefault();
+				const picked = state.suggestIndex >= 0 ? state.suggestItems[state.suggestIndex] : null;
+				runLookup(picked ? picked.word : input.value);
+			}
+		});
+
+		input.addEventListener("blur", () => {
+			window.setTimeout(hideSuggest, 150);
+		});
+
+		suggestBox.addEventListener("mousedown", (event) => {
+			const item = event.target.closest(".d-sg");
+			if (!item) return;
+			event.preventDefault();
+			runLookup(item.getAttribute("data-word"));
+		});
+
+		tabs.addEventListener("click", (event) => {
+			const tab = event.target.closest(".d-tab");
+			if (!tab) return;
+			setView(tab.getAttribute("data-view"));
+		});
+
+		body.addEventListener("click", (event) => {
+			const trigger = event.target.closest("[data-action]");
+			if (!trigger) return;
+			const action = trigger.getAttribute("data-action");
+
+			if (action === "query") {
+				runLookup(trigger.getAttribute("data-word"));
+				window.scrollTo({ top: 0, behavior: "smooth" });
+				return;
+			}
+			if (action === "voice") {
+				playAudio(trigger.getAttribute("data-url"), trigger.getAttribute("data-say"), trigger.getAttribute("data-lang"));
+				return;
+			}
+			if (action === "say") {
+				speak(trigger.getAttribute("data-say"), "en-US");
+				return;
+			}
+			if (action === "fav") {
+				toggleFavorite(trigger.getAttribute("data-word"));
+				return;
+			}
+			if (action === "remove-row") {
+				const word = trigger.getAttribute("data-word");
+				if (state.view === "fav") {
+					const favorites = getFavorites();
+					delete favorites[String(word).toLowerCase()];
+					writeStore(FAV_KEY, favorites);
+				} else {
+					removeHistory(word);
+				}
+				updateCounts();
+				setView(state.view);
+				return;
+			}
+			if (action === "clear-list") {
+				if (state.view === "fav") writeStore(FAV_KEY, {});
+				else writeStore(HISTORY_KEY, []);
+				updateCounts();
+				setView(state.view);
+			}
+		});
+
+		/* ---------- 首屏 ---------- */
+
+		updateCounts();
+		let initial = "";
+		try {
+			initial = new URL(window.location.href).searchParams.get("q") || "";
+		} catch (error) {
+			initial = "";
+		}
+		if (initial.trim()) {
+			runLookup(initial);
+		} else {
+			body.innerHTML = renderEmpty();
+		}
+	}
+
+	initDictPage();
+	document.addEventListener("astro:page-load", initDictPage);
+	document.addEventListener("swup:contentReplaced", initDictPage);
+	document.addEventListener("swup:page:view", initDictPage);
+</script>
