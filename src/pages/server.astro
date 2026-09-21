@@ -328,6 +328,23 @@ const E5_API = "https://e5.yrlwa.top";
 								>{i18n(I18nKey.serverStart)}</button
 							></div>
 					</div>
+					<!-- AI 去水印: 常驻服务(实测不占显存), 不参与上面对话/画图的二选一 -->
+					<div class="row">
+						<div class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8 19 13M15 9h.01M17.8 6.2 19 5M3 21l9-9M12.2 6.2 11 5"/></svg></div>
+						<div class="mid">
+							<div class="tt"><span data-i18n={I18nKey.serverServiceInpaint}
+									>{i18n(I18nKey.serverServiceInpaint)}</span
+								> <span class="pill" id="tagInpaint"
+									>{i18n(I18nKey.serverTagIdle)}</span
+								></div>
+							<div class="ds" data-i18n={I18nKey.serverInpaintDesc}>
+								{i18n(I18nKey.serverInpaintDesc)}
+							</div>
+						</div>
+						<div class="ops"><button class="act" id="btnInpaint"
+								>{i18n(I18nKey.serverInpaintRestart)}</button
+							></div>
+					</div>
 					<div class="row">
 						<div class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
 						<div class="mid">
@@ -432,14 +449,19 @@ const E5_API = "https://e5.yrlwa.top";
 						if (v) { token = v.trim(); localStorage.setItem("e5tok", token); }
 						return token;
 					}
-					function control(u) {
+					function control(u, method) {
 						if (!token) { if (!askToken()) return Promise.resolve({ ok: false, msg: t("serverErrCancelled", "已取消: 需要口令") }); }
-						return fetch(API + u, { headers: { "X-Token": token } })
+						function opt(tk) {
+							var o = { headers: { "X-Token": tk } };
+							if (method) o.method = method;
+							return o;
+						}
+						return fetch(API + u, opt(token))
 							.then(function (r) {
 								if (r.status === 401) {
 									localStorage.removeItem("e5tok"); token = "";
 									if (!askToken()) return { ok: false, msg: t("serverErrTokenCancelled", "口令错误, 操作已取消") };
-									return fetch(API + u, { headers: { "X-Token": token } }).then(function (r2) {
+									return fetch(API + u, opt(token)).then(function (r2) {
 										if (r2.status === 401) { localStorage.removeItem("e5tok"); token = ""; return { ok: false, msg: t("serverErrToken", "口令错误") }; }
 										return r2.json();
 									});
@@ -460,6 +482,7 @@ const E5_API = "https://e5.yrlwa.top";
 						both: t("serverStateConflict", "⚠ 冲突")
 					};
 					var pending = "";   // 正在等待完成的切换目标(用于完成时提示)
+					var pendingRestart = false;   // 是否由本页发起了 AI 去水印重启(用于完成时提示)
 					function render(d) {
 						var mode = d.mode || "idle";
 						var sw = d.switch || {};
@@ -529,6 +552,38 @@ const E5_API = "https://e5.yrlwa.top";
 							var bb = $("btnBuild");
 							bb.disabled = !build.alive;
 							bb.onclick = function () { if (build.url) window.open(build.url, "_blank"); };
+						}
+						// AI 去水印: 常驻服务, 只有「运行状态 + 重启」, 不参与模式切换
+						var ip = d.services && d.services.inpaint;
+						var ipAlive = !!(ip && ip.alive);
+						var ir = d.inpaint_restart || {};
+						$("tagInpaint").textContent = ipAlive
+							? t("serverTagResident", "常驻运行中")
+							: t("serverTagIdle", "未运行");
+						$("tagInpaint").className = "pill" + (ipAlive ? " run" : "");
+						var bi = $("btnInpaint");
+						bi.textContent = ir.running
+							? tf("serverInpaintRestarting", "重启中… {s}s", { s: Math.round(ir.elapsed || 0) })
+							: t("serverInpaintRestart", "重启");
+						bi.disabled = !!ir.running;
+						bi.onclick = function () {
+							bi.disabled = true;
+							toast(t("serverInpaintRestartMsg", "已开始重启 AI 去水印, 约 30~90 秒…"));
+							control("/api/inpaint/restart", "POST").then(function (r) {
+								r = r || {};
+								if (r.accepted) { pendingRestart = true; toast(t("serverInpaintRestartMsg", "已开始重启 AI 去水印, 约 30~90 秒…")); }
+								else if (r.unconfirmed) { pendingRestart = true; toast(r.msg); }
+								else if (r.busy) { toast(r.msg || t("serverBusy", "已有切换在进行中, 请稍候")); }
+								else { toast(r.msg || t("serverInpaintRestartFail", "重启失败"), !r.ok); }
+								bi.disabled = false; refresh();
+							});
+						};
+						// 重启结束: 由轮询发现运行状态翻回 false 时提示一次
+						if (pendingRestart && !ir.running && ir.ok !== null && ir.ok !== undefined) {
+							toast(ir.ok
+								? t("serverInpaintRestartOk", "AI 去水印已重启 ✅")
+								: (ir.msg || t("serverInpaintRestartFail", "重启失败")), !ir.ok);
+							pendingRestart = false;
 						}
 						if (d.links && d.links.nas) {
 							$("nasDs").textContent = d.links.nas.replace(/^https?:\/\//, "");

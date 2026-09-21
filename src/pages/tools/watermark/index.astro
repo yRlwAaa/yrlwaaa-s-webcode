@@ -92,6 +92,14 @@ const tool = getTool("watermark");
 					{i18n(I18nKey.toolWmLoadHint)}
 				</div>
 
+				<!-- AI 去水印(E5 · IOPaint/LaMa): 未载入图片时也可见; E5 离线自动置灰, 本地修复不受影响 -->
+				<div class="wm-ai" id="wmAiRow">
+					<button type="button" class="wm-btn primary" id="wmAiRun"
+						>{i18n(I18nKey.toolWmAiRun)}</button
+					>
+					<span class="wm-ai-note" id="wmAiNote"></span>
+				</div>
+
 				<!-- 载入后才出现 -->
 				<div class="wm-editor" id="wmEditor" hidden>
 					<div class="wm-stage" id="wmStage">
@@ -181,11 +189,11 @@ const tool = getTool("watermark");
 	<!-- 公共库 + 核心算法 + 页面交互 (普通脚本, Swup 切换后会重新执行)
 	     ?v= 是给浏览器/CDN 换新的: 改了 js 就要把这里和脚本里的 VER 一起 +1 -->
 	<script is:inline>
-		window.__TOOL_VER = "1";
+		window.__TOOL_VER = "2";
 	</script>
 	<script is:inline src="/js/tool-kit.js?v=2"></script>
 	<script is:inline src="/js/watermark-core.js?v=1"></script>
-	<script is:inline src="/js/watermark-tool.js?v=1"></script>
+	<script is:inline src="/js/watermark-tool.js?v=2"></script>
 </MainGridLayout>
 
 <style is:global>
@@ -275,6 +283,30 @@ const tool = getTool("watermark");
 		font-size: 0.74rem;
 		line-height: 1.6;
 		color: color-mix(in srgb, currentColor 48%, transparent);
+	}
+
+	/* ---------- AI 去水印(E5) ---------- */
+	.wm-ai {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 10px;
+		margin: 12px 2px 0;
+	}
+	.wm-ai-note {
+		font-size: 0.76rem;
+		line-height: 1.6;
+		min-height: 1em;
+		color: color-mix(in srgb, currentColor 50%, transparent);
+	}
+	.wm-ai-note.ok {
+		color: var(--wm-good);
+	}
+	.wm-ai-note.warn {
+		color: var(--wm-warn);
+	}
+	.wm-ai-note.err {
+		color: var(--wm-bad);
 	}
 
 	/* hidden 会被 display:flex/grid 覆盖掉, 所以每个隐藏容器都要补一条 */

@@ -500,6 +500,18 @@ export const zh_CN: Translation = {
 	[Key.toolWmErrLoad]: "图片载入失败",
 	[Key.toolWmErrInpaint]: "修复失败: ",
 	[Key.toolWmErrExport]: "导出失败, 浏览器无法编码这个格式",
+	// AI 去水印(E5 · IOPaint/LaMa 代理)
+	[Key.toolWmAiRun]: "AI 去水印（E5）",
+	[Key.toolWmAiWorking]: "E5 处理中… {s}s",
+	[Key.toolWmAiProbing]: "正在检测 E5 修复服务…",
+	[Key.toolWmAiReady]: "E5 在线 · 由 IOPaint/LaMa 处理, 记得先框选水印",
+	[Key.toolWmAiOffline]: "E5 离线 · 可改用本地修复",
+	[Key.toolWmAiNoImage]: "请先载入图片: AI 修复需要原图和遮罩",
+	[Key.toolWmAiNoSel]: "请先框选水印区域: AI 修复需要遮罩",
+	[Key.toolWmAiTooLarge]:
+		"图片太大(单个 dataURL 超过 12MB), 请先缩小尺寸或用本地修复",
+	[Key.toolWmAiDone]: "E5 已修复, 可下载 · 用时 {s}s",
+	[Key.toolWmAiErr]: "E5 修复失败: ",
 
 	// 工具页运行时状态({x} 为占位符)
 	[Key.toolStatusQueued]: "排队中",
@@ -568,6 +580,7 @@ export const zh_CN: Translation = {
 	[Key.serverDisk]: "磁盘",
 	[Key.serverServiceChat]: "AI 对话",
 	[Key.serverServiceDraw]: "画图",
+	[Key.serverServiceInpaint]: "AI 去水印",
 	[Key.serverServiceBuild]: "编译 / 终端",
 	[Key.serverNasTitle]: "NAS 存储",
 	[Key.serverNasDesc]: "跳转群晖 DSM 管理文件",
@@ -582,6 +595,14 @@ export const zh_CN: Translation = {
 	[Key.serverTagUnconfigured]: "未配置",
 	[Key.serverChatDesc]: "Qwen 27B · llama.cpp · 端口 11435 · 启动时自动停画图",
 	[Key.serverDrawDesc]: "SD WebUI · 端口 7860 · 启动时自动停对话",
+	[Key.serverInpaintDesc]:
+		"IOPaint · LaMa · 端口 7861 · 常驻运行(跑在 CPU 上, 不占显存)",
+	[Key.serverTagResident]: "常驻运行中",
+	[Key.serverInpaintRestart]: "重启",
+	[Key.serverInpaintRestarting]: "重启中… {s}s",
+	[Key.serverInpaintRestartMsg]: "已开始重启 AI 去水印, 约 30~90 秒…",
+	[Key.serverInpaintRestartOk]: "AI 去水印已重启 ✅",
+	[Key.serverInpaintRestartFail]: "重启失败",
 	[Key.serverBuildDesc]:
 		"网页终端或 code-server · 在 E5-gpu-manager.py 填 COMPILE_URL 后启用",
 	[Key.serverStateChat]: "对话AI运行中",

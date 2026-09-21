@@ -519,6 +519,20 @@ export const ja: Translation = {
 	[Key.toolWmErrLoad]: "画像を読み込めませんでした",
 	[Key.toolWmErrInpaint]: "修復に失敗しました: ",
 	[Key.toolWmErrExport]: "書き出しに失敗しました。この形式はエンコードできません",
+	// AI 透かし除去(E5 · IOPaint/LaMa 経由)
+	[Key.toolWmAiRun]: "AI 除去(E5)",
+	[Key.toolWmAiWorking]: "E5 処理中… {s}s",
+	[Key.toolWmAiProbing]: "E5 の修復サービスを確認中…",
+	[Key.toolWmAiReady]:
+		"E5 オンライン · IOPaint/LaMa が処理します。先に透かしを選択してください",
+	[Key.toolWmAiOffline]: "E5 オフライン · ローカル修復は利用できます",
+	[Key.toolWmAiNoImage]:
+		"先に画像を読み込んでください: AI 修復には元画像とマスクが必要です",
+	[Key.toolWmAiNoSel]: "先に透かしを選択してください: AI 修復にはマスクが必要です",
+	[Key.toolWmAiTooLarge]:
+		"画像が大きすぎます(dataURL が 12MB 超)。縮小するかローカル修復を使ってください",
+	[Key.toolWmAiDone]: "E5 で修復しました。ダウンロードできます · {s}s",
+	[Key.toolWmAiErr]: "E5 での修復に失敗しました: ",
 
 	[Key.toolStatusQueued]: "待機中",
 	[Key.toolStatusReading]: "ファイルを読み込み中…",
@@ -590,6 +604,7 @@ export const ja: Translation = {
 	[Key.serverDisk]: "ディスク",
 	[Key.serverServiceChat]: "AI 対話",
 	[Key.serverServiceDraw]: "画像生成",
+	[Key.serverServiceInpaint]: "AI 透かし除去",
 	[Key.serverServiceBuild]: "ビルド / ターミナル",
 	[Key.serverNasTitle]: "NAS ストレージ",
 	[Key.serverNasDesc]: "Synology DSM でファイルを管理",
@@ -605,6 +620,15 @@ export const ja: Translation = {
 	[Key.serverChatDesc]:
 		"Qwen 27B · llama.cpp · ポート 11435 · 起動時に画像生成を自動停止",
 	[Key.serverDrawDesc]: "SD WebUI · ポート 7860 · 起動時に対話 AI を自動停止",
+	[Key.serverInpaintDesc]:
+		"IOPaint · LaMa · ポート 7861 · 常時稼働(CPU 動作のため VRAM を使いません)",
+	[Key.serverTagResident]: "常時稼働中",
+	[Key.serverInpaintRestart]: "再起動",
+	[Key.serverInpaintRestarting]: "再起動中… {s}s",
+	[Key.serverInpaintRestartMsg]:
+		"AI 透かし除去を再起動しています。約 30〜90 秒…",
+	[Key.serverInpaintRestartOk]: "AI 透かし除去を再起動しました ✅",
+	[Key.serverInpaintRestartFail]: "再起動に失敗しました",
 	[Key.serverBuildDesc]:
 		"Web ターミナルまたは code-server · E5-gpu-manager.py に COMPILE_URL を記入すると有効になります",
 	[Key.serverStateChat]: "対話 AI 稼働中",

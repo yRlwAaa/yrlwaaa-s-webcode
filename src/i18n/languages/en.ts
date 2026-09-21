@@ -516,6 +516,20 @@ export const en: Translation = {
 	[Key.toolWmErrLoad]: "Could not load the image",
 	[Key.toolWmErrInpaint]: "Repair failed: ",
 	[Key.toolWmErrExport]: "Export failed — this browser cannot encode that format",
+	// AI watermark removal (E5 · IOPaint/LaMa proxy)
+	[Key.toolWmAiRun]: "AI remove (E5)",
+	[Key.toolWmAiWorking]: "E5 processing… {s}s",
+	[Key.toolWmAiProbing]: "Checking the E5 repair service…",
+	[Key.toolWmAiReady]:
+		"E5 online · handled by IOPaint/LaMa — select the watermark first",
+	[Key.toolWmAiOffline]: "E5 offline · local repair still works",
+	[Key.toolWmAiNoImage]:
+		"Load an image first: AI repair needs the original and a mask",
+	[Key.toolWmAiNoSel]: "Select the watermark area first: AI repair needs a mask",
+	[Key.toolWmAiTooLarge]:
+		"Image too large (a data URL over 12MB) — resize it or use local repair",
+	[Key.toolWmAiDone]: "Repaired by E5, ready to download · {s}s",
+	[Key.toolWmAiErr]: "E5 repair failed: ",
 
 	[Key.toolStatusQueued]: "Queued",
 	[Key.toolStatusReading]: "Reading file…",
@@ -587,6 +601,7 @@ export const en: Translation = {
 	[Key.serverDisk]: "Disks",
 	[Key.serverServiceChat]: "Chat AI",
 	[Key.serverServiceDraw]: "Image gen",
+	[Key.serverServiceInpaint]: "AI watermark removal",
 	[Key.serverServiceBuild]: "Build / terminal",
 	[Key.serverNasTitle]: "NAS storage",
 	[Key.serverNasDesc]: "Open Synology DSM to manage files",
@@ -601,6 +616,15 @@ export const en: Translation = {
 	[Key.serverTagUnconfigured]: "Not configured",
 	[Key.serverChatDesc]: "Qwen 27B · llama.cpp · port 11435 · stops image gen on start",
 	[Key.serverDrawDesc]: "SD WebUI · port 7860 · stops the chat service on start",
+	[Key.serverInpaintDesc]:
+		"IOPaint · LaMa · port 7861 · always on (runs on CPU, uses no VRAM)",
+	[Key.serverTagResident]: "Always on",
+	[Key.serverInpaintRestart]: "Restart",
+	[Key.serverInpaintRestarting]: "Restarting… {s}s",
+	[Key.serverInpaintRestartMsg]:
+		"Restarting the AI watermark service, about 30–90 seconds…",
+	[Key.serverInpaintRestartOk]: "AI watermark service restarted ✅",
+	[Key.serverInpaintRestartFail]: "Restart failed",
 	[Key.serverBuildDesc]:
 		"Web terminal or code-server · set COMPILE_URL in E5-gpu-manager.py to enable",
 	[Key.serverStateChat]: "Chat AI running",

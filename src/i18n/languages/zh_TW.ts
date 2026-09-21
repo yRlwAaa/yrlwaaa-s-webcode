@@ -500,6 +500,18 @@ export const zh_TW: Translation = {
 	[Key.toolWmErrLoad]: "圖片載入失敗",
 	[Key.toolWmErrInpaint]: "修復失敗：",
 	[Key.toolWmErrExport]: "匯出失敗，瀏覽器無法編碼這個格式",
+	// AI 去浮水印(E5 · IOPaint/LaMa 代理)
+	[Key.toolWmAiRun]: "AI 去浮水印（E5）",
+	[Key.toolWmAiWorking]: "E5 處理中… {s}s",
+	[Key.toolWmAiProbing]: "正在偵測 E5 修復服務…",
+	[Key.toolWmAiReady]: "E5 上線 · 由 IOPaint/LaMa 處理，記得先框選浮水印",
+	[Key.toolWmAiOffline]: "E5 離線 · 可改用本機修復",
+	[Key.toolWmAiNoImage]: "請先載入圖片：AI 修復需要原圖和遮罩",
+	[Key.toolWmAiNoSel]: "請先框選浮水印區域：AI 修復需要遮罩",
+	[Key.toolWmAiTooLarge]:
+		"圖片太大（單一 dataURL 超過 12MB），請先縮小尺寸或改用本機修復",
+	[Key.toolWmAiDone]: "E5 已修復，可下載 · 用時 {s}s",
+	[Key.toolWmAiErr]: "E5 修復失敗：",
 
 	[Key.toolStatusQueued]: "排隊中",
 	[Key.toolStatusReading]: "讀取檔案…",
@@ -567,6 +579,7 @@ export const zh_TW: Translation = {
 	[Key.serverDisk]: "磁碟",
 	[Key.serverServiceChat]: "AI 對話",
 	[Key.serverServiceDraw]: "繪圖",
+	[Key.serverServiceInpaint]: "AI 去浮水印",
 	[Key.serverServiceBuild]: "編譯 / 終端機",
 	[Key.serverNasTitle]: "NAS 儲存",
 	[Key.serverNasDesc]: "前往 Synology DSM 管理檔案",
@@ -581,6 +594,14 @@ export const zh_TW: Translation = {
 	[Key.serverTagUnconfigured]: "未設定",
 	[Key.serverChatDesc]: "Qwen 27B · llama.cpp · 連接埠 11435 · 啟動時自動停用繪圖",
 	[Key.serverDrawDesc]: "SD WebUI · 連接埠 7860 · 啟動時自動停用對話",
+	[Key.serverInpaintDesc]:
+		"IOPaint · LaMa · 連接埠 7861 · 常駐執行（跑在 CPU 上，不佔顯存）",
+	[Key.serverTagResident]: "常駐執行中",
+	[Key.serverInpaintRestart]: "重新啟動",
+	[Key.serverInpaintRestarting]: "重新啟動中… {s}s",
+	[Key.serverInpaintRestartMsg]: "已開始重新啟動 AI 去浮水印，約 30~90 秒…",
+	[Key.serverInpaintRestartOk]: "AI 去浮水印已重新啟動 ✅",
+	[Key.serverInpaintRestartFail]: "重新啟動失敗",
 	[Key.serverBuildDesc]:
 		"網頁終端機或 code-server · 在 E5-gpu-manager.py 填入 COMPILE_URL 後啟用",
 	[Key.serverStateChat]: "對話 AI 執行中",

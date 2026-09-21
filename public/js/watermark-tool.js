@@ -74,7 +74,7 @@
 		return;
 	}
 	// 页面 HTML 与脚本版本对不上(Swup 页面缓存 / 浏览器缓存了旧页面)时明确提示
-	var VER = "1";
+	var VER = "2";
 	var verWarn = "";
 	if (window.__TOOL_VER && window.__TOOL_VER !== VER) {
 		verWarn = tf(
@@ -103,6 +103,8 @@
 	var beforeBtn = document.getElementById("wmBefore");
 	var afterBtn = document.getElementById("wmAfter");
 	var dlBtn = document.getElementById("wmDownload");
+	var aiBtn = document.getElementById("wmAiRun");
+	var aiNote = document.getElementById("wmAiNote");
 
 	if (!canvas || !overlay) return;
 
@@ -118,6 +120,14 @@
 	var staleUrls = [];
 	var MAX_HISTORY = 10;
 	var EXPAND = 2; // 掩膜外扩 2px, 把水印的半透明边缘一起修掉
+
+	/* ---------- AI 去水印(E5 · IOPaint/LaMa)状态 ---------- */
+	var AI_API = "/api/inpaint";
+	var AI_MAX = 12 * 1024 * 1024; // 与 functions/api/inpaint.js、E5 管理器的上限保持一致
+	var aiProbed = false; // 是否已经探活过
+	var aiAlive = false; // E5 服务是否在线
+	var aiT0 = 0; // AI 请求开始时间(0 = 空闲)
+	var aiTimer = null; // 忙碌时刷新秒数的定时器
 
 	/* ---------- 小工具 ---------- */
 	function tick() {
@@ -195,6 +205,7 @@
 			}
 		}
 		syncTabs();
+		syncAi(); // AI 按钮是否可用由 busy + 探活结果共同决定
 	}
 
 	/* ---------- 解码 ---------- */
@@ -615,6 +626,223 @@
 		});
 	}
 
+	/* ---------- AI 去水印(E5 · IOPaint/LaMa 代理) ---------- */
+	function aiLabel() {
+		if (aiT0) {
+			return tf("toolWmAiWorking", "E5 处理中… {s}s", {
+				s: Math.max(0, Math.round((Date.now() - aiT0) / 1000)),
+			});
+		}
+		return t("toolWmAiRun", "AI 去水印（E5）");
+	}
+	function syncAi() {
+		if (!aiBtn) return;
+		aiBtn.textContent = aiLabel();
+		// 只有「载入并框选好了 + E5 在线 + 当前不忙」才给点; 本地修复按钮始终可用
+		aiBtn.disabled = busy || !aiProbed || !aiAlive;
+	}
+	function setAiNote(text, kind) {
+		if (!aiNote) return;
+		aiNote.textContent = text || "";
+		aiNote.className = "wm-ai-note" + (kind ? " " + kind : "");
+	}
+	// 页面加载时探活: /api/inpaint 是 Cloudflare 函数, 它去问 E5 的 services.inpaint
+	function probeAi() {
+		var settled = false;
+		function finish(alive) {
+			if (settled) return;
+			settled = true;
+			clearTimeout(guard);
+			aiProbed = true;
+			aiAlive = !!alive;
+			syncAi();
+			setAiNote(
+				aiAlive
+					? t(
+							"toolWmAiReady",
+							"E5 在线 · 由 IOPaint/LaMa 处理, 记得先框选水印",
+						)
+					: t("toolWmAiOffline", "E5 离线 · 可改用本地修复"),
+				aiAlive ? "ok" : "warn",
+			);
+		}
+		syncAi();
+		setAiNote(t("toolWmAiProbing", "正在检测 E5 修复服务…"));
+		// 隧道偶发卡住时不能让按钮一直转, 8 秒没结果就按离线处理
+		var guard = setTimeout(function () {
+			finish(false);
+		}, 8000);
+		fetch(AI_API, { method: "GET", headers: { "Cache-Control": "no-cache" } })
+			.then(function (r) {
+				return r.json();
+			})
+			.then(function (d) {
+				finish(d && d.alive);
+			})
+			.catch(function () {
+				finish(false);
+			});
+	}
+
+	// 原图 → dataURL(修复始终以原图为基准, 不是画布上正在显示的那张)
+	function originalDataUrl(w, h) {
+		var c = document.createElement("canvas");
+		c.width = w;
+		c.height = h;
+		var ctx = c.getContext("2d");
+		if (!ctx) return null;
+		ctx.putImageData(original, 0, 0);
+		return c.toDataURL("image/png");
+	}
+	// 选区 → 黑白遮罩 dataURL(白 = 要修的地方), 与本地版掩膜同源, 同样外扩 EXPAND 像素
+	function maskDataUrl(w, h) {
+		var c = document.createElement("canvas");
+		c.width = w;
+		c.height = h;
+		var ctx = c.getContext("2d");
+		if (!ctx) return null;
+		ctx.fillStyle = "#000";
+		ctx.fillRect(0, 0, w, h);
+		ctx.fillStyle = "#fff";
+		for (var i = 0; i < regions.length; i++) {
+			var r = regions[i];
+			ctx.fillRect(
+				Math.floor(r.x) - EXPAND,
+				Math.floor(r.y) - EXPAND,
+				Math.ceil(r.w) + EXPAND * 2,
+				Math.ceil(r.h) + EXPAND * 2,
+			);
+		}
+		return c.toDataURL("image/png");
+	}
+	function dataUrlToImageData(url, w, h) {
+		return new Promise(function (resolve, reject) {
+			var el = new Image();
+			el.onload = function () {
+				try {
+					var c = document.createElement("canvas");
+					c.width = w;
+					c.height = h;
+					var ctx = c.getContext("2d");
+					if (!ctx) throw new Error(t("toolErrCanvas", "取不到 canvas 上下文"));
+					ctx.drawImage(el, 0, 0, w, h);
+					resolve(ctx.getImageData(0, 0, w, h));
+				} catch (e) {
+					reject(e);
+				}
+			};
+			el.onerror = function () {
+				reject(new Error(t("toolErrImgDecode", "浏览器无法解码这个格式")));
+			};
+			el.src = url;
+		});
+	}
+
+	async function repairAi() {
+		if (busy) return;
+		if (!original) {
+			setStatus(
+				t("toolWmAiNoImage", "请先载入图片: AI 修复需要原图和遮罩"),
+				"warn",
+			);
+			return;
+		}
+		if (!aiAlive) {
+			setStatus(t("toolWmAiOffline", "E5 离线 · 可改用本地修复"), "warn");
+			return;
+		}
+		if (!regions.length) {
+			setStatus(t("toolWmAiNoSel", "请先框选水印区域: AI 修复需要遮罩"), "warn");
+			return;
+		}
+		var w = original.width;
+		var h = original.height;
+		var imgUrl = originalDataUrl(w, h);
+		var maskUrl = maskDataUrl(w, h);
+		if (!imgUrl || !maskUrl) {
+			setStatus(t("toolErrCanvas", "取不到 canvas 上下文"), "err");
+			return;
+		}
+		// 与 Cloudflare 函数同一上限: 超了就直接劝去本地修复, 免得白传一趟
+		if (imgUrl.length > AI_MAX || maskUrl.length > AI_MAX) {
+			setStatus(
+				t(
+					"toolWmAiTooLarge",
+					"图片太大(单个 dataURL 超过 12MB), 请先缩小尺寸或用本地修复",
+				),
+				"err",
+			);
+			return;
+		}
+
+		setBusy(true);
+		snapshot();
+		aiT0 = Date.now();
+		setProgress(0.05);
+		setStatus(tf("toolWmAiWorking", "E5 处理中… {s}s", { s: 0 }));
+		syncAi();
+		// E5 一次约 3~10 秒, 用已等秒数推进进度条 + 刷新按钮上的秒数
+		aiTimer = setInterval(function () {
+			var s = Math.max(0, Math.round((Date.now() - aiT0) / 1000));
+			setStatus(tf("toolWmAiWorking", "E5 处理中… {s}s", { s: s }));
+			setProgress(Math.min(0.9, 0.05 + s * 0.06));
+			syncAi();
+		}, 500);
+		await tick();
+
+		try {
+			var res = await fetch(AI_API, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ image: imgUrl, mask: maskUrl }),
+			});
+			var data = null;
+			try {
+				data = await res.json();
+			} catch (e) {
+				data = null;
+			}
+			if (!data) {
+				throw new Error(
+					"HTTP " +
+						res.status +
+						" · " +
+						t("serverErrBadResponse", "响应异常"),
+				);
+			}
+			if (!data.ok || !data.image) {
+				throw new Error(data.msg || "HTTP " + res.status);
+			}
+			var out = await dataUrlToImageData(data.image, w, h);
+			result = out;
+			var secs = Math.max(0, (Date.now() - aiT0) / 1000);
+			view = "after";
+			showView();
+			if (outEl) outEl.hidden = false;
+			setProgress(1);
+			setStatus(
+				tf("toolWmAiDone", "E5 已修复, 可下载 · 用时 {s}s", {
+					s: secs.toFixed(1),
+				}),
+				"ok",
+			);
+		} catch (err) {
+			setStatus(
+				t("toolWmAiErr", "E5 修复失败: ") + ((err && err.message) || err),
+				"err",
+			);
+		} finally {
+			if (aiTimer) {
+				clearInterval(aiTimer);
+				aiTimer = null;
+			}
+			aiT0 = 0;
+			setBusy(false);
+			syncAi();
+			hideProgress(1200);
+		}
+	}
+
 	/* ---------- 事件 ---------- */
 	var detachFns = [];
 	function on(el, type, fn, opts) {
@@ -738,6 +966,9 @@
 	on(startBtn, "click", function () {
 		repair();
 	});
+	on(aiBtn, "click", function () {
+		repairAi();
+	});
 	on(undoBtn, "click", undo);
 	on(clearSelBtn, "click", function () {
 		if (busy || !original) return;
@@ -802,6 +1033,8 @@
 		if (startBtn) startBtn.disabled = true;
 		updateRegions();
 		syncTabs();
+		syncAi();
+		probeAi(); // E5 探活: 离线则按钮置灰, 本地修复照常可用
 		// 版本不一致的提示不能被这里的清空覆盖掉
 		if (verWarn) setStatus(verWarn, "err");
 		else setStatus("");
