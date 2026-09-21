@@ -11,6 +11,12 @@
       "name": "鹿乃",
       "image": "/music/artists/kano.jpg",
       "bio": "白月光"
+    },
+    {
+      "id": "others",
+      "name": "其他",
+      "image": "/music/artists/others.jpg",
+      "bio": "大好き"
     }
   ],
   "albums": [
@@ -268,81 +274,151 @@
       "id": "un-sentimental-spica",
       "title": "(un) sentimental spica",
       "artistId": "sana",
-      "cover": "/music/albums/un-sentimental-spica.webp",
+      "cover": "/music/albums/un-sentimental-spica.jpg",
       "year": 2015,
       "genre": "流行,日本",
       "tracks": [
         {
           "id": "hanato-kuma",
           "title": "花とクマ",
-          "duration": "",
+          "duration": "4:58",
           "file": "/music/audio/un-sentimental-spica/鎖那 - 花とクマ.flac"
         },
         {
           "id": "sukinauta",
           "title": "すきなうた",
-          "duration": "",
+          "duration": "5:16",
           "file": "/music/audio/un-sentimental-spica/鎖那 - すきなうた.flac"
         },
         {
           "id": "sayonara-hananusubito-san",
           "title": "さようなら、花泥棒さん (cover)",
-          "duration": "",
+          "duration": "4:31",
           "file": "/music/audio/un-sentimental-spica/鎖那 - さようなら、花泥棒さん (cover).flac"
         },
         {
           "id": "tenkouzenya",
           "title": "転校前夜 (cover)",
-          "duration": "",
+          "duration": "3:15",
           "file": "/music/audio/un-sentimental-spica/鎖那 - 転校前夜 (cover).flac"
         },
         {
           "id": "kotonoha-clinic",
           "title": "言の葉クリニック (cover)",
-          "duration": "",
+          "duration": "3:43",
           "file": "/music/audio/un-sentimental-spica/鎖那 - 言の葉クリニック (cover).flac"
         },
         {
           "id": "packet-hero",
           "title": "パケットヒーロー (cover)",
-          "duration": "",
+          "duration": "4:36",
           "file": "/music/audio/un-sentimental-spica/鎖那 - パケットヒーロー (cover).flac"
         },
         {
           "id": "puzzle-girl",
           "title": "パズルガール (cover)",
-          "duration": "",
+          "duration": "4:33",
           "file": "/music/audio/un-sentimental-spica/鎖那 - パズルガール (cover).flac"
         },
         {
           "id": "siawase",
           "title": "siawase",
-          "duration": "",
+          "duration": "3:07",
           "file": "/music/audio/un-sentimental-spica/鎖那 - siawase.flac"
         },
         {
           "id": "datte-kimi-wa-taisetsu-na-hito",
           "title": "だってキミは大切な人",
-          "duration": "",
+          "duration": "3:50",
           "file": "/music/audio/un-sentimental-spica/鎖那 - だってキミは大切な人.flac"
         },
         {
           "id": "cantabile",
           "title": "cantabile (cover)",
-          "duration": "",
+          "duration": "4:25",
           "file": "/music/audio/un-sentimental-spica/鎖那 - cantabile (cover).flac"
         },
         {
           "id": "aruitemo-aruitemo",
           "title": "歩いても歩いても、夜空は僕を追いかけてくる (cover)",
-          "duration": "",
+          "duration": "5:21",
           "file": "/music/audio/un-sentimental-spica/鎖那 - 歩いても歩いても、夜空は僕を追いかけてくる (cover).flac"
         },
         {
           "id": "little-fighter",
           "title": "リトルファイター",
-          "duration": "",
+          "duration": "3:41",
           "file": "/music/audio/un-sentimental-spica/鎖那 - リトルファイター.flac"
+        }
+      ]
+    },
+    {
+      "id": "chou-kaguya-hime",
+      "title": "超かぐや姫",
+      "artistId": "others",
+      "cover": "/music/albums/超かぐや姫.webp",
+      "year": 2026,
+      "genre": "流行,日本",
+      "tracks": [
+        {
+          "id": "remember",
+          "title": "Remember",
+          "duration": "3:53",
+          "file": "/music/audio/chou-kaguya-hime/yuigot _ 月見ヤチヨ(cv.早見沙織) _ 超かぐや姫！ - Remember.flac"
+        },
+        {
+          "id": "hoshifuru-umi",
+          "title": "星降る海",
+          "duration": "4:13",
+          "file": "/music/audio/chou-kaguya-hime/Aqu3ra _ 月見ヤチヨ(cv.早見沙織) _ 超かぐや姫！ - 星降る海.flac"
+        },
+        {
+          "id": "watashi-wa-watashi-no-koto-ga-suki",
+          "title": "私は、わたしの事が好き。",
+          "duration": "4:11",
+          "file": "/music/audio/chou-kaguya-hime/HoneyWorks _ かぐや(cv.夏吉ゆうこ) _ 超かぐや姫！ - 私は、わたしの事が好き。.flac"
+        },
+        {
+          "id": "world-is-mine-anime-ver",
+          "title": "ワールドイズマイン (Anime ver.) [CPK! Remix]",
+          "duration": "1:40",
+          "file": "/music/audio/chou-kaguya-hime/ryo (supercell) _ 夏吉ゆうこ _ 早見沙織 - ワールドイズマイン (Anime ver.) [CPK! Remix].flac"
+        },
+        {
+          "id": "ex-otogibanashi",
+          "title": "Ex-Otogibanashi",
+          "duration": "3:37",
+          "file": "/music/audio/chou-kaguya-hime/ryo (supercell) _ 夏吉ゆうこ _ 早見沙織 - Ex-Otogibanashi.flac"
+        },
+        {
+          "id": "happy-synthesizer",
+          "title": "ハッピーシンセサイザ (Cover)",
+          "duration": "1:47",
+          "file": "/music/audio/chou-kaguya-hime/かぐや(cv.夏吉ゆうこ) _ 超かぐや姫！ - ハッピーシンセサイザ (Cover).flac"
+        },
+        {
+          "id": "shunkan-symphony",
+          "title": "瞬間、シンフォニー。",
+          "duration": "4:20",
+          "file": "/music/audio/chou-kaguya-hime/40mP _ かぐや(cv.夏吉ゆうこ) _ 超かぐや姫！ - 瞬間、シンフォニー。.flac"
+        },
+        {
+          "id": "reply",
+          "title": "Reply",
+          "duration": "4:29",
+          "file": "/music/audio/chou-kaguya-hime/kz _ かぐや(cv.夏吉ゆうこ) _ 超かぐや姫！ - Reply.flac"
+        },
+        {
+          "id": "ray",
+          "title": "ray (超かぐや姫！ Version)",
+          "duration": "5:02",
+          "file": "/music/audio/chou-kaguya-hime/かぐや(cv.夏吉ゆうこ) _ 月見ヤチヨ(cv.早見沙織) _ 超かぐや姫！ - ray (超かぐや姫！ Version).flac"
+        },
+        {
+          "id": "melt-kaguya-ver",
+          "title": "メルト (かぐや ver.) [CPK! Remix]",
+          "duration": "4:31",
+          "file": "/music/audio/chou-kaguya-hime/ryo (supercell) _ 夏吉ゆうこ - メルト (かぐや ver.) [CPK! Remix].flac"
         }
       ]
     }
