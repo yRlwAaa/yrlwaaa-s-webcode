@@ -29,12 +29,15 @@
 *.html
   Cache-Control: public, max-age=3600, must-revalidate
 
-# 工具页 / 服务器页与小工具脚本走强校验, 改了立刻生效。
+# 工具页 / 服务器页 / 词典页与小工具脚本走强校验, 改了立刻生效。
 # 否则 *.html 的 1 小时缓存会让"改了却看不到", 普通 F5 也会命中缓存。
 /tools/*
   Cache-Control: no-cache
 
 /server/*
+  Cache-Control: no-cache
+
+/dictionary/*
   Cache-Control: no-cache
 
 /js/*
