@@ -143,10 +143,43 @@ Service Worker 不允许在跨域 iframe 注册。想装 PWA，请到 `folia.yrl
 
 ---
 
-## 6. 许可证
+## 6. 代码放在哪、许可证怎么算
 
-Folia 是 **AGPL-3.0**。自建并对外提供网络服务时，AGPL 要求向使用者提供对应源码。
-你 fork 的仓库本身就是公开的，指向它即可满足。
+### 「Deploy to Cloudflare」按钮到底做了什么
+
+按 [Cloudflare 官方文档](https://developers.cloudflare.com/workers/platform/deploy-buttons/)：
+
+> **Clone a Git repository**: Cloudflare clones your source repository **into the user's GitHub/GitLab account** where they can continue development after deploying.
+
+也就是说它会**把 Folia 源码克隆一份到你自己的 GitHub 账号下，建成一个独立仓库**，
+Worker 再连着那个新仓库构建（之后往那个仓库提交会自动重新部署）。
+创建页面上还能自定义仓库名和 Worker 名。
+
+这一点要分清 —— 涉及的是**两个不同仓库**：
+
+| 仓库 | 内容 | 含 Folia 代码？ |
+| --- | --- | --- |
+| 站点仓库 `yrlwaaa-s-webcode` | 入口链接 + iframe 壳页 + 本文档 | ❌ 一行都没有 |
+| Cloudflare 新建的独立仓库 | Folia 完整源码副本 | ✅ 全在这里 |
+
+站点侧接入一个第三方 Web 应用，实际只加了三个东西：`music/index.astro` 里一个 `<a>`、
+`music/player.astro` 一个 iframe 壳、`data/folia.ts` 一处地址配置。**播放器实现代码不在站点仓库里。**
+
+### 许可证：AGPL-3.0
+
+克隆到你的账号下**不代表版权转移**，Folia 仍是 `AGPL-3.0`。要点：
+
+- 别删克隆下来的 `LICENSE`。
+- **当前跑的是未修改的原版** —— 源码在上游公开仓库，链接过去即可满足 AGPL 第 13 条
+  （对外提供网络服务须向使用者提供对应源码）。
+- ⚠️ **一旦你改了它的代码**（改界面、加功能），AGPL 要求你**公开修改后的版本**。
+  到那时如果那个仓库是私有的，就构成合规问题。只当自己用、不改代码则无所谓。
+
+### 不想让代码进 GitHub 的替代方案
+
+1. **Docker 自部署**（仓库自带 `deploy/docker/`）：代码只在自己服务器上，完全不碰 GitHub。
+   代价 —— 若跑在内网 NAS 上，还需额外配公网 HTTPS（Cloudflare Tunnel 或反代证书）才能被浏览器调用。
+2. **本地构建后 `wrangler deploy`**：不落 GitHub，但需要先把源码弄到本机。
 
 ---
 

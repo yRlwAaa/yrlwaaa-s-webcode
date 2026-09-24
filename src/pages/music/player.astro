@@ -195,7 +195,9 @@ const themeColor = `oklch(0.62 0.16 ${siteConfig.themeColor.hue})`;
 	</body>
 </html>
 
-<style is:global>
+<!-- 刻意不用 is:global: global 样式会被 Astro 提升成全站共享样式, 让每一页都白背 3KB 死代码。
+     本页是独立文档, 元素都在本组件模板里, 用作用域样式就够。 -->
+<style>
 	html.player-html,
 	body.player-body {
 		margin: 0;
