@@ -20,7 +20,7 @@ export const webBuildSteps: ProjectTimelineItem[] = [
 		category: "tools",
 		date: "2026-09-21",
 		summary:
-			"从 Demo 页换成完整查词界面：同源代理免跨域，联想、例句、生词本都有了",
+			"从 Demo 页进化成了完整的查词界面：同源代理免跨域，联想、例句、生词本全部拿下",
 		highlight: true,
 	},
 	{
@@ -37,7 +37,7 @@ export const webBuildSteps: ProjectTimelineItem[] = [
 		title: "新专辑《超かぐや姫》",
 		category: "music",
 		date: "2026-09-21",
-		summary: "新增歌手「其他」与这张 10 首歌的专辑，音频传 R2",
+		summary: "新增歌手「其他」与这张 10 首歌的专辑，音频已上传R2",
 	},
 	{
 		id: "tools-area",
@@ -53,21 +53,21 @@ export const webBuildSteps: ProjectTimelineItem[] = [
 		title: "NCM 转 FLAC",
 		category: "tools",
 		date: "2026-09-20",
-		summary: "浏览器里解开 .ncm 并拼回 FLAC，文件不出本机",
+		summary: "浏览器里解开 .ncm 并拼回 FLAC，全部在本地完成",
 	},
 	{
 		id: "img-tool",
 		title: "图片转换",
 		category: "tools",
 		date: "2026-09-20",
-		summary: "换格式、改尺寸、压体积，全部本地完成，还显示前后大小",
+		summary: "换格式、改尺寸、压体积，全部在本地完成，可以显示前后大小",
 	},
 	{
 		id: "watermark-tool",
 		title: "去水印工具",
 		category: "tools",
 		date: "2026-09-20",
-		summary: "框住水印用周围颜色填回去，多选区、10 步撤销、前后对比",
+		summary: "框住水印并用周围颜色填充，多选区、10 步撤销、前后对比",
 	},
 	{
 		id: "tools-i18n",
@@ -96,7 +96,7 @@ export const webBuildSteps: ProjectTimelineItem[] = [
 		title: "唤醒 E5 + 访问口令",
 		category: "server",
 		date: "2026-09-10",
-		summary: "经 NAS 发 WOL 魔术包远程开机；控制类操作要口令，访客只读",
+		summary: "经 NAS 发 WOL 魔术包远程开机；控制类操作需要口令，访客只读",
 	},
 	{
 		id: "weather-rewrite",
@@ -147,14 +147,14 @@ export const webBuildSteps: ProjectTimelineItem[] = [
 		title: "Qwen 代码评审文章系列",
 		category: "content",
 		date: "2026-08-26",
-		summary: "把模型给的代码评审整理成文章发出来",
+		summary: "把模型给的代码评审整理成文章归档",
 	},
 	{
 		id: "album-thumb",
 		title: "相册缩略图与懒加载",
 		category: "album",
 		date: "2026-08-19",
-		summary: "自动生成缩略图，配骨架屏和懒加载，翻相册不再卡",
+		summary: "自动生成缩略图，配骨架屏和懒加载，有效减轻了相册的卡顿",
 	},
 	{
 		id: "site-stats-refresh",
@@ -191,7 +191,7 @@ export const webBuildSteps: ProjectTimelineItem[] = [
 		title: "多相册与封面",
 		category: "album",
 		date: "2026-08-14",
-		summary: "原神、至冬等相册陆续进来，封面统一转成 webp",
+		summary: "原神、至冬等相册陆续添加，封面统一转成 webp",
 	},
 	{
 		id: "music-module",
@@ -206,14 +206,14 @@ export const webBuildSteps: ProjectTimelineItem[] = [
 		title: "相册模块",
 		category: "album",
 		date: "2026-08-07",
-		summary: "照片丢进目录就自动成相册，meta.json 里写标题和标签",
+		summary: "照片丢进目录就可自动生成相册，meta.json 里写标题和标签",
 	},
 	{
 		id: "weather-widget",
 		title: "天气挂件",
 		category: "base",
 		date: "2026-07-24",
-		summary: "侧栏能看一周天气，这是站上第一个自建小挂件",
+		summary: "侧栏能看一周天气，这是站上第一个自建小组件",
 	},
 	{
 		id: "site-core",
@@ -221,7 +221,7 @@ export const webBuildSteps: ProjectTimelineItem[] = [
 		category: "base",
 		date: "2026-05-02",
 		summary:
-			"Mizuki 主题 + Cloudflare Pages，push 即部署；明暗主题、壁纸、导航都在这一步",
+			"Mizuki 主题 + Cloudflare Pages，push 部署；明暗主题、壁纸、导航都在这一步",
 		highlight: true,
 	},
 ];
