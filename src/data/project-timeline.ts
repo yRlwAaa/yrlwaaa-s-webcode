@@ -25,7 +25,7 @@ import type {
 export const webBuildSteps: ProjectTimelineItem[] = [
 	{
 		id: "folia",
-		title: "在线播放器 Folia",
+		title: "在线播放器 yRlwAaa",
 		category: "music",
 		date: "2026-09-24",
 		summary:

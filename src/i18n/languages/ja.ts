@@ -387,7 +387,7 @@ export const ja: Translation = {
 
 	// Folia オンラインプレイヤー入口
 	[Key.musicPlayerEntryHint]: "クリックして新世界へ",
-	[Key.musicPlayerEntryTitle]: "Folia 全画面歌詞プレイヤー",
+	[Key.musicPlayerEntryTitle]: "yRlwAaa 全画面歌詞プレイヤー",
 	[Key.musicPlayerEntryOpenTab]: "新しいタブで開く",
 	[Key.musicPlayerBack]: "音楽に戻る",
 	[Key.musicPlayerNotConfigured]: "プレイヤーの URL が未設定です",

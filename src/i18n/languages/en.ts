@@ -384,7 +384,7 @@ export const en: Translation = {
 
 	// Folia online player entry
 	[Key.musicPlayerEntryHint]: "Click to enter a new world",
-	[Key.musicPlayerEntryTitle]: "Folia Full-screen Lyrics Player",
+	[Key.musicPlayerEntryTitle]: "yRlwAaa Full-screen Lyrics Player",
 	[Key.musicPlayerEntryOpenTab]: "Open in new tab",
 	[Key.musicPlayerBack]: "Back to music",
 	[Key.musicPlayerNotConfigured]: "Player URL is not configured yet",

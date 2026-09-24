@@ -371,7 +371,7 @@ export const zh_CN: Translation = {
 
 	// Folia 在线播放器入口
 	[Key.musicPlayerEntryHint]: "点击进入新世界",
-	[Key.musicPlayerEntryTitle]: "Folia 全屏歌词播放器",
+	[Key.musicPlayerEntryTitle]: "yRlwAaa 全屏歌词播放器",
 	[Key.musicPlayerEntryOpenTab]: "在新标签页打开",
 	[Key.musicPlayerBack]: "返回音乐",
 	[Key.musicPlayerNotConfigured]: "播放器地址尚未配置",

@@ -373,7 +373,7 @@ export const zh_TW: Translation = {
 
 	// Folia 線上播放器入口
 	[Key.musicPlayerEntryHint]: "點擊進入新世界",
-	[Key.musicPlayerEntryTitle]: "Folia 全螢幕歌詞播放器",
+	[Key.musicPlayerEntryTitle]: "yRlwAaa 全螢幕歌詞播放器",
 	[Key.musicPlayerEntryOpenTab]: "在新分頁開啟",
 	[Key.musicPlayerBack]: "返回音樂",
 	[Key.musicPlayerNotConfigured]: "播放器網址尚未設定",
