@@ -4,11 +4,29 @@ export interface TimelineLink {
 	type: "website" | "certificate" | "project" | "other";
 }
 
+/** 「网页构建」分类：站点自己的功能 / 插件属于哪一块 */
+export type ProjectCategory =
+	| "base"
+	| "content"
+	| "music"
+	| "album"
+	| "ai"
+	| "server"
+	| "tools"
+	| "ux";
+
+export type TimelineType =
+	| "education"
+	| "work"
+	| "project"
+	| "achievement"
+	| "build";
+
 export interface TimelineItem {
 	id: string;
 	title: string;
 	description: string;
-	type: "education" | "work" | "project" | "achievement";
+	type: TimelineType;
 	startDate: string;
 	endDate?: string;
 	location?: string;
@@ -20,8 +38,8 @@ export interface TimelineItem {
 	icon?: string;
 	color?: string;
 	featured?: boolean;
-	/** 「网页构建」这条记录的内页：功能 / 插件添加历程 */
-	buildLog?: ProjectTimelineItem[];
+	/** 仅「网页构建」用：决定图标、颜色和分类标签 */
+	category?: ProjectCategory;
 }
 
 export interface TimelineCardProps {
@@ -29,22 +47,12 @@ export interface TimelineCardProps {
 	maxSkills?: number;
 }
 
-/** 「网页构建」里的一个功能 / 插件 */
-export type ProjectCategory =
-	| "base"
-	| "content"
-	| "music"
-	| "album"
-	| "ai"
-	| "server"
-	| "tools"
-	| "ux";
-
 export interface ProjectTimelineLink {
 	name: string;
 	url: string;
 }
 
+/** 「网页构建」数据源里的一条：某个功能 / 插件什么时候加的、干嘛的 */
 export interface ProjectTimelineItem {
 	id: string;
 	title: string;
@@ -60,8 +68,4 @@ export interface ProjectTimelineItem {
 	icon?: string;
 	color?: string;
 	highlight?: boolean;
-}
-
-export interface ProjectTimelineCardProps {
-	item: ProjectTimelineItem;
 }

@@ -1,0 +1,179 @@
+---
+import { Icon } from "astro-icon/components";
+
+import { i18n } from "../../../i18n/translation";
+import { getProjectCategory } from "./project-categories";
+import type { TimelineCardProps } from "./types";
+
+const { item } = Astro.props as TimelineCardProps;
+
+const category = getProjectCategory(item.category ?? "base");
+const icon = item.icon || category.icon;
+const color = item.color || category.color;
+
+const formatDate = (dateString: string) => {
+	const date = new Date(dateString);
+	return date.toLocaleDateString("zh-CN", {
+		year: "numeric",
+		month: "short",
+		day: "numeric",
+	});
+};
+
+const shortDate = item.startDate.slice(5);
+---
+
+<div class="build-entry" data-type={item.type}>
+	<div class="build-node" style={`background-color: ${color};`}>
+		<Icon name={icon} class="w-2.5 h-2.5" style="color: white;" />
+	</div>
+
+	<div
+		class="build-card group relative rounded-xl border border-black/10 dark:border-white/10 overflow-hidden transition-all duration-300 hover:shadow-lg"
+	>
+		<div class="p-5 sm:p-6">
+			<div class="flex items-start gap-3 mb-3">
+				<div
+					class="w-10 h-10 flex-shrink-0 rounded-lg flex items-center justify-center bg-[var(--btn-regular-bg)]"
+				>
+					<Icon
+						name={icon}
+						class="text-lg"
+						style={`color: ${color};`}
+					/>
+				</div>
+
+				<div class="flex-1 min-w-0">
+					<div class="flex items-center gap-2 mb-0.5">
+						<h3
+							class="text-lg font-bold text-black/90 dark:text-white/90 group-hover:text-[var(--primary)] transition-colors duration-200"
+						>
+							{item.title}
+						</h3>
+						{
+							item.featured && (
+								<Icon
+									name="material-symbols:star-rounded"
+									class="text-base w-4 h-4 text-[var(--primary)] flex-shrink-0"
+								/>
+							)
+						}
+					</div>
+					<p class="text-xs text-black/50 dark:text-white/50">
+						{formatDate(item.startDate)}
+					</p>
+				</div>
+
+				<div class="flex items-center gap-1.5 flex-shrink-0 ml-2">
+					<span
+						class="px-2 py-0.5 text-xs rounded-md font-medium tabular-nums"
+						style={`background-color: ${color}1a; color: ${color};`}
+						title={item.startDate}
+					>
+						{shortDate}
+					</span>
+					<span
+						class="hidden sm:inline-block px-2 py-0.5 text-xs rounded-md font-medium"
+						style={`background-color: ${color}1a; color: ${color};`}
+					>
+						{i18n(category.labelKey)}
+					</span>
+				</div>
+			</div>
+
+			<p class="text-sm text-black/70 dark:text-white/70 leading-relaxed">
+				{item.description}
+			</p>
+		</div>
+
+		<div
+			class="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl"
+		>
+		</div>
+	</div>
+</div>
+
+<style>
+	.build-entry {
+		position: relative;
+		padding-left: 2.5rem;
+		padding-bottom: 2rem;
+		animation: buildFadeInUp 0.5s ease-out forwards;
+		opacity: 0;
+	}
+
+	.build-entry:last-child {
+		padding-bottom: 0;
+	}
+
+	.build-entry.filtered-out {
+		display: none;
+	}
+
+	.build-node {
+		position: absolute;
+		left: 0;
+		top: 1.5rem;
+		width: 1.25rem;
+		height: 1.25rem;
+		border-radius: 50%;
+		border: 2.5px solid white;
+		box-shadow: 0 0 0 2px var(--line-divider);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 2;
+		transition:
+			transform 0.2s ease,
+			box-shadow 0.2s ease;
+	}
+
+	.build-entry:hover .build-node {
+		transform: scale(1.15);
+		box-shadow:
+			0 0 0 2px var(--primary),
+			0 0 12px rgba(0, 0, 0, 0.1);
+	}
+
+	@keyframes buildFadeInUp {
+		from {
+			opacity: 0;
+			transform: translateY(16px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.build-entry:nth-child(1) {
+		animation-delay: 0.05s;
+	}
+	.build-entry:nth-child(2) {
+		animation-delay: 0.1s;
+	}
+	.build-entry:nth-child(3) {
+		animation-delay: 0.15s;
+	}
+	.build-entry:nth-child(4) {
+		animation-delay: 0.2s;
+	}
+	.build-entry:nth-child(5) {
+		animation-delay: 0.25s;
+	}
+	.build-entry:nth-child(6) {
+		animation-delay: 0.3s;
+	}
+	.build-entry:nth-child(7) {
+		animation-delay: 0.35s;
+	}
+	.build-entry:nth-child(8) {
+		animation-delay: 0.4s;
+	}
+
+	@media (max-width: 640px) {
+		.build-entry {
+			padding-left: 1.9rem;
+		}
+	}
+</style>

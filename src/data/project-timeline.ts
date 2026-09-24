@@ -1,12 +1,15 @@
-import type { ProjectTimelineItem } from "../components/features/timeline/types";
+import type {
+	ProjectTimelineItem,
+	TimelineItem,
+} from "../components/features/timeline/types";
 
 /**
- * 「网页构建」这条时间线的内页：网站功能 / 插件是什么时候加进来的
+ * 「网页构建」分类的数据源：网站功能 / 插件是什么时候加进来的
  *
  * - date    = 该功能第一次上线的日期（以 git 首次提交为准）
  * - title   = 功能 / 插件名
  * - summary = 一句话说明它是干嘛的
- * - category= 分类（决定左侧小圆点的颜色和右侧标签）
+ * - category= 分类（决定图标、圆点颜色和分类标签）
  *
  * 数组按日期从新到旧；新增功能就在最上面加一条。
  */
@@ -222,3 +225,17 @@ export const webBuildSteps: ProjectTimelineItem[] = [
 		highlight: true,
 	},
 ];
+
+/**
+ * 上面这份历程转成时间线条目：type = "build"，
+ * 与「教育经历 / 工作经历」在页面顶部的筛选里并列。
+ */
+export const webBuildTimeline: TimelineItem[] = webBuildSteps.map((step) => ({
+	id: `build-${step.id}`,
+	title: step.title,
+	description: step.summary,
+	type: "build",
+	startDate: step.date,
+	category: step.category,
+	featured: step.highlight,
+}));

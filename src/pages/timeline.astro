@@ -1,6 +1,9 @@
 ---
 import { FilterTabs } from "@components/atoms/filter-tabs";
-import { TimelineCard } from "@components/features/timeline";
+import {
+	ProjectTimelineCard,
+	TimelineCard,
+} from "@components/features/timeline";
 import { PageHeader } from "@components/features/page-header";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { Icon } from "astro-icon/components";
@@ -14,7 +17,13 @@ if (!siteConfig.featurePages.timeline) {
 	return Astro.redirect("/404/");
 }
 
-const types = ["education", "work", "project", "achievement"] as const;
+const types = [
+	"education",
+	"work",
+	"project",
+	"achievement",
+	"build",
+] as const;
 
 const getTypeIcon = (type: string) => {
 	switch (type) {
@@ -26,6 +35,8 @@ const getTypeIcon = (type: string) => {
 			return "material-symbols:code";
 		case "achievement":
 			return "material-symbols:emoji-events";
+		case "build":
+			return "material-symbols:deployed-code";
 		default:
 			return "material-symbols:apps";
 	}
@@ -41,6 +52,8 @@ const getTypeText = (type: string) => {
 			return i18n(I18nKey.timelineProject);
 		case "achievement":
 			return i18n(I18nKey.timelineAchievement);
+		case "build":
+			return i18n(I18nKey.timelineBuild);
 		default:
 			return type;
 	}
@@ -88,7 +101,15 @@ const subtitle = i18n(I18nKey.timelineSubtitle);
 			</div>
 
 			<div id="timeline-list" class="timeline-list">
-				{timelineData.map((item) => <TimelineCard item={item} />)}
+				{
+					timelineData.map((item) =>
+						item.type === "build" ? (
+							<ProjectTimelineCard item={item} />
+						) : (
+							<TimelineCard item={item} />
+						),
+					)
+				}
 			</div>
 
 			<div id="no-results" class="hidden text-center py-16">
