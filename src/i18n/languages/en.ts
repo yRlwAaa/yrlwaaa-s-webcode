@@ -382,6 +382,17 @@ export const en: Translation = {
 	[Key.musicAlbumCount]: "albums",
 	[Key.musicDownload]: "Download",
 
+	// Folia online player entry
+	[Key.musicPlayerEntryHint]: "Click to enter a new world",
+	[Key.musicPlayerEntryTitle]: "Folia Full-screen Lyrics Player",
+	[Key.musicPlayerEntryOpenTab]: "Open in new tab",
+	[Key.musicPlayerBack]: "Back to music",
+	[Key.musicPlayerNotConfigured]: "Player URL is not configured yet",
+	[Key.musicPlayerNotConfiguredHint]:
+		"Set the Folia deployment URL in src/data/folia.ts, or provide the PUBLIC_FOLIA_PLAYER_URL environment variable.",
+	[Key.musicPlayerUnreachable]:
+		"The player could not load. Try “Open in new tab” in the top-right corner.",
+
 	// Site Stats - PV
 	[Key.siteStatsTotalVisits]: "Total Visits",
 	[Key.siteStatsTodayVisits]: "Today Visits",
@@ -425,7 +436,8 @@ export const en: Translation = {
 	[Key.aiClose]: "Close",
 	[Key.aiWelcome]: "Hello, I'm yRlwAaa's AI Assistant",
 	[Key.aiWelcomeSub]: "Ask me anything about this website",
-	[Key.aiPlaceholder]: "Ask me anything about this site... (Enter to send, Shift+Enter for new line)",
+	[Key.aiPlaceholder]:
+		"Ask me anything about this site... (Enter to send, Shift+Enter for new line)",
 	[Key.aiSend]: "Send",
 	[Key.aiQuick1]: "What's on this website?",
 	[Key.aiQuick2]: "What are the latest articles?",
@@ -434,7 +446,8 @@ export const en: Translation = {
 
 	// ---------- Toolbox ----------
 	[Key.toolsTitle]: "Tools",
-	[Key.toolsSubtitle]: "A few handy little tools, ready to use straight out of the box",
+	[Key.toolsSubtitle]:
+		"A few handy little tools, ready to use straight out of the box",
 	[Key.toolsLocal]: "Runs locally",
 	[Key.toolsEmpty]: "No tools yet — stay tuned",
 	[Key.toolCrumbTools]: "Tools",
@@ -444,7 +457,8 @@ export const en: Translation = {
 	[Key.toolZip]: "Download all as ZIP",
 	[Key.toolRerun]: "Convert again with the new settings",
 	[Key.toolClear]: "Clear list",
-	[Key.toolSingleHint]: "You can also save each file on its own with the button on the right",
+	[Key.toolSingleHint]:
+		"You can also save each file on its own with the button on the right",
 
 	[Key.toolNcmName]: "NCM to FLAC",
 	[Key.toolNcmDesc]:
@@ -455,8 +469,10 @@ export const en: Translation = {
 	[Key.toolNcmDropTitle]: "Drop .ncm files here",
 	[Key.toolNcmDropSub]:
 		"Multiple files at once · decrypted entirely in your browser, files are never uploaded",
-	[Key.toolNcmOptLossless]: "Lossless only (skip MP3 / M4A and other lossy sources)",
-	[Key.toolNcmOptCover]: "Include album cover (a .jpg named after each track)",
+	[Key.toolNcmOptLossless]:
+		"Lossless only (skip MP3 / M4A and other lossy sources)",
+	[Key.toolNcmOptCover]:
+		"Include album cover (a .jpg named after each track)",
 	[Key.toolNcmFoot]:
 		"Decryption and packing happen in your browser's memory: no network, no upload, nothing stored. Please only use it on files you legitimately own.",
 	[Key.toolNcmSkip]: "Lossy audio ({format}), skipped per your setting",
@@ -476,11 +492,14 @@ export const en: Translation = {
 	[Key.toolImgQuality]: "Quality",
 	[Key.toolImgLossless]: "lossless",
 	[Key.toolImgUnavailable]: " (unavailable)",
-	[Key.toolImgHintWebp]: "WebP balances size and quality — the go-to choice for web images",
+	[Key.toolImgHintWebp]:
+		"WebP balances size and quality — the go-to choice for web images",
 	[Key.toolImgHintPng]:
 		"PNG is lossless but usually larger; best for screenshots, line art and transparency",
-	[Key.toolImgHintJpeg]: "JPEG has no transparency — transparent areas are filled with white",
-	[Key.toolImgHintAvif]: "AVIF gives the smallest files, but encodes slowly and older browsers may not support it",
+	[Key.toolImgHintJpeg]:
+		"JPEG has no transparency — transparent areas are filled with white",
+	[Key.toolImgHintAvif]:
+		"AVIF gives the smallest files, but encodes slowly and older browsers may not support it",
 	[Key.toolImgFoot]:
 		"Decoding and encoding happen in your browser: no network, no upload. Note: browsers cannot decode iPhone HEIC/HEIF — export as JPG on the phone first. Animated GIFs keep only the first frame.",
 
@@ -509,7 +528,8 @@ export const en: Translation = {
 		"Loading, repairing and exporting all happen in your browser: no network, no upload, nothing stored. Please only use it on images you own the rights to or have been authorised to edit — removing a watermark from someone else's work may infringe their rights.",
 	[Key.toolWmSuffix]: "repaired",
 	[Key.toolWmRegions]: "Areas to repair: {n}",
-	[Key.toolWmRegionsNone]: "No selection yet — box the watermark on the image",
+	[Key.toolWmRegionsNone]:
+		"No selection yet — box the watermark on the image",
 	[Key.toolWmStatusLoaded]:
 		"Loaded {name} · {w}×{h} — hold and drag on the watermark to box it",
 	[Key.toolWmStatusWorking]: "Repairing… {p}%",
@@ -527,17 +547,20 @@ export const en: Translation = {
 	[Key.toolWmStatusSaved]: "Saved: {name}",
 	[Key.toolWmErrLoad]: "Could not load the image",
 	[Key.toolWmErrInpaint]: "Repair failed: ",
-	[Key.toolWmErrExport]: "Export failed — this browser cannot encode that format",
+	[Key.toolWmErrExport]:
+		"Export failed — this browser cannot encode that format",
 	// AI watermark removal (E5 · IOPaint/LaMa proxy)
 	[Key.toolWmAiRun]: "AI remove (E5)",
 	[Key.toolWmAiWorking]: "E5 processing… {s}s",
 	[Key.toolWmAiProbing]: "Checking the E5 repair service…",
 	[Key.toolWmAiReady]:
 		"E5 online · handled by IOPaint/LaMa — select the watermark first",
-	[Key.toolWmAiOffline]: "E5 offline · expand “Offline fallback” below to use local repair",
+	[Key.toolWmAiOffline]:
+		"E5 offline · expand “Offline fallback” below to use local repair",
 	[Key.toolWmAiNoImage]:
 		"Load an image first: AI repair needs the original and a mask",
-	[Key.toolWmAiNoSel]: "Select the watermark area first: AI repair needs a mask",
+	[Key.toolWmAiNoSel]:
+		"Select the watermark area first: AI repair needs a mask",
 	[Key.toolWmAiTooLarge]:
 		"Image too large (a data URL over 12MB) — resize it or use local repair",
 	[Key.toolWmAiDone]: "Repaired by E5, ready to download · {s}s",
@@ -560,9 +583,12 @@ export const en: Translation = {
 	[Key.toolStatusIgnored]: "Ignored {n} file(s) in unsupported formats",
 	[Key.toolStatusNothing]: "No files selected",
 	[Key.toolStatusZipFail]: "Packing failed: ",
-	[Key.toolStatusRerun]: "Settings changed — click “Convert again with the new settings”",
-	[Key.toolStatusStale]: "This page is out of date — press Ctrl+F5 to hard refresh",
-	[Key.toolCoreMissing]: "The core script failed to load — press Ctrl+F5 to hard refresh the page",
+	[Key.toolStatusRerun]:
+		"Settings changed — click “Convert again with the new settings”",
+	[Key.toolStatusStale]:
+		"This page is out of date — press Ctrl+F5 to hard refresh",
+	[Key.toolCoreMissing]:
+		"The core script failed to load — press Ctrl+F5 to hard refresh the page",
 	[Key.toolZipWarn]:
 		"Total {size}. Packing keeps an extra copy in memory and can be slow.\nContinue? You can also save files one by one with the button on each row.",
 	[Key.toolFail]: "Failed",
@@ -586,7 +612,8 @@ export const en: Translation = {
 	[Key.toolSumPendImg]: " · {n} pending",
 	[Key.toolStatusSavedImg]: "Saved: {name}",
 	[Key.toolStatusZipSavedImg]: "ZIP saved · {n} image(s) · {size}",
-	[Key.toolErrUnknownFormat]: "The restored audio format could not be identified",
+	[Key.toolErrUnknownFormat]:
+		"The restored audio format could not be identified",
 	[Key.toolErrDecrypt]: "Decryption failed",
 	[Key.toolErrConvert]: "Conversion failed",
 	[Key.toolErrImgSize]: "Could not read the image dimensions",
@@ -626,8 +653,10 @@ export const en: Translation = {
 	[Key.serverTagIdle]: "Stopped",
 	[Key.serverTagReady]: "Ready",
 	[Key.serverTagUnconfigured]: "Not configured",
-	[Key.serverChatDesc]: "Qwen 27B · llama.cpp · port 11435 · stops image gen on start",
-	[Key.serverDrawDesc]: "SD WebUI · port 7860 · stops the chat service on start",
+	[Key.serverChatDesc]:
+		"Qwen 27B · llama.cpp · port 11435 · stops image gen on start",
+	[Key.serverDrawDesc]:
+		"SD WebUI · port 7860 · stops the chat service on start",
 	[Key.serverInpaintDesc]:
 		"IOPaint · LaMa · port 7861 · always on (runs on CPU, uses no VRAM)",
 	[Key.serverTagResident]: "Always on",
@@ -650,7 +679,8 @@ export const en: Translation = {
 		"Starting the chat service (image gen stops automatically), roughly 1–3 minutes…",
 	[Key.serverDrawStarting]:
 		"Starting image gen (the chat service stops automatically), roughly 1–3 minutes…",
-	[Key.serverSwitchStarted]: "Switch started — watch the status above for progress",
+	[Key.serverSwitchStarted]:
+		"Switch started — watch the status above for progress",
 	[Key.serverBusy]: "Another switch is already in progress — please wait",
 	[Key.serverStartFailed]: "Failed to start",
 	[Key.serverOpFailed]: "Operation failed",

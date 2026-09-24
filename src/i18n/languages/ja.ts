@@ -385,6 +385,17 @@ export const ja: Translation = {
 	[Key.musicAlbumCount]: "枚のアルバム",
 	[Key.musicDownload]: "ダウンロード",
 
+	// Folia オンラインプレイヤー入口
+	[Key.musicPlayerEntryHint]: "クリックして新世界へ",
+	[Key.musicPlayerEntryTitle]: "Folia 全画面歌詞プレイヤー",
+	[Key.musicPlayerEntryOpenTab]: "新しいタブで開く",
+	[Key.musicPlayerBack]: "音楽に戻る",
+	[Key.musicPlayerNotConfigured]: "プレイヤーの URL が未設定です",
+	[Key.musicPlayerNotConfiguredHint]:
+		"src/data/folia.ts に Folia のデプロイ先 URL を設定するか、環境変数 PUBLIC_FOLIA_PLAYER_URL を指定してください。",
+	[Key.musicPlayerUnreachable]:
+		"プレイヤーを読み込めませんでした。右上の「新しいタブで開く」をお試しください。",
+
 	// サイト統計 - PV
 	[Key.siteStatsTotalVisits]: "総訪問数",
 	[Key.siteStatsTodayVisits]: "今日の訪問",
@@ -399,7 +410,8 @@ export const ja: Translation = {
 	[Key.weatherLow]: "最低",
 	[Key.weatherForecast]: "週間予報",
 	[Key.weatherToday]: "今日",
-	[Key.weatherNotFound]: "都市が見つかりません。英語名またはピンインをお試しください",
+	[Key.weatherNotFound]:
+		"都市が見つかりません。英語名またはピンインをお試しください",
 	[Key.weatherSunny]: "晴れ",
 	[Key.weatherPartlyCloudy]: "晴れ時々曇り",
 	[Key.weatherCloudy]: "曇り",
@@ -428,7 +440,8 @@ export const ja: Translation = {
 	[Key.aiClose]: "閉じる",
 	[Key.aiWelcome]: "こんにちは、yRlwAaa の AI アシスタントです",
 	[Key.aiWelcomeSub]: "このサイトについて何でも聞いてください",
-	[Key.aiPlaceholder]: "このサイトについて質問してください…（Enter で送信、Shift+Enter で改行）",
+	[Key.aiPlaceholder]:
+		"このサイトについて質問してください…（Enter で送信、Shift+Enter で改行）",
 	[Key.aiSend]: "送信",
 	[Key.aiQuick1]: "このサイトには何がありますか？",
 	[Key.aiQuick2]: "最新の記事は？",
@@ -447,7 +460,8 @@ export const ja: Translation = {
 	[Key.toolZip]: "まとめてダウンロード",
 	[Key.toolRerun]: "新しい設定で再変換",
 	[Key.toolClear]: "リストを空にする",
-	[Key.toolSingleHint]: "各行の右側の「ダウンロード」から 1 つずつ保存することもできます",
+	[Key.toolSingleHint]:
+		"各行の右側の「ダウンロード」から 1 つずつ保存することもできます",
 
 	[Key.toolNcmName]: "NCM → FLAC",
 	[Key.toolNcmDesc]:
@@ -458,7 +472,8 @@ export const ja: Translation = {
 	[Key.toolNcmDropTitle]: ".ncm ファイルをここにドロップ",
 	[Key.toolNcmDropSub]:
 		"複数まとめて選択できます · 復号はすべてブラウザ内、ファイルは送信されません",
-	[Key.toolNcmOptLossless]: "ロスレスのみ（MP3 / M4A などの非可逆音源はスキップ）",
+	[Key.toolNcmOptLossless]:
+		"ロスレスのみ（MP3 / M4A などの非可逆音源はスキップ）",
 	[Key.toolNcmOptCover]: "アルバムアートを含める（各音声と同名の .jpg）",
 	[Key.toolNcmFoot]:
 		"復号と梱包はブラウザのメモリ内で完結します。通信も送信も記録もありません。ご自身が正当に入手したファイルにのみお使いください。",
@@ -471,18 +486,22 @@ export const ja: Translation = {
 		"さまざまな画像形式を Web 向けの WebP / PNG / JPEG に変換し、ついでにサイズも落とせます。Web 画像で本当に通信量を食うのは形式よりも画素数で、4000px の写真を 1600px に縮めるだけで 8〜9 割の容量が減り、形式変換でさらに 2〜3 割減ります。画像をドロップして出力形式・最大幅・品質を選ぶだけ。処理後は ZIP でまとめてダウンロードできます。すべてブラウザ内で完結し、画像はサーバーに送信されません。",
 	[Key.toolImgTags]: "画像|WebP|完全ローカル",
 	[Key.toolImgDropTitle]: "画像をここにドロップ",
-	[Key.toolImgDropSub]: "複数まとめて選択できます · 変換はすべてブラウザ内、送信されません",
+	[Key.toolImgDropSub]:
+		"複数まとめて選択できます · 変換はすべてブラウザ内、送信されません",
 	[Key.toolImgFormat]: "出力形式",
 	[Key.toolImgMaxWidth]: "最大幅",
 	[Key.toolImgKeepSize]: "元のサイズのまま",
 	[Key.toolImgQuality]: "品質",
 	[Key.toolImgLossless]: "ロスレス",
 	[Key.toolImgUnavailable]: "（使用不可）",
-	[Key.toolImgHintWebp]: "WebP は容量と品質のバランスが良く、Web 画像の第一候補です",
+	[Key.toolImgHintWebp]:
+		"WebP は容量と品質のバランスが良く、Web 画像の第一候補です",
 	[Key.toolImgHintPng]:
 		"PNG はロスレスですが通常 WebP より大きめ。スクリーンショットや線画、透過が必要なときに",
-	[Key.toolImgHintJpeg]: "JPEG は透過に対応しないため、透明部分は白で塗られます",
-	[Key.toolImgHintAvif]: "AVIF は最も小さくなりますが、エンコードが遅く古いブラウザでは未対応のことがあります",
+	[Key.toolImgHintJpeg]:
+		"JPEG は透過に対応しないため、透明部分は白で塗られます",
+	[Key.toolImgHintAvif]:
+		"AVIF は最も小さくなりますが、エンコードが遅く古いブラウザでは未対応のことがあります",
 	[Key.toolImgFoot]:
 		"デコードとエンコードはブラウザ内で完結します。通信も送信もありません。注意: iPhone の HEIC/HEIF はブラウザでデコードできないため、先にスマホ側で JPG に書き出してください。アニメ GIF は 1 フレーム目のみ取り出します。",
 
@@ -494,7 +513,8 @@ export const ja: Translation = {
 		"画像上で透かしを囲んで離すと、その下のピクセルを周囲から復元します（画像インペインティング）。単色・グラデーション・素直なテクスチャの上に乗った透かしほどよく効きます。逆に、大きなベタ塗りの塊で元の絵が完全に隠れている場合は復元できません。複数の範囲をまとめて囲めますし、修復は毎回「元の画像」から計算し直すので、何度押しても滲んでいくことはありません。出力は元の形式と解像度のまま。処理はすべてこのページ内で完結し、画像はどこにも送信されません。",
 	[Key.toolWmTags]: "画像|透かし除去|ローカル + E5 AI",
 	[Key.toolWmDropTitle]: "ここに画像をドロップ",
-	[Key.toolWmDropSub]: "一度に1枚 · すべてこのページ内で処理、アップロードはしません",
+	[Key.toolWmDropSub]:
+		"一度に1枚 · すべてこのページ内で処理、アップロードはしません",
 	[Key.toolWmLoadHint]:
 		"読み込んだら、透かしの上でドラッグして囲んでください。複数箇所を選べます。",
 	[Key.toolWmStart]: "ローカル修復",
@@ -511,7 +531,8 @@ export const ja: Translation = {
 		"読み込み・修復・書き出しはすべてブラウザ内で完結します。通信も送信もなく、どこにも保存しません。自分が権利を持つ画像、または加工を許可された画像にのみお使いください —— 他人の作品から透かしを消す行為は権利侵害になり得ます。",
 	[Key.toolWmSuffix]: "修復済み",
 	[Key.toolWmRegions]: "修復する範囲: {n} 箇所",
-	[Key.toolWmRegionsNone]: "まだ選択がありません。画像上で透かしを囲んでください",
+	[Key.toolWmRegionsNone]:
+		"まだ選択がありません。画像上で透かしを囲んでください",
 	[Key.toolWmStatusLoaded]:
 		"{name} を読み込みました · {w}×{h} — 透かしの上でドラッグして囲んでください",
 	[Key.toolWmStatusWorking]: "修復中… {p}%",
@@ -530,17 +551,20 @@ export const ja: Translation = {
 	[Key.toolWmStatusSaved]: "保存しました: {name}",
 	[Key.toolWmErrLoad]: "画像を読み込めませんでした",
 	[Key.toolWmErrInpaint]: "修復に失敗しました: ",
-	[Key.toolWmErrExport]: "書き出しに失敗しました。この形式はエンコードできません",
+	[Key.toolWmErrExport]:
+		"書き出しに失敗しました。この形式はエンコードできません",
 	// AI 透かし除去(E5 · IOPaint/LaMa 経由)
 	[Key.toolWmAiRun]: "AI 除去(E5)",
 	[Key.toolWmAiWorking]: "E5 処理中… {s}s",
 	[Key.toolWmAiProbing]: "E5 の修復サービスを確認中…",
 	[Key.toolWmAiReady]:
 		"E5 オンライン · IOPaint/LaMa が処理します。先に透かしを選択してください",
-	[Key.toolWmAiOffline]: "E5 オフライン · 下の「オフライン代替」を開くとローカル修復が使えます",
+	[Key.toolWmAiOffline]:
+		"E5 オフライン · 下の「オフライン代替」を開くとローカル修復が使えます",
 	[Key.toolWmAiNoImage]:
 		"先に画像を読み込んでください: AI 修復には元画像とマスクが必要です",
-	[Key.toolWmAiNoSel]: "先に透かしを選択してください: AI 修復にはマスクが必要です",
+	[Key.toolWmAiNoSel]:
+		"先に透かしを選択してください: AI 修復にはマスクが必要です",
 	[Key.toolWmAiTooLarge]:
 		"画像が大きすぎます(dataURL が 12MB 超)。縮小するかローカル修復を使ってください",
 	[Key.toolWmAiDone]: "E5 で修復しました。ダウンロードできます · {s}s",
@@ -563,9 +587,12 @@ export const ja: Translation = {
 	[Key.toolStatusIgnored]: "対象外の形式 {n} 件を無視しました",
 	[Key.toolStatusNothing]: "ファイルが選択されていません",
 	[Key.toolStatusZipFail]: "梱包に失敗: ",
-	[Key.toolStatusRerun]: "設定が変更されました。「新しい設定で再変換」を押してください",
-	[Key.toolStatusStale]: "このページは古い版です。Ctrl+F5 で強制再読み込みしてください",
-	[Key.toolCoreMissing]: "コアスクリプトの読み込みに失敗しました。Ctrl+F5 で強制再読み込みしてください",
+	[Key.toolStatusRerun]:
+		"設定が変更されました。「新しい設定で再変換」を押してください",
+	[Key.toolStatusStale]:
+		"このページは古い版です。Ctrl+F5 で強制再読み込みしてください",
+	[Key.toolCoreMissing]:
+		"コアスクリプトの読み込みに失敗しました。Ctrl+F5 で強制再読み込みしてください",
 	[Key.toolZipWarn]:
 		"合計 {size}。梱包には追加のメモリが必要で、時間がかかることがあります。\n続行しますか？ 各行右側の「ダウンロード」で個別保存もできます。",
 	[Key.toolFail]: "失敗",
@@ -650,9 +677,12 @@ export const ja: Translation = {
 	[Key.serverSwitching]: "切り替え中…",
 	[Key.serverSwitchedOk]: "✅ {msg}「入る →」で開けます",
 	[Key.serverDataSource]: "データ元 {src}",
-	[Key.serverChatStarting]: "対話 AI を起動しています(画像生成は自動停止), 約 1〜3 分…",
-	[Key.serverDrawStarting]: "画像生成を起動しています(対話 AI は自動停止), 約 1〜3 分…",
-	[Key.serverSwitchStarted]: "切り替えを開始しました。進捗は上の状態に表示されます",
+	[Key.serverChatStarting]:
+		"対話 AI を起動しています(画像生成は自動停止), 約 1〜3 分…",
+	[Key.serverDrawStarting]:
+		"画像生成を起動しています(対話 AI は自動停止), 約 1〜3 分…",
+	[Key.serverSwitchStarted]:
+		"切り替えを開始しました。進捗は上の状態に表示されます",
 	[Key.serverBusy]: "別の切り替えが進行中です。しばらくお待ちください",
 	[Key.serverStartFailed]: "起動に失敗しました",
 	[Key.serverOpFailed]: "操作に失敗しました",
@@ -667,7 +697,8 @@ export const ja: Translation = {
 		"NAS に Wake パケットの送信を依頼しました。E5 の起動を待っています…",
 	[Key.serverWakeOk]:
 		"Wake パケットを送信しました(E5 側の BIOS で WoL を有効にする必要があります)。30〜90 秒ほどです",
-	[Key.serverWakeFail]: "Wake リクエストに失敗しました:NAS の Wake サービスを確認してください",
+	[Key.serverWakeFail]:
+		"Wake リクエストに失敗しました:NAS の Wake サービスを確認してください",
 	[Key.serverWakeOnline]: "E5 がオンラインになりました ✅",
 	[Key.serverWakeTimeout]:
 		"E5 はまだオンラインになりません:BIOS の WoL が無効か、電源が切れている可能性があります",
@@ -677,7 +708,8 @@ export const ja: Translation = {
 		"確認が取れませんでした({msg})。まもなく状態を自動更新します",
 	[Key.serverAskToken]: "制御用パスワードを入力してください(管理者のみ):",
 	[Key.serverErrCancelled]: "キャンセルしました: パスワードが必要です",
-	[Key.serverErrTokenCancelled]: "パスワードが違うため操作をキャンセルしました",
+	[Key.serverErrTokenCancelled]:
+		"パスワードが違うため操作をキャンセルしました",
 	[Key.serverErrToken]: "パスワードが違います",
 
 	// ページネーション

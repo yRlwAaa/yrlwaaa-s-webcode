@@ -42,3 +42,7 @@
 
 /js/*
   Cache-Control: no-cache
+
+# 音乐页与在线播放器入口页同样走强校验: 播放器地址改了就应立刻生效。
+/music/*
+  Cache-Control: no-cache

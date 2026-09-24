@@ -12,8 +12,26 @@ import type {
  * - category= 分类（决定图标、圆点颜色和分类标签）
  *
  * 数组按日期从新到旧；新增功能就在最上面加一条。
+ *
+ * 默认约定：**每次给站点加/改一个可用功能，都要在这里补一条**，
+ * 条目会自动以内置 build 分类出现在时间线里（见文件末尾的 webBuildTimeline）。
+ * 用脚本加，避免手写格式出错：
+ *
+ *   npm run timeline:add -- --title "功能名" --category music --summary "一句话说明" [--highlight]
+ *   npm run timeline:check    # 提示「最近改了功能但时间线没跟上」的提交
+ *
+ * 可用分类见 src/components/features/timeline/project-categories.ts。
  */
 export const webBuildSteps: ProjectTimelineItem[] = [
+	{
+		id: "folia",
+		title: "在线播放器 Folia",
+		category: "music",
+		date: "2026-09-24",
+		summary:
+			"音乐页多了个在线播放器入口，点进去站内全屏运行，能登自己的网易云账号；播放器本体与网易云接口分别独立部署",
+		highlight: true,
+	},
 	{
 		id: "dictionary-page",
 		title: "词典查询页重做",

@@ -369,6 +369,17 @@ export const zh_CN: Translation = {
 	[Key.musicAlbumCount]: "张专辑",
 	[Key.musicDownload]: "下载",
 
+	// Folia 在线播放器入口
+	[Key.musicPlayerEntryHint]: "点击进入新世界",
+	[Key.musicPlayerEntryTitle]: "Folia 全屏歌词播放器",
+	[Key.musicPlayerEntryOpenTab]: "在新标签页打开",
+	[Key.musicPlayerBack]: "返回音乐",
+	[Key.musicPlayerNotConfigured]: "播放器地址尚未配置",
+	[Key.musicPlayerNotConfiguredHint]:
+		"在 src/data/folia.ts 填入 Folia 部署地址，或设置环境变量 PUBLIC_FOLIA_PLAYER_URL。",
+	[Key.musicPlayerUnreachable]:
+		"播放器暂时加载不出来。点右上角「在新标签页打开」试试。",
+
 	// 站点统计 - PV
 	[Key.siteStatsTotalVisits]: "总访问人数",
 	[Key.siteStatsTodayVisits]: "今日访问",
@@ -435,7 +446,8 @@ export const zh_CN: Translation = {
 
 	// 工具 · NCM 转 FLAC
 	[Key.toolNcmName]: "NCM 转 FLAC",
-	[Key.toolNcmDesc]: "网易云 .ncm 加密文件还原成原始 FLAC, 批量拖入, 一键打包成 zip",
+	[Key.toolNcmDesc]:
+		"网易云 .ncm 加密文件还原成原始 FLAC, 批量拖入, 一键打包成 zip",
 	[Key.toolNcmIntro]:
 		".ncm 是网易云音乐客户端给下载文件套的一层加密容器, 里面装的其实就是原始音频流(无损源就是真 FLAC)。这个工具在浏览器里把外层壳解掉, 直接吐出原始 FLAC, 不做任何二次转码, 所以音质和源文件完全一致。支持多选和拖拽, 处理完打包成一个 zip 下载; 全程在本站页面内完成, 文件不会被上传到任何服务器。",
 	[Key.toolNcmTags]: "音频|无损|纯本地",
@@ -463,7 +475,8 @@ export const zh_CN: Translation = {
 	[Key.toolImgLossless]: "无损",
 	[Key.toolImgUnavailable]: " (不可用)",
 	[Key.toolImgHintWebp]: "WebP 兼顾体积与质量, 网页配图首选",
-	[Key.toolImgHintPng]: "PNG 为无损, 体积通常比 WebP 大; 适合截图/线稿/需要透明时",
+	[Key.toolImgHintPng]:
+		"PNG 为无损, 体积通常比 WebP 大; 适合截图/线稿/需要透明时",
 	[Key.toolImgHintJpeg]: "JPEG 不支持透明, 透明区域会被填成白底",
 	[Key.toolImgHintAvif]: "AVIF 体积最小, 但编码较慢且旧浏览器可能不支持",
 	[Key.toolImgFoot]:
@@ -531,8 +544,10 @@ export const zh_CN: Translation = {
 	[Key.toolStatusDecrypting]: "解密中…",
 	[Key.toolStatusDecoding]: "解码中…",
 	[Key.toolStatusWorking]: "正在处理 {done} / {total} · {name}",
-	[Key.toolStatusDoneNcm]: "已完成 {n} 首 · 点每首右侧「下载」单个保存, 或点下方打包下载",
-	[Key.toolStatusDoneImg]: "已完成 {n} 张 · 点每行右侧「下载」单个保存, 或点下方打包下载",
+	[Key.toolStatusDoneNcm]:
+		"已完成 {n} 首 · 点每首右侧「下载」单个保存, 或点下方打包下载",
+	[Key.toolStatusDoneImg]:
+		"已完成 {n} 张 · 点每行右侧「下载」单个保存, 或点下方打包下载",
 	[Key.toolStatusSaved]: "已保存: {name}",
 	[Key.toolStatusZipping]: "正在打包 {n} 个文件…",
 	[Key.toolStatusZipSaved]: "已保存压缩包 · {n} 个文件 · {size}",
@@ -582,7 +597,8 @@ export const zh_CN: Translation = {
 
 	// ---------- 服务器控制台 ----------
 	[Key.serverTitle]: "服务器",
-	[Key.serverSubtitle]: "E5 · P100 16G · 对话 AI / 画图 / 编译 · 资源实时监控",
+	[Key.serverSubtitle]:
+		"E5 · P100 16G · 对话 AI / 画图 / 编译 · 资源实时监控",
 	[Key.serverLoading]: "读取中…",
 	[Key.serverWake]: "唤醒 E5",
 	[Key.serverStopAll]: "全部停止",
@@ -605,7 +621,8 @@ export const zh_CN: Translation = {
 	[Key.serverTagIdle]: "未运行",
 	[Key.serverTagReady]: "就绪",
 	[Key.serverTagUnconfigured]: "未配置",
-	[Key.serverChatDesc]: "Qwen 27B · llama.cpp · 端口 11435 · 启动时自动停画图",
+	[Key.serverChatDesc]:
+		"Qwen 27B · llama.cpp · 端口 11435 · 启动时自动停画图",
 	[Key.serverDrawDesc]: "SD WebUI · 端口 7860 · 启动时自动停对话",
 	[Key.serverInpaintDesc]:
 		"IOPaint · LaMa · 端口 7861 · 常驻运行(跑在 CPU 上, 不占显存)",

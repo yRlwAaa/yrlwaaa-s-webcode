@@ -371,6 +371,17 @@ export const zh_TW: Translation = {
 	[Key.musicAlbumCount]: "張專輯",
 	[Key.musicDownload]: "下載",
 
+	// Folia 線上播放器入口
+	[Key.musicPlayerEntryHint]: "點擊進入新世界",
+	[Key.musicPlayerEntryTitle]: "Folia 全螢幕歌詞播放器",
+	[Key.musicPlayerEntryOpenTab]: "在新分頁開啟",
+	[Key.musicPlayerBack]: "返回音樂",
+	[Key.musicPlayerNotConfigured]: "播放器網址尚未設定",
+	[Key.musicPlayerNotConfiguredHint]:
+		"在 src/data/folia.ts 填入 Folia 部署網址，或設定環境變數 PUBLIC_FOLIA_PLAYER_URL。",
+	[Key.musicPlayerUnreachable]:
+		"播放器暫時載入不出來。點右上角「在新分頁開啟」試試。",
+
 	// 站點統計 - PV
 	[Key.siteStatsTotalVisits]: "總訪問人數",
 	[Key.siteStatsTodayVisits]: "今日訪問",
@@ -436,7 +447,8 @@ export const zh_TW: Translation = {
 	[Key.toolSingleHint]: "也可以點每行右側的「下載」單獨儲存，不打包",
 
 	[Key.toolNcmName]: "NCM 轉 FLAC",
-	[Key.toolNcmDesc]: "網易雲 .ncm 加密檔案還原成原始 FLAC，批次拖入，一鍵打包成 zip",
+	[Key.toolNcmDesc]:
+		"網易雲 .ncm 加密檔案還原成原始 FLAC，批次拖入，一鍵打包成 zip",
 	[Key.toolNcmIntro]:
 		".ncm 是網易雲音樂客戶端給下載檔案套的一層加密容器，裡面裝的其實就是原始音訊串流（無損來源就是真 FLAC）。這個工具在瀏覽器裡把外層殼解掉，直接吐出原始 FLAC，不做任何二次轉碼，所以音質和來源檔案完全一致。支援多選和拖曳，處理完打包成一個 zip 下載；全程在本站頁面內完成，檔案不會被上傳到任何伺服器。",
 	[Key.toolNcmTags]: "音訊|無損|純本地",
@@ -463,7 +475,8 @@ export const zh_TW: Translation = {
 	[Key.toolImgLossless]: "無損",
 	[Key.toolImgUnavailable]: "（不可用）",
 	[Key.toolImgHintWebp]: "WebP 兼顧體積與品質，網頁配圖首選",
-	[Key.toolImgHintPng]: "PNG 為無損，體積通常比 WebP 大；適合截圖／線稿／需要透明的時候",
+	[Key.toolImgHintPng]:
+		"PNG 為無損，體積通常比 WebP 大；適合截圖／線稿／需要透明的時候",
 	[Key.toolImgHintJpeg]: "JPEG 不支援透明，透明區域會被填成白底",
 	[Key.toolImgHintAvif]: "AVIF 體積最小，但編碼較慢且舊瀏覽器可能不支援",
 	[Key.toolImgFoot]:
@@ -530,8 +543,10 @@ export const zh_TW: Translation = {
 	[Key.toolStatusDecrypting]: "解密中…",
 	[Key.toolStatusDecoding]: "解碼中…",
 	[Key.toolStatusWorking]: "正在處理 {done} / {total} · {name}",
-	[Key.toolStatusDoneNcm]: "已完成 {n} 首 · 點每首右側「下載」單獨儲存，或點下方打包下載",
-	[Key.toolStatusDoneImg]: "已完成 {n} 張 · 點每行右側「下載」單獨儲存，或點下方打包下載",
+	[Key.toolStatusDoneNcm]:
+		"已完成 {n} 首 · 點每首右側「下載」單獨儲存，或點下方打包下載",
+	[Key.toolStatusDoneImg]:
+		"已完成 {n} 張 · 點每行右側「下載」單獨儲存，或點下方打包下載",
 	[Key.toolStatusSaved]: "已儲存：{name}",
 	[Key.toolStatusZipping]: "正在打包 {n} 個檔案…",
 	[Key.toolStatusZipSaved]: "已儲存壓縮檔 · {n} 個檔案 · {size}",
@@ -581,7 +596,8 @@ export const zh_TW: Translation = {
 
 	// ---------- 伺服器控制台 ----------
 	[Key.serverTitle]: "伺服器",
-	[Key.serverSubtitle]: "E5 · P100 16G · 對話 AI / 繪圖 / 編譯 · 資源即時監控",
+	[Key.serverSubtitle]:
+		"E5 · P100 16G · 對話 AI / 繪圖 / 編譯 · 資源即時監控",
 	[Key.serverLoading]: "讀取中…",
 	[Key.serverWake]: "喚醒 E5",
 	[Key.serverStopAll]: "全部停止",
@@ -604,7 +620,8 @@ export const zh_TW: Translation = {
 	[Key.serverTagIdle]: "未執行",
 	[Key.serverTagReady]: "就緒",
 	[Key.serverTagUnconfigured]: "未設定",
-	[Key.serverChatDesc]: "Qwen 27B · llama.cpp · 連接埠 11435 · 啟動時自動停用繪圖",
+	[Key.serverChatDesc]:
+		"Qwen 27B · llama.cpp · 連接埠 11435 · 啟動時自動停用繪圖",
 	[Key.serverDrawDesc]: "SD WebUI · 連接埠 7860 · 啟動時自動停用對話",
 	[Key.serverInpaintDesc]:
 		"IOPaint · LaMa · 連接埠 7861 · 常駐執行（跑在 CPU 上，不佔顯存）",
@@ -636,7 +653,8 @@ export const zh_TW: Translation = {
 	[Key.serverSourceOfflineDetail]: "資料來源離線（通道未執行或網域未解析）",
 	[Key.serverRetrying]: "重試中…",
 	[Key.serverWakeSent]: "已請 NAS 送出喚醒封包，正在等待 E5 上線…",
-	[Key.serverWakeOk]: "喚醒封包已送出（需 E5 的 BIOS 開啟 WoL），大約 30~90 秒",
+	[Key.serverWakeOk]:
+		"喚醒封包已送出（需 E5 的 BIOS 開啟 WoL），大約 30~90 秒",
 	[Key.serverWakeFail]: "喚醒請求失敗：請檢查 NAS 喚醒服務",
 	[Key.serverWakeOnline]: "E5 已上線 ✅",
 	[Key.serverWakeTimeout]: "E5 仍未上線：可能 BIOS 未啟用 WoL 或電源被關閉",

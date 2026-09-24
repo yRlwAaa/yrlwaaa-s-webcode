@@ -10,6 +10,8 @@
 		"dev": "astro dev",
 		"start": "astro dev",
 		"check": "astro check",
+		"timeline:add": "node scripts/timeline-sync.mjs add",
+		"timeline:check": "node scripts/timeline-sync.mjs check",
 		"update-anime": "node scripts/update-anime.mjs",
 		"update-bangumi": "node scripts/update-bangumi.mjs",
 		"update-bilibili": "node scripts/update-bilibili.mjs",

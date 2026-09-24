@@ -49,6 +49,14 @@
 - **[AUTO_BUILD_TRIGGER.md](./AUTO_BUILD_TRIGGER.md)** - 自动构建触发快速参考 🆕
   - 5 步快速配置，解决内容更新不触发部署的问题
 
+### 音乐播放器相关
+
+- **[FOLIA_PLAYER.md](./FOLIA_PLAYER.md)** - 音乐页在线播放器（Folia）接入与部署 ⭐
+  - 三段式架构（本站壳页 / Folia 前端 / 网易云 API）
+  - Vercel 部署网易云 API + Cloudflare 部署 Folia + 绑定自定义域名
+  - 为什么跨域 iframe 也能登网易云账号
+  - 已知限制（本地音乐需新标签打开）与排错表
+
 ## 🚀 快速查找
 
 ### 我是新手，想快速开始

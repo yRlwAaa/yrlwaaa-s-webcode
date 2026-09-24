@@ -1,70 +1,163 @@
 ---
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import musicData from "../../data/music.json";
+import { foliaPlayerConfig } from "../../data/folia";
 import I18nKey from "../../i18n/i18nKey";
 import { i18n } from "../../i18n/translation";
 ---
 
 <MainGridLayout title={i18n(I18nKey.musicTitle)}>
-  <div id="music-app">
-    <div class="page-header">
-      <h1 id="index-title">{i18n(I18nKey.musicTitle)}</h1>
-      <p id="index-subtitle">{musicData.artists.length} {i18n(I18nKey.musicArtistCount)}</p>
-    </div>
-    <div class="artist-grid">
-      {musicData.artists.map(artist => (
-        <a href={`/music/artist/${artist.id}`} class="artist-card">
-          <img src={artist.image} alt={artist.name} />
-          <h3 class="artist-name">{artist.name}</h3>
-          <p class="artist-bio">{artist.bio || ''}</p>
-        </a>
-      ))}
-    </div>
-  </div>
+	<div id="music-app">
+		{/* 「音乐」大字在左, 「点击进入新世界」小字在最右, 同一行 */}
+		<div class="page-header">
+			<div class="page-header-text">
+				<h1 id="index-title">{i18n(I18nKey.musicTitle)}</h1>
+				<p id="index-subtitle">
+					{musicData.artists.length}
+					{i18n(I18nKey.musicArtistCount)}
+				</p>
+			</div>
+			{
+				foliaPlayerConfig.enabled && (
+					<a
+						class="enter-new-world"
+						id="enter-player"
+						href={foliaPlayerConfig.entryUrl}
+					>
+						{i18n(I18nKey.musicPlayerEntryHint)}
+					</a>
+				)
+			}
+		</div>
+
+		<div class="artist-grid">
+			{
+				musicData.artists.map((artist) => (
+					<a href={`/music/artist/${artist.id}`} class="artist-card">
+						<img src={artist.image} alt={artist.name} />
+						<h3 class="artist-name">{artist.name}</h3>
+						<p class="artist-bio">{artist.bio || ""}</p>
+					</a>
+				))
+			}
+		</div>
+	</div>
 </MainGridLayout>
 
 <style>
-  .page-header h1 { font-size: 2rem; margin-bottom: 0.25rem; color: var(--music-text, #fff); }
-  .page-header p { color: var(--music-text-sec, #9ca3af); }
-  .artist-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 1.5rem;
-  }
-  .artist-card {
-    text-decoration: none;
-    text-align: center;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid var(--music-border, rgba(255,255,255,0.08));
-    padding: 1rem;
-    transition: transform 0.2s;
-    background: var(--music-bg, var(--card-bg, #1a1a2e));
-  }
-  .artist-card:hover { transform: translateY(-4px); }
-  .artist-card img {
-    width: 100%;
-    aspect-ratio: 1/1;
-    object-fit: cover;
-    border-radius: 50%;
-  }
-  .artist-card h3 { margin-top: 0.75rem; font-size: 1rem; color: var(--music-text, #fff); }
-  .artist-card p { font-size: 0.8rem; color: var(--music-text-sec, #9ca3af); }
+	.page-header {
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 1.5rem;
+	}
+	.page-header-text {
+		min-width: 0;
+	}
+	.page-header h1 {
+		font-size: 2rem;
+		margin-bottom: 0.25rem;
+		color: var(--music-text, #fff);
+	}
+	.page-header p {
+		color: var(--music-text-sec, #9ca3af);
+	}
+
+	/* 右侧那排小字: 刻意做小、做淡, hover 才亮起来 */
+	.enter-new-world {
+		flex: none;
+		padding-bottom: 0.3rem;
+		font-size: 0.72rem;
+		line-height: 1;
+		letter-spacing: 0.04em;
+		white-space: nowrap;
+		text-decoration: none;
+		color: var(--music-text-sec, #9ca3af);
+		opacity: 0.7;
+		transition:
+			opacity 0.2s,
+			color 0.2s;
+	}
+	.enter-new-world::after {
+		content: "→";
+		display: inline-block;
+		margin-left: 0.35em;
+		transition: transform 0.2s;
+	}
+	.enter-new-world:hover {
+		opacity: 1;
+		color: oklch(0.75 0.14 var(--hue));
+	}
+	.enter-new-world:hover::after {
+		transform: translateX(3px);
+	}
+
+	@media (max-width: 480px) {
+		.page-header {
+			gap: 0.5rem;
+		}
+		.enter-new-world {
+			font-size: 0.68rem;
+		}
+	}
+
+	.artist-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+		gap: 1.5rem;
+	}
+	.artist-card {
+		text-decoration: none;
+		text-align: center;
+		border-radius: 12px;
+		overflow: hidden;
+		border: 1px solid var(--music-border, rgba(255, 255, 255, 0.08));
+		padding: 1rem;
+		transition: transform 0.2s;
+		background: var(--music-bg, var(--card-bg, #1a1a2e));
+	}
+	.artist-card:hover {
+		transform: translateY(-4px);
+	}
+	.artist-card img {
+		width: 100%;
+		aspect-ratio: 1/1;
+		object-fit: cover;
+		border-radius: 50%;
+	}
+	.artist-card h3 {
+		margin-top: 0.75rem;
+		font-size: 1rem;
+		color: var(--music-text, #fff);
+	}
+	.artist-card p {
+		font-size: 0.8rem;
+		color: var(--music-text-sec, #9ca3af);
+	}
 </style>
 
 <script>
-  function applyTheme() {
-    const isDark = document.documentElement.classList.contains('dark');
-    const cardBg = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim() || '#1a1a2e';
-    const text = isDark ? '#ffffff' : '#000000';
-    const textSec = isDark ? '#9ca3af' : '#6b7280';
-    const border = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
-    document.documentElement.style.setProperty('--music-bg', cardBg);
-    document.documentElement.style.setProperty('--music-text', text);
-    document.documentElement.style.setProperty('--music-text-sec', textSec);
-    document.documentElement.style.setProperty('--music-border', border);
-  }
-  setTimeout(applyTheme, 50);
-  const observer = new MutationObserver(() => applyTheme());
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style'] });
+	function applyTheme() {
+		const isDark = document.documentElement.classList.contains("dark");
+		const cardBg =
+			getComputedStyle(document.documentElement)
+				.getPropertyValue("--card-bg")
+				.trim() || "#1a1a2e";
+		const text = isDark ? "#ffffff" : "#000000";
+		const textSec = isDark ? "#9ca3af" : "#6b7280";
+		const border = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
+		const hover = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)";
+		document.documentElement.style.setProperty("--music-bg", cardBg);
+		document.documentElement.style.setProperty("--music-text", text);
+		document.documentElement.style.setProperty("--music-text-sec", textSec);
+		document.documentElement.style.setProperty("--music-border", border);
+		document.documentElement.style.setProperty("--music-hover", hover);
+	}
+	setTimeout(applyTheme, 50);
+	const observer = new MutationObserver(() => applyTheme());
+	observer.observe(document.documentElement, {
+		attributes: true,
+		attributeFilter: ["class", "style"],
+	});
 </script>

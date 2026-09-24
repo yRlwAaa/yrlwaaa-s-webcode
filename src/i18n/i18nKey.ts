@@ -359,6 +359,15 @@ enum I18nKey {
 	musicAlbumCount = "musicAlbumCount",
 	musicDownload = "musicDownload",
 
+	// Folia 在线播放器入口(music/index.astro + music/player.astro)
+	musicPlayerEntryHint = "musicPlayerEntryHint",
+	musicPlayerEntryTitle = "musicPlayerEntryTitle",
+	musicPlayerEntryOpenTab = "musicPlayerEntryOpenTab",
+	musicPlayerBack = "musicPlayerBack",
+	musicPlayerNotConfigured = "musicPlayerNotConfigured",
+	musicPlayerNotConfiguredHint = "musicPlayerNotConfiguredHint",
+	musicPlayerUnreachable = "musicPlayerUnreachable",
+
 	// 站点统计 - PV
 	siteStatsTotalVisits = "siteStatsTotalVisits",
 	siteStatsTodayVisits = "siteStatsTodayVisits",

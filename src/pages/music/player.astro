@@ -1,0 +1,367 @@
+---
+/**
+ * 全屏在线播放器页 —— /music/player/
+ * ------------------------------------------------------------------
+ * 刻意不使用 Layout.astro / MainGridLayout.astro:
+ * ① 不要左侧栏、导航栏、页脚、Banner —— 页面就是一整块播放器
+ * ② Layout 会注入全站漂浮播放器(MusicPlayer.svelte)与 Swup 过渡, 两者都会和
+ *    播放器本体抢焦点/抢音频输出
+ * 因此这里自带一份最小 HTML 骨架, 只负责把 iframe 铺满视口。
+ */
+import { siteConfig } from "../../config";
+import { foliaPlayerConfig, isFoliaPlayerReady } from "../../data/folia";
+import I18nKey from "../../i18n/i18nKey";
+import { i18n } from "../../i18n/translation";
+
+export const prerender = true;
+
+const foliaReady = isFoliaPlayerReady();
+const pageTitle = `${i18n(I18nKey.musicPlayerEntryTitle)} - ${siteConfig.title}`;
+const lang = siteConfig.lang.replace("_", "-");
+const themeColor = `oklch(0.62 0.16 ${siteConfig.themeColor.hue})`;
+---
+
+<!doctype html>
+<html
+	lang={lang}
+	class="player-html"
+	style={`--hue: ${siteConfig.themeColor.hue};`}
+>
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, viewport-fit=cover"
+		/>
+		<meta name="robots" content="noindex, nofollow" />
+		<meta name="theme-color" content={themeColor} />
+		<title>{pageTitle}</title>
+		<link rel="icon" href="/favicon/favicon.ico" />
+		<script is:inline>
+			// 本页不使用 Layout, 拿不到 HeadTags 里那套逻辑, 这里补上"跟随站点主题色"。
+			// --hue 已在 <html style> 里给了服务端兜底值, 这段只是覆盖成用户自选的值。
+			try {
+				var savedHue = localStorage.getItem("hue");
+				if (savedHue) {
+					document.documentElement.style.setProperty(
+						"--hue",
+						savedHue,
+					);
+				}
+			} catch (e) {
+				/* 隐私模式下 localStorage 可能抛错, 忽略即可, 兜底值仍然生效 */
+			}
+		</script>
+	</head>
+	<body class="player-body">
+		<!-- 播放器本体: 铺满视口 -->
+		{
+			foliaReady ? (
+				<iframe
+					id="folia-frame"
+					class="folia-frame"
+					src={foliaPlayerConfig.url}
+					title={i18n(I18nKey.musicPlayerEntryTitle)}
+					allow="autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write; screen-wake-lock"
+					allowfullscreen
+					referrerpolicy="strict-origin-when-cross-origin"
+				/>
+			) : (
+				<div class="fallback">
+					<div class="fallback-card">
+						<h1>{i18n(I18nKey.musicPlayerNotConfigured)}</h1>
+						<p>{i18n(I18nKey.musicPlayerNotConfiguredHint)}</p>
+						<a class="fallback-back" href="/music/">
+							{i18n(I18nKey.musicPlayerBack)}
+						</a>
+					</div>
+				</div>
+			)
+		}
+
+		<!-- 载入遮罩: iframe onload 后淡出 -->
+		{
+			foliaReady && (
+				<div id="folia-loading" class="folia-loading">
+					<div class="folia-spinner" aria-hidden="true" />
+					<p>{i18n(I18nKey.musicPlayerLoading)}</p>
+					<p class="folia-stalled-hint">
+						{i18n(I18nKey.musicPlayerUnreachable)}
+					</p>
+				</div>
+			)
+		}
+
+		<!-- 悬浮控件: 3 秒无操作自动隐藏, 鼠标移动/触摸/聚焦时重现 -->
+		<div id="player-chrome" class="player-chrome">
+			<a class="chrome-btn" href="/music/" id="chrome-back">
+				<svg
+					viewBox="0 0 24 24"
+					width="18"
+					height="18"
+					aria-hidden="true"
+					><path
+						fill="currentColor"
+						d="M20 11H7.83l5.59-5.59L12 4l-8 8l8 8l1.41-1.41L7.83 13H20z"
+					></path></svg
+				>
+				<span>{i18n(I18nKey.musicPlayerBack)}</span>
+			</a>
+			{
+				foliaReady && (
+					<a
+						class="chrome-btn"
+						href={foliaPlayerConfig.url}
+						target="_blank"
+						rel="noopener noreferrer"
+						id="chrome-external"
+					>
+						<span>{i18n(I18nKey.musicPlayerEntryOpenTab)}</span>
+						<svg
+							viewBox="0 0 24 24"
+							width="16"
+							height="16"
+							aria-hidden="true"
+						>
+							<path
+								fill="currentColor"
+								d="M14 3v2h3.59l-9.83 9.83l1.41 1.41L19 6.41V10h2V3zm-2 16H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2z"
+							/>
+						</svg>
+					</a>
+				)
+			}
+		</div>
+
+		<noscript>
+			<div class="fallback">
+				<div class="fallback-card">
+					<p>JavaScript is required to load the player.</p>
+					<a class="fallback-back" href="/music/">
+						{i18n(I18nKey.musicPlayerBack)}
+					</a>
+				</div>
+			</div>
+		</noscript>
+
+		<script is:inline>
+			// 载入遮罩与悬浮控件的显隐控制。元素在未配置播放器时不存在,
+			// 所以这里全部判空, 脚本本身无条件渲染。
+			(function () {
+				var frame = document.getElementById("folia-frame");
+				var loading = document.getElementById("folia-loading");
+				var chrome = document.getElementById("player-chrome");
+				var hideTimer = null;
+
+				if (frame && loading) {
+					// 跨域 iframe 若域名不可达/被拦, load 事件永远不会触发 —— 不加兜底就是无限转圈。
+					var stallTimer = setTimeout(function () {
+						if (loading.isConnected)
+							loading.classList.add("is-stalled");
+					}, 15000);
+
+					frame.addEventListener("load", function () {
+						clearTimeout(stallTimer);
+						loading.classList.add("is-done");
+						setTimeout(function () {
+							loading.remove();
+						}, 600);
+					});
+				}
+
+				if (!chrome) return;
+
+				function showChrome() {
+					chrome.classList.add("is-visible");
+					if (hideTimer) clearTimeout(hideTimer);
+					hideTimer = setTimeout(function () {
+						chrome.classList.remove("is-visible");
+					}, 3000);
+				}
+
+				["mousemove", "touchstart", "keydown"].forEach(function (evt) {
+					window.addEventListener(evt, showChrome, { passive: true });
+				});
+				chrome.addEventListener("mouseenter", function () {
+					chrome.classList.add("is-visible");
+					if (hideTimer) clearTimeout(hideTimer);
+				});
+				chrome.addEventListener("mouseleave", showChrome);
+
+				// 初始可见, 3 秒后淡出
+				showChrome();
+			})();
+		</script>
+	</body>
+</html>
+
+<style is:global>
+	html.player-html,
+	body.player-body {
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		background: #06070d;
+	}
+
+	.folia-frame {
+		display: block;
+		width: 100%;
+		height: 100%;
+		height: 100dvh;
+		border: 0;
+		background: #06070d;
+	}
+
+	/* 载入遮罩 */
+	.folia-loading {
+		position: fixed;
+		inset: 0;
+		z-index: 20;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+		background: #06070d;
+		color: rgba(255, 255, 255, 0.65);
+		font-family:
+			system-ui,
+			-apple-system,
+			"Segoe UI",
+			sans-serif;
+		font-size: 0.875rem;
+		transition: opacity 0.5s ease;
+	}
+	.folia-loading.is-done {
+		opacity: 0;
+		pointer-events: none;
+	}
+	/* 15 秒仍未 load 才出现的提示: 平时完全不可见, 也不占位 */
+	.folia-stalled-hint {
+		display: none;
+		max-width: 22rem;
+		margin: 0;
+		padding: 0 1rem;
+		text-align: center;
+		font-size: 0.8rem;
+		line-height: 1.6;
+		color: rgba(255, 255, 255, 0.5);
+	}
+	.folia-loading.is-stalled .folia-stalled-hint {
+		display: block;
+	}
+	.folia-loading.is-stalled .folia-spinner {
+		animation-play-state: paused;
+		opacity: 0.4;
+	}
+	.folia-spinner {
+		width: 34px;
+		height: 34px;
+		border-radius: 50%;
+		border: 2px solid oklch(0.75 0.14 var(--hue) / 0.25);
+		border-top-color: oklch(0.75 0.14 var(--hue));
+		animation: folia-spin 0.8s linear infinite;
+	}
+	@keyframes folia-spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	/* 悬浮控件 */
+	.player-chrome {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 30;
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		padding: max(0.75rem, env(safe-area-inset-top)) 0.75rem 0.75rem;
+		pointer-events: none;
+		opacity: 0;
+		transform: translateY(-6px);
+		transition:
+			opacity 0.35s ease,
+			transform 0.35s ease;
+	}
+	.player-chrome.is-visible {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	.chrome-btn {
+		pointer-events: auto;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.45rem 0.85rem;
+		border-radius: 999px;
+		text-decoration: none;
+		font-family:
+			system-ui,
+			-apple-system,
+			"Segoe UI",
+			sans-serif;
+		font-size: 0.8rem;
+		color: rgba(255, 255, 255, 0.82);
+		background: rgba(12, 14, 22, 0.62);
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(10px);
+		transition:
+			background 0.2s,
+			color 0.2s,
+			border-color 0.2s;
+	}
+	.chrome-btn:hover {
+		color: #fff;
+		background: rgba(12, 14, 22, 0.85);
+		border-color: oklch(0.75 0.14 var(--hue) / 0.5);
+	}
+
+	/* 未配置 / 无 JS 时的兜底 */
+	.fallback {
+		position: fixed;
+		inset: 0;
+		z-index: 40;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1.5rem;
+		background: #06070d;
+		font-family:
+			system-ui,
+			-apple-system,
+			"Segoe UI",
+			sans-serif;
+	}
+	.fallback-card {
+		max-width: 32rem;
+		text-align: center;
+		color: rgba(255, 255, 255, 0.8);
+	}
+	.fallback-card h1 {
+		margin: 0 0 0.75rem;
+		font-size: 1.25rem;
+		color: #fff;
+	}
+	.fallback-card p {
+		margin: 0 0 1.5rem;
+		font-size: 0.875rem;
+		line-height: 1.7;
+		color: rgba(255, 255, 255, 0.55);
+	}
+	.fallback-back {
+		display: inline-block;
+		padding: 0.55rem 1.25rem;
+		border-radius: 999px;
+		text-decoration: none;
+		font-size: 0.85rem;
+		color: #fff;
+		background: oklch(0.62 0.16 var(--hue));
+	}
+</style>
