@@ -389,7 +389,7 @@ export const en: Translation = {
 	[Key.musicPlayerBack]: "Back to music",
 	[Key.musicPlayerNotConfigured]: "Player URL is not configured yet",
 	[Key.musicPlayerNotConfiguredHint]:
-		"Set the Folia deployment URL in src/data/folia.ts, or provide the PUBLIC_FOLIA_PLAYER_URL environment variable.",
+		"Set the yRlwAaa deployment URL in src/data/folia.ts, or provide the PUBLIC_FOLIA_PLAYER_URL environment variable.",
 	[Key.musicPlayerUnreachable]:
 		"The player could not load. Try “Open in new tab” in the top-right corner.",
 

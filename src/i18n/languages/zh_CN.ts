@@ -376,7 +376,7 @@ export const zh_CN: Translation = {
 	[Key.musicPlayerBack]: "返回音乐",
 	[Key.musicPlayerNotConfigured]: "播放器地址尚未配置",
 	[Key.musicPlayerNotConfiguredHint]:
-		"在 src/data/folia.ts 填入 Folia 部署地址，或设置环境变量 PUBLIC_FOLIA_PLAYER_URL。",
+		"在 src/data/folia.ts 填入 yRlwAaa 部署地址，或设置环境变量 PUBLIC_FOLIA_PLAYER_URL。",
 	[Key.musicPlayerUnreachable]:
 		"播放器暂时加载不出来。点右上角「在新标签页打开」试试。",
 

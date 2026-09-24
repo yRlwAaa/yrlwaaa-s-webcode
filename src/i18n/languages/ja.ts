@@ -392,7 +392,7 @@ export const ja: Translation = {
 	[Key.musicPlayerBack]: "音楽に戻る",
 	[Key.musicPlayerNotConfigured]: "プレイヤーの URL が未設定です",
 	[Key.musicPlayerNotConfiguredHint]:
-		"src/data/folia.ts に Folia のデプロイ先 URL を設定するか、環境変数 PUBLIC_FOLIA_PLAYER_URL を指定してください。",
+		"src/data/folia.ts に yRlwAaa のデプロイ先 URL を設定するか、環境変数 PUBLIC_FOLIA_PLAYER_URL を指定してください。",
 	[Key.musicPlayerUnreachable]:
 		"プレイヤーを読み込めませんでした。右上の「新しいタブで開く」をお試しください。",
 
