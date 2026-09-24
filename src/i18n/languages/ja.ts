@@ -268,6 +268,18 @@ export const ja: Translation = {
 	[Key.timelineAchievements]: "実績",
 	[Key.timelineStartDate]: "開始日",
 	[Key.timelineDuration]: "期間",
+	[Key.timelineBuildSteps]: "機能・プラグイン追加の履歴",
+	[Key.timelineProjectsAdded]: "追加",
+	[Key.timelineProjectsUpdated]: "更新",
+	[Key.timelineProjectsLast]: "最新",
+	[Key.timelineCatBase]: "サイト基盤",
+	[Key.timelineCatContent]: "コンテンツ",
+	[Key.timelineCatMusic]: "音楽",
+	[Key.timelineCatAlbum]: "アルバム",
+	[Key.timelineCatAi]: "AI",
+	[Key.timelineCatServer]: "サーバー",
+	[Key.timelineCatTools]: "ツール",
+	[Key.timelineCatUx]: "体験と性能",
 
 	// パスワード保護
 	[Key.passwordProtected]: "パスワードで保護されています",

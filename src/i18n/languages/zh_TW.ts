@@ -250,6 +250,18 @@ export const zh_TW: Translation = {
 	[Key.timelineAchievements]: "成就榮譽",
 	[Key.timelineStartDate]: "開始日期",
 	[Key.timelineDuration]: "持續時間",
+	[Key.timelineBuildSteps]: "功能 / 外掛新增歷程",
+	[Key.timelineProjectsAdded]: "新增",
+	[Key.timelineProjectsUpdated]: "更新",
+	[Key.timelineProjectsLast]: "最近更新",
+	[Key.timelineCatBase]: "站點基礎",
+	[Key.timelineCatContent]: "內容系統",
+	[Key.timelineCatMusic]: "音樂模組",
+	[Key.timelineCatAlbum]: "相冊模組",
+	[Key.timelineCatAi]: "AI 能力",
+	[Key.timelineCatServer]: "伺服器",
+	[Key.timelineCatTools]: "工具集",
+	[Key.timelineCatUx]: "體驗與效能",
 
 	// 其他
 	[Key.noData]: "暫無資料",

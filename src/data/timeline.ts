@@ -1,6 +1,21 @@
 import type { TimelineItem } from "../components/features/timeline/types";
+import { webBuildSteps } from "./project-timeline";
 
 export const timelineData: TimelineItem[] = [
+	{
+		id: "web-build",
+		title: "网页构建",
+		description:
+			"这个站是一块砖一块砖垒起来的。每个功能、每个插件是什么时候加进来的，以及它是干嘛的，都记在下面这张表里。",
+		type: "project",
+		startDate: "2026-05-02",
+		location: "yrlwa.top",
+		skills: ["Astro", "TypeScript", "Tailwind", "Cloudflare"],
+		icon: "material-symbols:deployed-code",
+		color: "#2563EB",
+		featured: true,
+		buildLog: webBuildSteps,
+	},
 	{
 		id: "my-birth",
 		title: "我的出生",

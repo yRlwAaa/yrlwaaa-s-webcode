@@ -207,6 +207,18 @@ enum I18nKey {
 	timelineAchievements = "timelineAchievements",
 	timelineStartDate = "timelineStartDate",
 	timelineDuration = "timelineDuration",
+	timelineBuildSteps = "timelineBuildSteps",
+	timelineProjectsAdded = "timelineProjectsAdded",
+	timelineProjectsUpdated = "timelineProjectsUpdated",
+	timelineProjectsLast = "timelineProjectsLast",
+	timelineCatBase = "timelineCatBase",
+	timelineCatContent = "timelineCatContent",
+	timelineCatMusic = "timelineCatMusic",
+	timelineCatAlbum = "timelineCatAlbum",
+	timelineCatAi = "timelineCatAi",
+	timelineCatServer = "timelineCatServer",
+	timelineCatTools = "timelineCatTools",
+	timelineCatUx = "timelineCatUx",
 
 	// 密码保护
 	passwordProtected = "passwordProtected",

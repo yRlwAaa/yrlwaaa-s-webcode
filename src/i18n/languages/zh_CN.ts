@@ -211,6 +211,18 @@ export const zh_CN: Translation = {
 	[Key.timelineAchievements]: "成就荣誉",
 	[Key.timelineStartDate]: "开始日期",
 	[Key.timelineDuration]: "持续时间",
+	[Key.timelineBuildSteps]: "功能 / 插件添加历程",
+	[Key.timelineProjectsAdded]: "添加",
+	[Key.timelineProjectsUpdated]: "更新",
+	[Key.timelineProjectsLast]: "最近更新",
+	[Key.timelineCatBase]: "站点基础",
+	[Key.timelineCatContent]: "内容系统",
+	[Key.timelineCatMusic]: "音乐模块",
+	[Key.timelineCatAlbum]: "相册模块",
+	[Key.timelineCatAi]: "AI 能力",
+	[Key.timelineCatServer]: "服务器",
+	[Key.timelineCatTools]: "工具集",
+	[Key.timelineCatUx]: "体验与性能",
 
 	// 密码保护
 	[Key.passwordProtected]: "密码保护",

@@ -266,6 +266,18 @@ export const en: Translation = {
 	[Key.timelineAchievements]: "Achievements",
 	[Key.timelineStartDate]: "Start Date",
 	[Key.timelineDuration]: "Duration",
+	[Key.timelineBuildSteps]: "Features & add-ons, in order",
+	[Key.timelineProjectsAdded]: "Added",
+	[Key.timelineProjectsUpdated]: "Updated",
+	[Key.timelineProjectsLast]: "Latest",
+	[Key.timelineCatBase]: "Site Core",
+	[Key.timelineCatContent]: "Content",
+	[Key.timelineCatMusic]: "Music",
+	[Key.timelineCatAlbum]: "Album",
+	[Key.timelineCatAi]: "AI",
+	[Key.timelineCatServer]: "Server",
+	[Key.timelineCatTools]: "Tools",
+	[Key.timelineCatUx]: "UX & Perf",
 
 	// Password Protection
 	[Key.passwordProtected]: "Password Protected",
