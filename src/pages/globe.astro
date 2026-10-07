@@ -1,29 +1,28 @@
 ---
 /**
- * 地球足迹页 /globe/
- *
- * 打开即是一颗可交互的 3D 地球：
- *  - 拖拽旋转、滚轮/双指缩放、Ctrl+拖拽俯仰
- *  - 实时显示鼠标所在经纬度（5 位小数 ≈ 1 米）与缩放级别
- *  - 点击标点查看照片、感想、相关博客文章
- *  - 创作模式：点球落点 → 填内容 → 导出条目
- *
- * 数据在构建期注入（等价于 /api/footprints.json），纯静态页，无需后端。
+ * 全屏地球足迹页 —— /globe/
+ * ------------------------------------------------------------------
+ * 刻意不使用 Layout.astro / MainGridLayout.astro（与 /music/player/ 同一套思路）：
+ * ① 页面就是一整颗地球，不要侧栏、导航栏、页脚、Banner
+ * ② Layout 会把页面放进 Swup 的替换容器，而地球层是 position:fixed 的整屏层 ——
+ *    客户端无刷新换页时它不会被换掉，会"糊"在之后打开的每个页面上（实测的严重 bug）。
+ *    独立文档 = 每次进出都整页加载，从根上避免残留。
+ * 因此这里自带最小 HTML 骨架，只负责把地球铺满视口。
  */
 import { getCollection } from "astro:content";
 
-import MainGridLayout from "../layouts/MainGridLayout.astro";
+import { siteConfig } from "../config";
 import { getFootprintsIndex } from "../utils/footprint-utils";
 import { getPostUrl, removeFileExtension } from "../utils/url-utils";
 
 export const prerender = true;
 
 const title = "地球足迹";
-const subtitle = "把去过的地方钉在地球上";
+const description = "把去过的地方钉在 3D 地球上：坐标、照片与文字";
 
 const index = await getFootprintsIndex();
 
-// 供创作模式选择「关联文章」
+// 创作模式里「关联文章」的可选项
 const posts = await getCollection("posts");
 const postOptions = posts
 	.filter((p) => !p.data.draft)
@@ -33,119 +32,160 @@ const postOptions = posts
 		url: getPostUrl(p),
 	}))
 	.sort((a, b) => a.title.localeCompare(b.title, "zh-Hans-CN"));
+
+const lang = siteConfig.lang.replace("_", "-");
+const hue = siteConfig.themeColor.hue;
+const themeColor = `oklch(0.62 0.16 ${hue})`;
 ---
 
-<MainGridLayout title={title} description={subtitle}>
-	<style is:global>
-		@import "../styles/globe.css";
-	</style>
-	<script
-		type="application/json"
-		id="fm-data"
-		set:html={JSON.stringify(index)}
-	/>
-	<script
-		type="application/json"
-		id="fm-posts"
-		set:html={JSON.stringify(postOptions)}
-	/>
-	<script>
-		import "../scripts/footprint-globe";
-		import { loadIconify } from "../utils/icon-loader";
-		loadIconify().catch((error) => {
-			console.error("Failed to load Iconify:", error);
-		});
+<!doctype html>
+<html lang={lang} class="fm-html" style={`--hue: ${hue};`}>
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, viewport-fit=cover"
+		/>
+		<meta name="theme-color" content={themeColor} />
+		<meta name="description" content={description} />
+		<title>{title} - {siteConfig.title}</title>
+		<link rel="icon" href="/favicon/favicon.ico" />
+		<script is:inline>
+			// 独立文档拿不到主题的那套主题色 / 深浅色逻辑，这里补上：
+			// 跟随站点主题色（--hue）与用户已保存的深浅模式；兜底值来自服务端。
+			try {
+				var savedHue = localStorage.getItem("hue");
+				if (savedHue) document.documentElement.style.setProperty("--hue", savedHue);
+				var savedTheme = localStorage.getItem("theme");
+				if (savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
+			} catch (e) {
+				/* 隐私模式可能抛错，忽略即可，兜底值仍然生效 */
+			}
+		</script>
+	</head>
+	<body class="fm-body">
+		<!-- 构建期注入的数据（等价于 /api/footprints.json） -->
+		<script type="application/json" id="fm-data" set:html={JSON.stringify(index)} />
+		<script type="application/json" id="fm-posts" set:html={JSON.stringify(postOptions)} />
 
-		// 布局自检：访问 /globe/?fmdebug=1 时，把关键元素的真实盒模型写到 DOM 上，
-		// 便于远程/无头环境核对（不影响正常访问）。
-		if (new URLSearchParams(location.search).has("fmdebug")) {
-			setTimeout(() => {
-				const lines: string[] = [];
-				const box = (sel: string) => {
-					const el = document.querySelector(sel) as HTMLElement | null;
-					if (!el) return `${sel}=缺失`;
-					const r = el.getBoundingClientRect();
-					const cs = getComputedStyle(el);
-					return `${sel}=[x${Math.round(r.x)} y${Math.round(r.y)} w${Math.round(r.width)} h${Math.round(r.height)} pos:${cs.position} top:${cs.top} z:${cs.zIndex}]`;
-				};
-				lines.push(`viewport=${window.innerWidth}x${window.innerHeight}`);
-				lines.push(`shellInBody=${document.getElementById("fm-shell")?.parentElement === document.body}`);
-				["html", "body", ".fm-shell", "#fm-map", "#fm-sidebar", "#fm-toolbar", ".fm-status", ".maplibregl-canvas"].forEach(
-					(sel) => lines.push(box(sel)),
-				);
-				lines.push(`offsetVar=${getComputedStyle(document.getElementById("fm-shell")!).getPropertyValue("--fm-offset")}`);
-				lines.push(`loadingGone=${!document.getElementById("fm-loading")}`);
-				lines.push(`items=${document.querySelectorAll(".fm-item").length}`);
-				lines.push(`mode=${document.getElementById("fm-status-mode")?.textContent}`);
-				document.body.dataset.fmDebug = lines.join(" | ");
-			}, 6000);
-		}
-	</script>
+		<!-- 地球层：铺满视口 -->
+		<div class="fm-shell" id="fm-shell">
+			<div id="fm-map" class="fm-map"></div>
 
-	<div class="fm-shell" id="fm-shell">
-		<!-- 地球本体 -->
-		<div id="fm-map" class="fm-map"></div>
+			<!-- 载入遮罩：地球出现前盖住，避免看到空背景 -->
+			<div class="fm-loading" id="fm-loading">
+				<div class="fm-loading-ball"></div>
+				<p>正在铺开地球…</p>
+			</div>
 
-		<!-- 加载遮罩：地球出现前盖住，避免看到空背景 -->
-		<div class="fm-loading" id="fm-loading">
-			<div class="fm-loading-ball"></div>
-			<p>正在铺开地球…</p>
-		</div>
-
-		<!-- 顶部工具条：标题 + 筛选 + 搜索 -->
-		<header class="fm-toolbar" id="fm-toolbar">
-			<div class="fm-toolbar-left">
-				<span class="fm-logo material-symbols-rounded">public</span>
-				<div class="fm-title-wrap">
-					<h1>{title}</h1>
-					<span class="fm-count" id="fm-count">{index.count} 个标点</span>
+			<!-- 顶部工具条 -->
+			<header class="fm-toolbar" id="fm-toolbar">
+				<div class="fm-toolbar-left">
+					<a class="fm-back-btn" href="/albums/" title="返回相册">
+						<iconify-icon icon="material-symbols:arrow-back"></iconify-icon>
+						<span>相册</span>
+					</a>
+					<div class="fm-title-wrap">
+						<h1>{title}</h1>
+						<span class="fm-count" id="fm-count">{index.count} 个标点</span>
+					</div>
 				</div>
+
+				<div class="fm-toolbar-right">
+					<label class="fm-search">
+						<iconify-icon icon="material-symbols:search"></iconify-icon>
+						<input id="fm-search" type="search" placeholder="搜地点、标签、感想…" />
+					</label>
+					<select id="fm-year" class="fm-select" aria-label="按年份筛选"></select>
+					<button class="fm-btn fm-btn--ghost" id="fm-locate" type="button">
+						<iconify-icon icon="material-symbols:my-location"></iconify-icon>
+						<span>定位到我</span>
+					</button>
+					<label class="fm-switch" title="打开后可在地球上点击落点，编辑并导出足迹条目">
+						<input type="checkbox" id="fm-author-toggle" />
+						<span>创作模式</span>
+					</label>
+				</div>
+			</header>
+
+			<!-- 类型筛选 -->
+			<div class="fm-chips" id="fm-type-chips"></div>
+
+			<!-- 创作模式提示条 -->
+			<div class="fm-author-panel" id="fm-author-panel">
+				<iconify-icon icon="material-symbols:edit-location-alt"></iconify-icon>
+				创作模式已开启：在地球上点击落点，右侧填写内容后导出条目 JSON。
 			</div>
 
-			<div class="fm-toolbar-right">
-				<label class="fm-search">
-					<span class="material-symbols-rounded">search</span>
-					<input id="fm-search" type="search" placeholder="搜地点、标签、感想…" />
-				</label>
-				<select id="fm-year" class="fm-select" aria-label="按年份筛选"></select>
-				<button class="fm-btn fm-btn--ghost" id="fm-locate" type="button">
-					<span class="material-symbols-rounded">my_location</span>
-					<span>定位到我</span>
-				</button>
-				<label class="fm-switch" title="打开后可在地球上点击落点，编辑并导出足迹条目">
-					<input type="checkbox" id="fm-author-toggle" />
-					<span>创作模式</span>
-				</label>
-			</div>
-		</header>
+			<!-- 右侧：足迹列表 / 详情 / 创作表单 -->
+			<aside class="fm-sidebar" id="fm-sidebar">
+				<div class="fm-sidebar-head">
+					<iconify-icon icon="material-symbols:footprint"></iconify-icon>
+					<span>足迹</span>
+				</div>
+				<div class="fm-sidebar-body" id="fm-sidebar-body"></div>
+				<div class="fm-empty" id="fm-empty-hint" hidden></div>
+			</aside>
 
-		<!-- 类型筛选 -->
-		<div class="fm-chips" id="fm-type-chips"></div>
-
-		<!-- 创作模式提示条 -->
-		<div class="fm-author-panel" id="fm-author-panel">
-			<span class="material-symbols-rounded">edit_location_alt</span>
-			创作模式已开启：在地球上点击落点，右侧填写内容后导出条目 JSON。
+			<!-- 底部状态条：坐标 / 缩放 / 投影 -->
+			<footer class="fm-status">
+				<span class="fm-status-pos" id="fm-status-pos">
+					<span class="fm-coord">—</span>
+				</span>
+				<span class="fm-status-zoom" id="fm-status-zoom">Z —</span>
+				<span class="fm-status-mode" id="fm-status-mode">3D 地球</span>
+				<span class="fm-status-hint">拖拽旋转 · 滚轮缩放 · 点击标点</span>
+			</footer>
 		</div>
 
-		<!-- 右侧：足迹列表 / 详情 / 创作表单 -->
-		<aside class="fm-sidebar" id="fm-sidebar">
-			<div class="fm-sidebar-head">
-				<span class="material-symbols-rounded">footprint</span>
-				<span>足迹</span>
+		<noscript>
+			<div class="fm-noscript">
+				<p>这个页面需要 JavaScript 才能渲染 3D 地球。</p>
+				<a href="/albums/">← 返回相册</a>
 			</div>
-			<div class="fm-sidebar-body" id="fm-sidebar-body"></div>
-			<div class="fm-empty" id="fm-empty-hint" hidden></div>
-		</aside>
+		</noscript>
 
-		<!-- 底部状态条：坐标 / 缩放 / 投影 -->
-		<footer class="fm-status">
-			<span class="fm-status-pos" id="fm-status-pos">
-				<span class="fm-coord">—</span>
-			</span>
-			<span class="fm-status-zoom" id="fm-status-zoom">Z —</span>
-			<span class="fm-status-mode" id="fm-status-mode">3D 地球</span>
-			<span class="fm-status-hint">拖拽旋转 · 滚轮缩放 · 点击标点</span>
-		</footer>
-	</div>
-</MainGridLayout>
+		<script>
+			import "../scripts/footprint-globe";
+			import { loadIconify } from "../utils/icon-loader";
+
+			// 图标运行时（与全站同一套）；失败只影响图标，不影响地图与面板
+			loadIconify().catch((error) => {
+				console.error("[footprint] Iconify 加载失败", error);
+			});
+
+			// 布局自检：访问 /globe/?fmdebug=1 时把关键元素盒模型写进 DOM，便于无头/远程核对
+			if (new URLSearchParams(location.search).has("fmdebug")) {
+				setTimeout(() => {
+					const lines: string[] = [];
+					const box = (sel: string) => {
+						const el = document.querySelector(sel) as HTMLElement | null;
+						if (!el) return `${sel}=缺失`;
+						const r = el.getBoundingClientRect();
+						const cs = getComputedStyle(el);
+						return `${sel}=[x${Math.round(r.x)} y${Math.round(r.y)} w${Math.round(r.width)} h${Math.round(r.height)} pos:${cs.position} z:${cs.zIndex}]`;
+					};
+					lines.push(`viewport=${window.innerWidth}x${window.innerHeight}`);
+					[
+						"html",
+						"body",
+						".fm-shell",
+						"#fm-map",
+						"#fm-sidebar",
+						"#fm-toolbar",
+						".fm-status",
+						".maplibregl-canvas",
+					].forEach((sel) => lines.push(box(sel)));
+					lines.push(`loadingGone=${!document.getElementById("fm-loading")}`);
+					lines.push(`items=${document.querySelectorAll(".fm-item").length}`);
+					lines.push(`mode=${document.getElementById("fm-status-mode")?.textContent}`);
+					document.body.dataset.fmDebug = lines.join(" | ");
+				}, 6000);
+			}
+		</script>
+	</body>
+</html>
+
+<style is:global>
+	@import "../styles/globe.css";
+</style>

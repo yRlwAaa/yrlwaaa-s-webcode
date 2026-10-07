@@ -100,14 +100,14 @@ const TYPE_META: Record<string, { label: string; icon: string; color: string }> 
 		life: { label: "生活", icon: "home", color: "#41c9a0" },
 		food: { label: "美食", icon: "restaurant", color: "#ff8f56" },
 		nature: { label: "自然", icon: "forest", color: "#5ac36b" },
-		city: { label: "城市", icon: "location_city", color: "#8f7bff" },
-		photo: { label: "摄影", icon: "photo_camera", color: "#ff6f91" },
+		city: { label: "城市", icon: "location-city", color: "#8f7bff" },
+		photo: { label: "摄影", icon: "photo-camera", color: "#ff6f91" },
 		memory: { label: "回忆", icon: "favorite", color: "#e2568a" },
 	};
 
 const FALLBACK_TYPE = {
 	label: "足迹",
-	icon: "place",
+	icon: "pin-drop",
 	color: "#4c8dff",
 };
 
@@ -216,21 +216,21 @@ const $ = <T extends HTMLElement>(id: string): T | null =>
 	document.getElementById(id) as T | null;
 
 /**
- * 把地球层搬到 <body> 下。
+ * 兜底：确保地球层直接挂在 <body> 下。
  *
- * 必须做这一步：主题的 #main-grid 带 transform（banner/pageScaling 相关），
- * 而 transform 祖先会改变 position:fixed 的包含块 —— 结果是地球层被压缩成一小块、
- * 坐标读数被压成一条横带。搬出容器同时也摆脱父级 pointer-events:none（否则按钮点不动）。
+ * 本页是独立文档（不含主题 Layout），正常情况下它本来就是 body 的子元素。
+ * 保留这段是为了防止将来有人把地球嵌进别的容器 —— 一旦祖先带 transform，
+ * position:fixed 的包含块会变成那个祖先，整屏层会被压缩成一小块。
  * 本模块是 type=module，执行时 DOM 已解析完，元素一定存在。
  */
-function breakoutGlobeShell() {
+function ensureShellOnBody() {
 	const shell = document.getElementById("fm-shell");
 	if (shell && shell.parentElement !== document.body) {
 		document.body.appendChild(shell);
 	}
 }
 
-breakoutGlobeShell();
+ensureShellOnBody();
 
 const mapEl = $("fm-map") as unknown as HTMLElement;
 const sidebarBody = $("fm-sidebar-body");
@@ -686,7 +686,7 @@ function renderDetail(fp: Footprint) {
 			<button class="fm-back" type="button">← 返回列表</button>
 			<header class="fm-detail-head">
 				<span class="fm-type-icon" style="--fm-c:${meta.color}">
-					<span class="material-symbols-rounded">${meta.icon}</span>
+					<span class="fm-icon">${meta.icon}</span>
 				</span>
 				<div>
 					<h3>${esc(fp.title)}</h3>
@@ -793,7 +793,7 @@ function renderList() {
 
 	if (list.length === 0) {
 		sidebarBody.innerHTML = `<div class="fm-empty">
-			<span class="material-symbols-rounded">public_off</span>
+			<iconify-icon icon="material-symbols:public_off"></iconify-icon>
 			<p>没有匹配的足迹。换个筛选条件，或打开创作模式加上第一个标点。</p>
 		</div>`;
 		renderCount();
@@ -808,7 +808,7 @@ function renderList() {
 					const thumb =
 						fp.cover || fp.photos[0]?.src
 							? `<img src="${esc(fp.cover || fp.photos[0].src)}" alt="" loading="lazy" decoding="async" />`
-							: `<span class="material-symbols-rounded" style="color:${meta.color}">${meta.icon}</span>`;
+							: `<span class="fm-icon" style="color:${meta.color}">${meta.icon}</span>`;
 					return `<li class="fm-card fm-item" data-id="${esc(fp.id)}">
 						<div class="fm-thumb">${thumb}</div>
 						<div class="fm-item-body">
@@ -974,7 +974,7 @@ function renderDraft() {
 		<article class="fm-card fm-draft">
 			<header class="fm-detail-head">
 				<span class="fm-type-icon" style="--fm-c:#4c8dff">
-					<span class="material-symbols-rounded">edit_location_alt</span>
+					<iconify-icon icon="material-symbols:edit_location_alt"></iconify-icon>
 				</span>
 				<div>
 					<h3>新标点</h3>
@@ -1169,7 +1169,7 @@ function buildTypeChips() {
 		.map(([type, n]) => {
 			const meta = typeMeta(type);
 			return `<button class="fm-chip" type="button" data-type="${esc(type)}" style="--fm-c:${meta.color}">
-				<span class="material-symbols-rounded">${meta.icon}</span>${esc(meta.label)}<em>${n}</em>
+				<span class="fm-icon">${meta.icon}</span>${esc(meta.label)}<em>${n}</em>
 			</button>`;
 		})
 		.join("");
@@ -1222,7 +1222,7 @@ authorToggle?.addEventListener("change", () => {
 function renderDraftHint() {
 	if (!sidebarBody) return;
 	sidebarBody.innerHTML = `<div class="fm-empty fm-empty--author">
-		<span class="material-symbols-rounded">touch_app</span>
+		<iconify-icon icon="material-symbols:touch_app"></iconify-icon>
 		<p>在球上点一下想记录的位置。也可以先缩放拖动到精确位置，再点落点。</p>
 		<p class="fm-hint">落点后会在这里出现表单：地点名、日期、类型、感想文字、照片、关联文章。</p>
 	</div>`;
@@ -1306,21 +1306,16 @@ function runFirstPaint() {
 }
 
 /**
- * 让地图区域正好落在导航栏之下。
- * 优先从主题的 --navbar-height 读取，读不到就量导航栏实际高度；
- * 都没有时退回 5rem。窗口尺寸变化时重算。
+ * 地球层距顶部的偏移。
+ *
+ * 本页是独立文档（没有导航栏），所以默认就是 0，铺满整个视口。
+ * 只有在被人为嵌进别的容器时，才需要显式给 --fm-offset 留出顶部空间。
  */
 function syncOffset() {
 	const shell = document.getElementById("fm-shell");
 	if (!shell) return;
-	const root = document.documentElement;
-	const cssVar = getComputedStyle(root).getPropertyValue("--navbar-height");
-	let px = parseFloat(cssVar);
-	if (!Number.isFinite(px) || px <= 0) {
-		const nav = document.querySelector<HTMLElement>("#navbar, .navbar, nav");
-		px = nav?.getBoundingClientRect().height ?? 0;
-	}
-	shell.style.setProperty("--fm-offset", `${px > 0 ? px : 80}px`);
+	const declared = getComputedStyle(shell).getPropertyValue("--fm-offset-declared").trim();
+	shell.style.setProperty("--fm-offset", declared || "0px");
 }
 
 window.addEventListener("resize", syncOffset, { passive: true });

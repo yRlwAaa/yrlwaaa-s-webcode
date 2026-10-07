@@ -56,9 +56,9 @@ const subtitle = i18n(I18nKey.albumsSubtitle);
 			<PageHeader title={title} subtitle={subtitle} titleKey={I18nKey.albums} subtitleKey={I18nKey.albumsSubtitle} />
 
 			<!--
-				地球足迹入口
-				位置可随时挪动：想放到页面底部就把这一整块 <a> 移到 grid 后面；
-				想独立成导航项则保留 /globe/ 页并删掉这里。
+				地球足迹入口（全屏 3D 地球页）
+				整块 <a> 可以随便挪位置（放页面底部也行）；不要了就删掉这段加下面的样式，
+				/globe/ 页面本身仍然独立可用。
 			-->
 			<a class="album-globe-entry" href="/globe/" aria-label="打开地球足迹">
 				<span class="album-globe-ball" aria-hidden="true">
@@ -66,7 +66,7 @@ const subtitle = i18n(I18nKey.albumsSubtitle);
 				</span>
 				<span class="album-globe-text">
 					<strong>地球足迹</strong>
-					<small>在 3D 地球上标下去过的地方 · 照片、坐标与感想</small>
+					<small>全屏 3D 地球 · 标下去过的地方，带坐标、照片与感想</small>
 				</span>
 				<span class="album-globe-cta">
 					打开地球

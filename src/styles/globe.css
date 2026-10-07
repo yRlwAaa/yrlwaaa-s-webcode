@@ -1,20 +1,28 @@
 /**
  * 地球足迹页样式
  *
- * 布局：地图铺满整屏（固定在视口下），所有 UI 都是浮在地球上的玻璃面板。
- * 配色跟随主题变量 --primary，深浅色模式自适应。
+ * 本页是**独立文档**（刻意不用主题 Layout，与 /music/player/ 一致），
+ * 所以 html/body 铺满视口也由这里负责，不依赖主题的 --navbar-height。
+ * 所有 UI 都是浮在地球上的玻璃面板，配色跟随主题色 --hue / --primary。
  */
+
+html.fm-html,
+body.fm-body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	overscroll-behavior: none;
+	background: #0b1020;
+}
 
 .fm-shell {
 	position: fixed;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	top: var(--fm-offset, 5rem);
-	/* 高于导航栏(z-50 之下会点不到)，同时自己恢复指针事件：
-	   主题内容容器是 pointer-events-none，地球层被移出容器后必须自己打开 */
-	z-index: 45;
-	pointer-events: auto;
+	inset: 0;
+	/* 独立页面没有导航栏要避让；保留变量是为了将来真要嵌进别处时可以改 */
+	top: var(--fm-offset, 0);
+	z-index: 1;
 	overflow: hidden;
 	background: #0b1020;
 	color: var(--fm-fg, #eef2ff);
@@ -28,29 +36,26 @@
 	--fm-radius: 14px;
 }
 
-html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell,
-html[data-theme="light"] .fm-shell {
-	--fm-fg: #1a2033;
-	--fm-fg-dim: rgba(26, 32, 51, 0.7);
-	--fm-fg-faint: rgba(26, 32, 51, 0.45);
-	--fm-panel: rgba(255, 255, 255, 0.86);
-	--fm-panel-solid: rgba(255, 255, 255, 0.97);
-	--fm-line: rgba(16, 24, 48, 0.12);
-	background: #dfe7f5;
-}
-
-/* 地球层已脱离主题容器，把留下的空白内容区收掉，避免页面出现无意义的滚动条 */
-body:has(.fm-shell) #main-grid .card-base {
-	min-height: 0 !important;
-	padding: 0 !important;
-}
-
-body:has(.fm-shell) #main-grid {
-	min-height: 0;
-}
-
 .fm-shell * {
 	box-sizing: border-box;
+}
+
+/* ---------------- 无脚本兜底 ---------------- */
+
+.fm-noscript {
+	position: fixed;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	color: #eef2ff;
+	font-size: 0.95rem;
+}
+
+.fm-noscript a {
+	color: var(--primary, #7186f5);
 }
 
 /* ---------------- 地图本体 ---------------- */
@@ -84,10 +89,6 @@ body:has(.fm-shell) #main-grid {
 
 .fm-shell .maplibregl-ctrl-group button span {
 	filter: invert(0.85);
-}
-
-html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell .maplibregl-ctrl-group button span {
-	filter: none;
 }
 
 .fm-shell .maplibregl-ctrl-attrib {
@@ -139,7 +140,6 @@ html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell .maplibregl-ct
 		0 0 0 1px rgba(255, 255, 255, 0.18) inset,
 		0 0 44px rgba(76, 141, 255, 0.55);
 	animation: fm-spin 2.6s linear infinite;
-	background-size: 200% 200%;
 }
 
 @keyframes fm-spin {
@@ -178,19 +178,36 @@ html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell .maplibregl-ct
 	backdrop-filter: blur(16px);
 	border: 1px solid var(--fm-line);
 	border-radius: var(--fm-radius);
-	pointer-events: auto;
 }
 
 .fm-toolbar-left {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	gap: 12px;
 	min-width: 0;
 }
 
-.fm-logo {
-	font-size: 22px;
-	color: var(--fm-accent);
+/* 返回相册 */
+.fm-back-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 6px 12px 6px 9px;
+	border-radius: 10px;
+	border: 1px solid var(--fm-line);
+	background: color-mix(in srgb, var(--fm-panel-solid) 70%, transparent);
+	color: inherit;
+	text-decoration: none;
+	font-size: 0.82rem;
+	transition: border-color 0.2s ease;
+}
+
+.fm-back-btn iconify-icon {
+	font-size: 18px;
+}
+
+.fm-back-btn:hover {
+	border-color: var(--fm-accent);
 }
 
 .fm-title-wrap {
@@ -231,7 +248,7 @@ html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell .maplibregl-ct
 	background: color-mix(in srgb, var(--fm-panel-solid) 70%, transparent);
 }
 
-.fm-search .material-symbols-rounded {
+.fm-search iconify-icon {
 	font-size: 17px;
 	color: var(--fm-fg-faint);
 }
@@ -272,7 +289,7 @@ html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell .maplibregl-ct
 		border-color 0.2s ease;
 }
 
-.fm-btn .material-symbols-rounded {
+.fm-btn iconify-icon {
 	font-size: 17px;
 }
 
@@ -369,7 +386,7 @@ html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell .maplibregl-ct
 	transition: all 0.18s ease;
 }
 
-.fm-chip .material-symbols-rounded {
+.fm-chip iconify-icon {
 	font-size: 15px;
 	color: var(--fm-c);
 }
@@ -449,7 +466,7 @@ html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell .maplibregl-ct
 	color: var(--fm-fg-dim);
 }
 
-.fm-sidebar-head .material-symbols-rounded {
+.fm-sidebar-head iconify-icon {
 	font-size: 18px;
 	color: var(--fm-accent);
 }
@@ -470,7 +487,7 @@ html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell .maplibregl-ct
 	border-radius: 3px;
 }
 
-/* 列表项 */
+/* 列表 */
 .fm-list {
 	list-style: none;
 	margin: 0;
@@ -518,6 +535,10 @@ html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell .maplibregl-ct
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+}
+
+.fm-thumb iconify-icon {
+	font-size: 22px;
 }
 
 .fm-item-body {
@@ -600,6 +621,10 @@ html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell .maplibregl-ct
 	justify-content: center;
 	background: color-mix(in srgb, var(--fm-c) 22%, transparent);
 	color: var(--fm-c);
+}
+
+.fm-type-icon iconify-icon {
+	font-size: 20px;
 }
 
 /* 图集 */
@@ -705,7 +730,7 @@ html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell .maplibregl-ct
 }
 
 .fm-coord {
-	font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+	font-family: ui-monospace, SFMono-Regular, "JetBrains Mono", monospace;
 	font-size: 0.76rem;
 	letter-spacing: 0.01em;
 	color: var(--fm-fg);
@@ -759,7 +784,7 @@ html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell .maplibregl-ct
 }
 
 .fm-block code {
-	font-family: "JetBrains Mono", ui-monospace, monospace;
+	font-family: ui-monospace, SFMono-Regular, "JetBrains Mono", monospace;
 	background: color-mix(in srgb, var(--fm-fg) 10%, transparent);
 	padding: 1px 4px;
 	border-radius: 4px;
@@ -795,7 +820,7 @@ html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell .maplibregl-ct
 }
 
 .fm-visit-date {
-	font-family: "JetBrains Mono", ui-monospace, monospace;
+	font-family: ui-monospace, SFMono-Regular, "JetBrains Mono", monospace;
 	color: var(--fm-fg);
 }
 
@@ -870,7 +895,7 @@ html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell .maplibregl-ct
 	border: 1px dashed var(--fm-line);
 }
 
-.fm-empty .material-symbols-rounded {
+.fm-empty iconify-icon {
 	font-size: 30px;
 	color: var(--fm-fg-faint);
 	display: block;
@@ -1013,7 +1038,7 @@ html:not([data-theme="dark"]):not([data-theme="night"]) .fm-shell .maplibregl-ct
 
 .fm-status-zoom,
 .fm-status-mode {
-	font-family: "JetBrains Mono", ui-monospace, monospace;
+	font-family: ui-monospace, SFMono-Regular, "JetBrains Mono", monospace;
 	color: var(--fm-fg);
 }
 
