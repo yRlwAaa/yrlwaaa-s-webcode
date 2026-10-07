@@ -51,6 +51,7 @@
 		"dayjs": "^1.11.20",
 		"hastscript": "^9.0.1",
 		"katex": "^0.16.45",
+		"maplibre-gl": "^6.13.0",
 		"markdown-it": "^14.1.1",
 		"marked": "^16.4.2",
 		"node-html-parser": "^7.1.0",

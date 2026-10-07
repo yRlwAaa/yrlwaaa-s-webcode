@@ -55,6 +55,25 @@ const subtitle = i18n(I18nKey.albumsSubtitle);
 		<div class="card-base z-10 px-6 sm:px-9 py-6 relative w-full">
 			<PageHeader title={title} subtitle={subtitle} titleKey={I18nKey.albums} subtitleKey={I18nKey.albumsSubtitle} />
 
+			<!--
+				地球足迹入口
+				位置可随时挪动：想放到页面底部就把这一整块 <a> 移到 grid 后面；
+				想独立成导航项则保留 /globe/ 页并删掉这里。
+			-->
+			<a class="album-globe-entry" href="/globe/" aria-label="打开地球足迹">
+				<span class="album-globe-ball" aria-hidden="true">
+					<span class="album-globe-ring"></span>
+				</span>
+				<span class="album-globe-text">
+					<strong>地球足迹</strong>
+					<small>在 3D 地球上标下去过的地方 · 照片、坐标与感想</small>
+				</span>
+				<span class="album-globe-cta">
+					打开地球
+					<span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+				</span>
+			</a>
+
 			{
 				albumsData.length > 0 && allTags.length > 0 && (
 					<div class="mb-8">
@@ -98,6 +117,135 @@ const subtitle = i18n(I18nKey.albumsSubtitle);
 </MainGridLayout>
 
 <style is:global>
+	/* ---- 相册页的「地球足迹」入口 ---- */
+	.album-globe-entry {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		margin-bottom: 24px;
+		padding: 14px 18px;
+		border-radius: var(--radius-large, 14px);
+		border: 1px solid color-mix(in srgb, var(--primary, #7186f5) 28%, transparent);
+		background:
+			radial-gradient(120% 160% at 0% 0%, color-mix(in srgb, var(--primary, #7186f5) 16%, transparent), transparent 60%),
+			color-mix(in srgb, var(--primary, #7186f5) 6%, transparent);
+		text-decoration: none;
+		transition:
+			transform 0.2s ease,
+			border-color 0.2s ease,
+			background 0.2s ease;
+	}
+
+	.album-globe-entry:hover {
+		transform: translateY(-2px);
+		border-color: var(--primary, #7186f5);
+	}
+
+	/* 小球图标：用 CSS 画一个会转的地球，避免多一张图 */
+	.album-globe-ball {
+		position: relative;
+		flex: 0 0 46px;
+		width: 46px;
+		height: 46px;
+		border-radius: 50%;
+		background:
+			radial-gradient(circle at 32% 28%, #6ea8ff 0%, #2b62d6 45%, #12336e 100%);
+		box-shadow:
+			0 0 0 1px color-mix(in srgb, var(--primary, #7186f5) 40%, transparent) inset,
+			0 6px 18px color-mix(in srgb, var(--primary, #7186f5) 35%, transparent);
+		overflow: hidden;
+	}
+
+	.album-globe-ring {
+		position: absolute;
+		inset: -30% -55%;
+		border-radius: 50%;
+		border: 1.5px solid rgba(255, 255, 255, 0.5);
+		transform: rotate(-22deg);
+	}
+
+	.album-globe-ring::after {
+		content: "";
+		position: absolute;
+		inset: 22% 8%;
+		border-radius: 50%;
+		border: 1.5px solid rgba(255, 255, 255, 0.32);
+	}
+
+	.album-globe-entry:hover .album-globe-ball {
+		animation: album-globe-spin 3.4s linear infinite;
+	}
+
+	@keyframes album-globe-spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	.album-globe-text {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		min-width: 0;
+		flex: 1;
+	}
+
+	.album-globe-text strong {
+		font-size: 1rem;
+		font-weight: 700;
+		color: color-mix(in srgb, currentColor 92%, transparent);
+	}
+
+	.album-globe-text small {
+		font-size: 0.78rem;
+		color: color-mix(in srgb, currentColor 58%, transparent);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.album-globe-cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		flex-shrink: 0;
+		padding: 7px 14px;
+		border-radius: 999px;
+		background: var(--primary, #7186f5);
+		color: #fff;
+		font-size: 0.82rem;
+		font-weight: 600;
+	}
+
+	.album-globe-cta .material-symbols-rounded {
+		font-size: 17px;
+	}
+
+	@media (max-width: 639px) {
+		.album-globe-entry {
+			flex-wrap: wrap;
+			gap: 10px;
+		}
+
+		.album-globe-text small {
+			white-space: normal;
+		}
+
+		.album-globe-cta {
+			width: 100%;
+			justify-content: center;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.album-globe-entry:hover .album-globe-ball {
+			animation: none;
+		}
+	}
+
 	#albums-grid {
 		grid-template-columns: 1fr;
 	}

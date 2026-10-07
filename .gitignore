@@ -54,3 +54,13 @@ src/data/bilibili-data.json
 # Lighthouse CI
 .lighthouseci/
 .env.local
+
+# 足迹：照片收件箱只保留说明，照片本身是原料不入库
+scripts/footprint-inbox/*
+!scripts/footprint-inbox/.gitkeep
+!scripts/footprint-inbox/README.md
+
+# 临时截图
+.tmp-shots/
+.tmp-*/
+

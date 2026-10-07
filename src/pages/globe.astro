@@ -1,0 +1,151 @@
+---
+/**
+ * 地球足迹页 /globe/
+ *
+ * 打开即是一颗可交互的 3D 地球：
+ *  - 拖拽旋转、滚轮/双指缩放、Ctrl+拖拽俯仰
+ *  - 实时显示鼠标所在经纬度（5 位小数 ≈ 1 米）与缩放级别
+ *  - 点击标点查看照片、感想、相关博客文章
+ *  - 创作模式：点球落点 → 填内容 → 导出条目
+ *
+ * 数据在构建期注入（等价于 /api/footprints.json），纯静态页，无需后端。
+ */
+import { getCollection } from "astro:content";
+
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+import { getFootprintsIndex } from "../utils/footprint-utils";
+import { getPostUrl, removeFileExtension } from "../utils/url-utils";
+
+export const prerender = true;
+
+const title = "地球足迹";
+const subtitle = "把去过的地方钉在地球上";
+
+const index = await getFootprintsIndex();
+
+// 供创作模式选择「关联文章」
+const posts = await getCollection("posts");
+const postOptions = posts
+	.filter((p) => !p.data.draft)
+	.map((p) => ({
+		slug: removeFileExtension(p.id),
+		title: p.data.title,
+		url: getPostUrl(p),
+	}))
+	.sort((a, b) => a.title.localeCompare(b.title, "zh-Hans-CN"));
+---
+
+<MainGridLayout title={title} description={subtitle}>
+	<style is:global>
+		@import "../styles/globe.css";
+	</style>
+	<script
+		type="application/json"
+		id="fm-data"
+		set:html={JSON.stringify(index)}
+	/>
+	<script
+		type="application/json"
+		id="fm-posts"
+		set:html={JSON.stringify(postOptions)}
+	/>
+	<script>
+		import "../scripts/footprint-globe";
+		import { loadIconify } from "../utils/icon-loader";
+		loadIconify().catch((error) => {
+			console.error("Failed to load Iconify:", error);
+		});
+
+		// 布局自检：访问 /globe/?fmdebug=1 时，把关键元素的真实盒模型写到 DOM 上，
+		// 便于远程/无头环境核对（不影响正常访问）。
+		if (new URLSearchParams(location.search).has("fmdebug")) {
+			setTimeout(() => {
+				const lines: string[] = [];
+				const box = (sel: string) => {
+					const el = document.querySelector(sel) as HTMLElement | null;
+					if (!el) return `${sel}=缺失`;
+					const r = el.getBoundingClientRect();
+					const cs = getComputedStyle(el);
+					return `${sel}=[x${Math.round(r.x)} y${Math.round(r.y)} w${Math.round(r.width)} h${Math.round(r.height)} pos:${cs.position} top:${cs.top} z:${cs.zIndex}]`;
+				};
+				lines.push(`viewport=${window.innerWidth}x${window.innerHeight}`);
+				lines.push(`shellInBody=${document.getElementById("fm-shell")?.parentElement === document.body}`);
+				["html", "body", ".fm-shell", "#fm-map", "#fm-sidebar", "#fm-toolbar", ".fm-status", ".maplibregl-canvas"].forEach(
+					(sel) => lines.push(box(sel)),
+				);
+				lines.push(`offsetVar=${getComputedStyle(document.getElementById("fm-shell")!).getPropertyValue("--fm-offset")}`);
+				lines.push(`loadingGone=${!document.getElementById("fm-loading")}`);
+				lines.push(`items=${document.querySelectorAll(".fm-item").length}`);
+				lines.push(`mode=${document.getElementById("fm-status-mode")?.textContent}`);
+				document.body.dataset.fmDebug = lines.join(" | ");
+			}, 6000);
+		}
+	</script>
+
+	<div class="fm-shell" id="fm-shell">
+		<!-- 地球本体 -->
+		<div id="fm-map" class="fm-map"></div>
+
+		<!-- 加载遮罩：地球出现前盖住，避免看到空背景 -->
+		<div class="fm-loading" id="fm-loading">
+			<div class="fm-loading-ball"></div>
+			<p>正在铺开地球…</p>
+		</div>
+
+		<!-- 顶部工具条：标题 + 筛选 + 搜索 -->
+		<header class="fm-toolbar" id="fm-toolbar">
+			<div class="fm-toolbar-left">
+				<span class="fm-logo material-symbols-rounded">public</span>
+				<div class="fm-title-wrap">
+					<h1>{title}</h1>
+					<span class="fm-count" id="fm-count">{index.count} 个标点</span>
+				</div>
+			</div>
+
+			<div class="fm-toolbar-right">
+				<label class="fm-search">
+					<span class="material-symbols-rounded">search</span>
+					<input id="fm-search" type="search" placeholder="搜地点、标签、感想…" />
+				</label>
+				<select id="fm-year" class="fm-select" aria-label="按年份筛选"></select>
+				<button class="fm-btn fm-btn--ghost" id="fm-locate" type="button">
+					<span class="material-symbols-rounded">my_location</span>
+					<span>定位到我</span>
+				</button>
+				<label class="fm-switch" title="打开后可在地球上点击落点，编辑并导出足迹条目">
+					<input type="checkbox" id="fm-author-toggle" />
+					<span>创作模式</span>
+				</label>
+			</div>
+		</header>
+
+		<!-- 类型筛选 -->
+		<div class="fm-chips" id="fm-type-chips"></div>
+
+		<!-- 创作模式提示条 -->
+		<div class="fm-author-panel" id="fm-author-panel">
+			<span class="material-symbols-rounded">edit_location_alt</span>
+			创作模式已开启：在地球上点击落点，右侧填写内容后导出条目 JSON。
+		</div>
+
+		<!-- 右侧：足迹列表 / 详情 / 创作表单 -->
+		<aside class="fm-sidebar" id="fm-sidebar">
+			<div class="fm-sidebar-head">
+				<span class="material-symbols-rounded">footprint</span>
+				<span>足迹</span>
+			</div>
+			<div class="fm-sidebar-body" id="fm-sidebar-body"></div>
+			<div class="fm-empty" id="fm-empty-hint" hidden></div>
+		</aside>
+
+		<!-- 底部状态条：坐标 / 缩放 / 投影 -->
+		<footer class="fm-status">
+			<span class="fm-status-pos" id="fm-status-pos">
+				<span class="fm-coord">—</span>
+			</span>
+			<span class="fm-status-zoom" id="fm-status-zoom">Z —</span>
+			<span class="fm-status-mode" id="fm-status-mode">3D 地球</span>
+			<span class="fm-status-hint">拖拽旋转 · 滚轮缩放 · 点击标点</span>
+		</footer>
+	</div>
+</MainGridLayout>

@@ -278,6 +278,11 @@ export const navBarConfig: NavBarConfig = {
 					icon: "material-symbols:photo-library",
 				},
 				{
+					name: "地球足迹",
+					url: "/globe/",
+					icon: "material-symbols:public",
+				},
+				{
 					name: "音乐",
 					url: "/music/",
 					icon: "material-symbols:music-note",
