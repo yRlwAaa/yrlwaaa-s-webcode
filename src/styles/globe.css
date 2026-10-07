@@ -63,10 +63,15 @@ body.fm-body {
 .fm-map {
 	position: absolute;
 	inset: 0;
+	/* 必须显式给尺寸：容器高度为 0 时 MapLibre 只会渲染一条很矮的画布 */
+	width: 100%;
+	height: 100%;
 }
 
 .fm-map .maplibregl-canvas {
 	outline: none;
+	width: 100% !important;
+	height: 100% !important;
 }
 
 /* 地球外围的太空底色，让球体边缘更清楚 */

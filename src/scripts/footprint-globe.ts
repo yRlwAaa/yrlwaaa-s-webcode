@@ -92,7 +92,41 @@ interface PostOption {
 /* 常量                                                               */
 /* ------------------------------------------------------------------ */
 
-const STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
+/**
+ * 底图源。
+ *
+ * 用 Esri 的免费栅格瓦片而不是矢量底图，理由是实测数据：
+ *  - 矢量瓦片单块 ~110KB / 1.7s；卫星瓦片 z17 只要 2.5KB / 0.3s —— 加载快一个数量级
+ *  - 栅格影像在高缩放级别仍然清晰（能看清楼、路、河），自然就"放得进去"
+ * 标注层用 Esri 的 Reference 服务半透明叠在影像上，保住地名可读性。
+ * 两者都不需要 API Key。
+ */
+const RASTER_IMAGERY = {
+	tiles: [
+		"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+	],
+	maxzoom: 19,
+	attribution:
+		'影像 © <a href="https://www.esri.com/" target="_blank" rel="noopener">Esri</a> · Maxar · Earthstar Geographics',
+};
+
+const RASTER_LABELS = {
+	tiles: [
+		"https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+	],
+	maxzoom: 19,
+};
+
+/**
+ * 卫星影像在低缩放时看不出是哪儿（一片山/海），所以只在 zoom ≥ 这个值时叠标注。
+ */
+const LABEL_MIN_ZOOM = 6;
+
+/**
+ * 投影切换阈值：球体适合看全局，但放大到街道级别时 globe 的曲面会让人对不准位置，
+ * 所以越过这个缩放就自动转成平面视角，缩回去再变回球。
+ */
+const GLOBE_MAX_ZOOM = 5;
 
 const TYPE_META: Record<string, { label: string; icon: string; color: string }> =
 	{
@@ -247,7 +281,6 @@ const authorPanel = $("fm-author-panel");
 const locateBtn = $("fm-locate");
 
 if (!mapEl) throw new Error("[footprint] 找不到地图容器 #fm-map");
-
 /* ------------------------------------------------------------------ */
 /* 地图初始化                                                          */
 /* ------------------------------------------------------------------ */
@@ -274,31 +307,36 @@ const START_CENTER: [number, number] = [105, 30];
 try {
 	map = new MapLibreMap({
 		container: mapEl,
-		style: STYLE_URL,
+		// 内置空样式：底图全部由我们自己的栅格图层提供，省掉下载样式 JSON 的一步
+		style: { version: 8, sources: {}, layers: [] },
 		center: START_CENTER,
 		zoom: 1.8,
 		minZoom: 0.2,
-		maxZoom: 19,
+		// 放到 20 级：卫星影像能看清具体的楼与路（19 级之后是放大插值），够"精确到某一个位置"
+		maxZoom: 20,
 		// 触摸与手势
 		dragRotate: true,
 		pitchWithRotate: false,
 		touchPitch: false,
 		attributionControl: false,
 		hash: false,
-		fadeDuration: 120,
+		// 缩小时少一点过场动画，手感更跟手
+		fadeDuration: 80,
 	});
 	globeOk = true;
 	// 开局即地球：MapLibre 6 用 setProjection 切换投影（构造参数里已没有 projection 选项）。
 	// 此刻样式通常还没就绪，会抛错——静默忽略，交给 runFirstPaint 里的 pollForStyle 重试。
 	applyProjection(false);
 	if (statusMode && !globeOk) statusMode.textContent = "3D 地球（准备中）";
-	map.addControl(new NavigationControl({ visualizePitch: true }), "top-right");
-	map.addControl(new ScaleControl({ unit: "metric" }), "bottom-right");
+	map.addControl(
+		new NavigationControl({ visualizePitch: true, showCompass: false }),
+		"top-right",
+	);
+	map.addControl(new ScaleControl({ unit: "metric", maxWidth: 120 }), "bottom-right");
 	map.addControl(
 		new AttributionControl({
 			compact: true,
-			customAttribution:
-				'© <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> · © OpenStreetMap contributors',
+			customAttribution: `${RASTER_IMAGERY.attribution} · 数据 © OpenStreetMap contributors`,
 		}),
 		"bottom-right",
 	);
@@ -367,8 +405,53 @@ function toGeoJson(list: Footprint[]): GeoFeatureCollection {
 /* ------------------------------------------------------------------ */
 
 const SRC_POINTS = "fm-footprints";
+const SRC_IMAGERY = "fm-imagery";
+const SRC_LABELS = "fm-labels";
+const LAYER_IMAGERY = "fm-imagery";
+const LAYER_LABELS = "fm-labels";
+
+/** 底图：卫星影像 + 高缩放时叠标注（都是栅格，加载快、放大清晰） */
+function buildBasemap() {
+	if (!map.getSource(SRC_IMAGERY)) {
+		map.addSource(SRC_IMAGERY, {
+			type: "raster",
+			tiles: RASTER_IMAGERY.tiles,
+			tileSize: 256,
+			maxzoom: RASTER_IMAGERY.maxzoom,
+			attribution: RASTER_IMAGERY.attribution,
+		});
+	}
+	if (!map.getLayer(LAYER_IMAGERY)) {
+		map.addLayer({
+			id: LAYER_IMAGERY,
+			type: "raster",
+			source: SRC_IMAGERY,
+			paint: { "raster-opacity": 1, "raster-fade-duration": 120 },
+		});
+	}
+
+	if (!map.getSource(SRC_LABELS)) {
+		map.addSource(SRC_LABELS, {
+			type: "raster",
+			tiles: RASTER_LABELS.tiles,
+			tileSize: 256,
+			maxzoom: RASTER_LABELS.maxzoom,
+		});
+	}
+	if (!map.getLayer(LAYER_LABELS)) {
+		map.addLayer({
+			id: LAYER_LABELS,
+			type: "raster",
+			source: SRC_LABELS,
+			minzoom: LABEL_MIN_ZOOM,
+			paint: { "raster-opacity": 0.95, "raster-fade-duration": 120 },
+		});
+	}
+}
 
 function buildLayers() {
+	buildBasemap();
+
 	if (!map.getSource(SRC_POINTS)) {
 		map.addSource(SRC_POINTS, {
 			type: "geojson",
@@ -1328,32 +1411,57 @@ function hideLoading() {
 	setTimeout(() => veil.remove(), 700);
 }
 
-function applyProjection(verbose: boolean) {
-	// MapLibre 6 用 setProjection 切换投影；样式没加载完时会抛 "Style is not done loading"。
-	// verbose=false 时把这类「还没到时候」的错误静默掉，交给 pollForStyle 重试。
+/**
+ * 投影：低缩放用球体（好看、能看出"这是地球"），放大到街道级自动转平面（对得准位置）。
+ * MapLibre 6 用 setProjection 切换；样式没加载完时会抛 "Style is not done loading"，
+ * 所以 verbose=false 时把这类「还没到时候」的错误静默掉，交给 pollForStyle 重试。
+ */
+function setProjectionFor(zoom: number, verbose: boolean): boolean {
+	const wantGlobe = zoom < GLOBE_MAX_ZOOM;
 	try {
-		map.setProjection({ type: "globe" });
+		map.setProjection({ type: wantGlobe ? "globe" : "mercator" });
 		globeOk = true;
+		lastProjectionKind = wantGlobe ? "globe" : "mercator";
 		if (statusMode) {
-			statusMode.textContent = "3D 地球";
-			statusMode.dataset.projection = "globe";
+			statusMode.textContent = wantGlobe ? "3D 地球" : "平面视角";
+			statusMode.dataset.projection = wantGlobe ? "globe" : "mercator";
 			delete statusMode.dataset.projectionError;
 		}
+		return true;
 	} catch (err) {
 		globeOk = false;
 		const message = err instanceof Error ? err.message : String(err);
 		if (verbose) {
 			// 真正失败：写进 DOM，用户/开发者一眼可见，而不是只躺在控制台
 			if (statusMode) {
-				statusMode.textContent = "平面地图";
+				statusMode.textContent = "平面视角";
 				statusMode.dataset.projectionError = message;
 				statusMode.title = `globe 投影不可用：${message}`;
 			}
-			console.warn("[footprint] globe 投影不可用，退回平面地图：", message);
+			console.warn("[footprint] globe 投影不可用，退回平面视角：", message);
 		}
 		return false;
 	}
-	return true;
+}
+
+function applyProjection(verbose: boolean) {
+	return setProjectionFor(map.getZoom(), verbose);
+}
+
+let lastProjectionKind: "globe" | "mercator" | null = null;
+
+/** 缩放跨过阈值时切投影；同一种投影不重复调用 */
+function syncProjectionWithZoom() {
+	const kind = map.getZoom() < GLOBE_MAX_ZOOM ? "globe" : "mercator";
+	if (kind === lastProjectionKind) return;
+	if (setProjectionFor(map.getZoom(), false)) lastProjectionKind = kind;
+}
+
+map.on("zoomend", syncProjectionWithZoom);
+
+// 调试用：?fmdebug=1 时把地图实例挂到 window，页面自检脚本会读它输出图层/瓦片状态
+if (new URLSearchParams(location.search).has("fmdebug")) {
+	(window as unknown as { __fmMap?: MapLibreMap }).__fmMap = map;
 }
 
 /**

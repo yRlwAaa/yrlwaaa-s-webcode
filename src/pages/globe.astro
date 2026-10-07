@@ -179,6 +179,20 @@ const themeColor = `oklch(0.62 0.16 ${hue})`;
 					lines.push(`loadingGone=${!document.getElementById("fm-loading")}`);
 					lines.push(`items=${document.querySelectorAll(".fm-item").length}`);
 					lines.push(`mode=${document.getElementById("fm-status-mode")?.textContent}`);
+					// 地图内部状态：图层挂上没、栅格瓦片真的下载成功没（用于快速定位"地图空白"）
+					const m = (window as unknown as { __fmMap?: any }).__fmMap;
+					if (m) {
+						lines.push(`zoom=${m.getZoom().toFixed(2)}`);
+						lines.push(`styleLoaded=${m.isStyleLoaded?.()}`);
+						lines.push(
+							`layers=${(m.getStyle?.().layers ?? []).map((l: { id: string }) => l.id).join(",")}`,
+						);
+						lines.push(`tilesLoaded=${m.areTilesLoaded?.()}`);
+						const c = m.getCenter();
+						lines.push(`center=${c.lat.toFixed(4)},${c.lng.toFixed(4)}`);
+					} else {
+						lines.push("__fmMap=未暴露");
+					}
 					document.body.dataset.fmDebug = lines.join(" | ");
 				}, 6000);
 			}
